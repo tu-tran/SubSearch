@@ -1,0 +1,1 @@
+srm uninstall "%~dp0\SubSearch.dll"

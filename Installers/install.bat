@@ -1,0 +1,1 @@
+srm install "%~dp0\SubSearch.dll" -codebase
