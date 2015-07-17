@@ -17,7 +17,7 @@ All releases are published on [GitHub Release page](https://github.com/tu-tran/S
 1. Go to  [Release page](https://github.com/tu-tran/SubSearch/releases) to download the binaries (in ZIP or installation package for x86 and x64 system)
 2. If using the installer: Just proceed to the end!
 3. If using the zip package: Unzip the files to a folder, then execute "install.bat" to install the application
-4. Right click on any movie files in Windows Explorer, click on the new item named "Download subtitle"
+4. Right click on any movie file/folder in Windows Explorer, click on the new item named "Download subtitle"
 5. If there are multiple matches, a dialog will appear asking users to select the correct movie title (by double clicking on the title)
 6. If there are multiple subtitles for the movie title, a dialog will appear asking users to select the desired subtitle (by double clicking on the subtitle)
 
