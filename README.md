@@ -1,4 +1,5 @@
 ![SubSearch - Lightweight instant subtitle downloader](https://lh3.googleusercontent.com/-m24ec1Bwbs4/Vaep-wtRcoI/AAAAAAAAD-g/NeF2n4f1ivw/s64-Ic42/SubSearchBig.png)
+![Windows Explorer Shell Extension](https://lh3.googleusercontent.com/-eUG4WTu6yd0/VaiJF-geueI/AAAAAAAAD_A/NRGaxfqHvC8/s394-Ic42/Slogan.png)
 
 #SubSearch - Lightweight instant subtitle downloader
 SubSearch is a subtitle downloader implemented using .NET (C#)
