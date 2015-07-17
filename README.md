@@ -25,6 +25,15 @@ All releases are published on [GitHub Release page](https://github.com/tu-tran/S
 The application is a smallish one which utilizes the [SharpShell library](https://github.com/dwmkerr/sharpshell) for Windows shell registration. It also provides a comprehensive toolkit for debugging and installing the shell extension. R
 The entry point is the solution file SubSearch.sln. After compiling the code, there will a file named "install.bat" in the output folder which can be used to install the assembly to the Windows shell context menu.
 
+##How to download the subtitle
+1. Open the movie file location (e.g. using Windows Explorer)
+![Right click on movie file and select "Download subtitle"](https://lh3.googleusercontent.com/--hpRAs_EyZ4/VaiMcGGSFEI/AAAAAAAAD_k/SmEym47tPWc/s394-Ic42/RightClickAndSelect.png)
+2. Right click on the file name, select "Download subtitle". SubSearch will try to figure out the actual movie title based on the file name
+3. A list of matching movie titles will be shown. Select the expected movie title by double-clicking on the title name in the list (if an exact title match was found, this step will be skipped by SubSearch)
+4. Double-click on the subtitle you want to download
+![Download subtitle](https://lh3.googleusercontent.com/-uPWDYxbKvg0/VaiMJJ5PwgI/AAAAAAAAD_U/L-4i1u7V5N8/s531-Ic42/SelectSubtitle.png)
+5. Open the movie and enjoy!
+
 ##Questions
 Use the [GitHub Issues page](https://github.com/tu-tran/SubSearch/issues) to create new inquiries/questions/bug reports/feature requests...
 
