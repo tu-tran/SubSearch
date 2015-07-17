@@ -4,7 +4,7 @@
 #SubSearch - Lightweight instant subtitle downloader
 SubSearch is a subtitle downloader implemented using .NET (C#)
 
-The code is licensed under the MIT license. See opensource.org and tl;dr for more details.
+The code is licensed under the MIT license. See opensource.org for more details.
 
 ##Features
 * Lightweight subtitle downloader through Windows Explorer shell context menu
