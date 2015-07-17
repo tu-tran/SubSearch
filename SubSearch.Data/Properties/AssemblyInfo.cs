@@ -1,16 +1,15 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Windows;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("SubSearch")]
+[assembly: AssemblyTitle("SubSearch.Data")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("SubSearch")]
-[assembly: AssemblyCopyright("Copyright © 2015 Hayvaiz.com")]
+[assembly: AssemblyCompany("Tekla Oyj")]
+[assembly: AssemblyProduct("SubSearch.Data")]
+[assembly: AssemblyCopyright("Copyright © Tekla Oyj 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,14 +19,7 @@ using System.Windows;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("a0265d6e-652e-48d6-bdb9-f15984c101ba")]
-[assembly: ThemeInfo(ResourceDictionaryLocation.None, // where theme specific resource dictionaries are located
-    // (used if a resource is not found in the page, 
-    // or application resource dictionaries)
-    ResourceDictionaryLocation.SourceAssembly // where the generic resource dictionary is located
-    // (used if a resource is not found in the page, 
-    // app, or any theme specific resource dictionaries)
-    )]
+[assembly: Guid("21712877-49e6-4fa9-9db7-5929b8a1b985")]
 
 // Version information for an assembly consists of the following four values:
 //      Major Version

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace SubSearch.Properties {
+namespace SubSearch.WPF.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace SubSearch.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SubSearch.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SubSearch.WPF.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -57,34 +57,6 @@ namespace SubSearch.Properties {
             }
             set {
                 resourceCulture = value;
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Download subtitles.
-        /// </summary>
-        internal static string ShellExtension_CreateMenu_Download_dir_subtitle {
-            get {
-                return ResourceManager.GetString("ShellExtension_CreateMenu_Download_dir_subtitle", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Download subtitle.
-        /// </summary>
-        internal static string ShellExtension_CreateMenu_Download_subtitle {
-            get {
-                return ResourceManager.GetString("ShellExtension_CreateMenu_Download_subtitle", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap SubSearch {
-            get {
-                object obj = ResourceManager.GetObject("SubSearch", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
             }
         }
     }

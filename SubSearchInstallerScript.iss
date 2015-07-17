@@ -24,8 +24,8 @@ DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputBaseFilename=SubSearch-installer-{#MyAppVersion}
 OutputDir=Bin\
-SetupIconFile=SubSearch\SubSearchBig.ico
-UninstallDisplayIcon=SubSearch\SubSearchBig.ico
+SetupIconFile=SubSearch.App\SubSearchBig.ico
+UninstallDisplayIcon={app}\SubSearch.App.exe
 Compression=lzma
 SolidCompression=yes
 
@@ -33,10 +33,11 @@ SolidCompression=yes
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "Bin\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "Bin\Release\*"; Excludes: "*.pdb,*.xml,*.vshost.exe"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Run]
+Filename: "{app}\uninstall.bat"
 Filename: "{app}\install.bat"
 
 [UninstallRun]

@@ -1,0 +1,48 @@
+﻿<Window
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="SubSearch.WPF.View.MainWindow"
+    Title="SubSearch"
+    Width="500" MinWidth="370"
+    Height="400" MinHeight="120"
+    DataContext="{Binding RelativeSource={RelativeSource Self}}"
+    ContentRendered="MainWindow_OnContentRendered"
+    Loaded="MainWindow_OnLoaded"
+    PreviewKeyUp="MainWindow_OnPreviewKeyUp"
+    Icon="/SubSearch.App;component/SubSearchBig.ico"
+    Style="{StaticResource DefaultWindowStyle}" SizeToContent="WidthAndHeight">
+    <DockPanel>
+        <StatusBar
+            DockPanel.Dock="Bottom"
+            Height="24">
+            <TextBlock Margin="3,0,0,0">
+                <Run Text="{Binding Status}" />
+            </TextBlock>
+            <StatusBarItem HorizontalAlignment="Right">
+                <ResizeGrip Opacity="0.75" />
+            </StatusBarItem>
+        </StatusBar>
+
+        <TextBlock Name="TitleBlock" DockPanel.Dock="Top" Margin="4" Text="{Binding TitleText}" FontSize="16"
+                   HorizontalAlignment="Stretch" />
+
+        <ProgressBar Height="24" Name="ProgressBar" IsIndeterminate="True" DockPanel.Dock="Bottom"
+                     Foreground="{DynamicResource DefaultWindowBorderBrush}" />
+
+        <ListBox Name="SelectionBox" ItemsSource="{Binding Selections}" DockPanel.Dock="Top"
+                 HorizontalContentAlignment="Stretch">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}" FontSize="16" Padding="4" HorizontalAlignment="Stretch" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+
+            <ListBox.Resources>
+                <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource MetroListBoxItemStyle}">
+                    <EventSetter Event="MouseDoubleClick" Handler="ListBoxItemMouseDoubleClick" />
+                    <EventSetter Event="PreviewKeyUp" Handler="ListBoxItemPreviewKeyUp" />
+                </Style>
+            </ListBox.Resources>
+        </ListBox>
+    </DockPanel>
+</Window>
