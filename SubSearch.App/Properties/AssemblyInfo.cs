@@ -8,9 +8,9 @@ using System.Windows;
 [assembly: AssemblyTitle("SubSearch.App")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Tekla Oyj")]
+[assembly: AssemblyCompany("SubSearch")]
 [assembly: AssemblyProduct("SubSearch.App")]
-[assembly: AssemblyCopyright("Copyright © Tekla Oyj 2015")]
+[assembly: AssemblyCopyright("Copyright © SubSearch 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

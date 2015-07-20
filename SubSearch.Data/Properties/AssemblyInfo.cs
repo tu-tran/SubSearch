@@ -7,9 +7,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("SubSearch.Data")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Tekla Oyj")]
+[assembly: AssemblyCompany("SubSearch")]
 [assembly: AssemblyProduct("SubSearch.Data")]
-[assembly: AssemblyCopyright("Copyright © Tekla Oyj 2015")]
+[assembly: AssemblyCopyright("Copyright © SubSearch 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
