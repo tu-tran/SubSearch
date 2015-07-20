@@ -19,7 +19,7 @@
 
     /// <summary>The shell extension.</summary>
     [ComVisible(true)]
-    [COMServerAssociation(AssociationType.ClassOfExtension, ".avi", ".mkv", ".wmv", ".mp4", ".m4p", ".m4v", ".mpg", ".3gp")]
+    [COMServerAssociation(AssociationType.FileExtension, ".avi", ".mkv", ".wmv", ".mp4", ".m4p", ".m4v", ".mpg", ".3gp")]
     [COMServerAssociation(AssociationType.Directory)]
     public class ShellExtension : SharpContextMenu
     {
@@ -31,7 +31,7 @@
         {
             var attribute =
                 typeof(ShellExtension).GetCustomAttributes<COMServerAssociationAttribute>()
-                    .FirstOrDefault(attrib => attrib.AssociationType == AssociationType.ClassOfExtension);
+                    .FirstOrDefault(attrib => attrib.AssociationType == AssociationType.FileExtension);
             if (attribute != null)
             {
                 FileAssociations = attribute.Associations;

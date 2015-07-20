@@ -10,15 +10,31 @@
         /// <summary>The id.</summary>
         private readonly string ID;
 
+        /// <summary>Keeps the queue file after processing.</summary>
+        private readonly bool keepQueueFile;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="QueueHandler"/> class.
         /// </summary>
         /// <param name="queueId">
         /// The queue id.
         /// </param>
-        internal QueueHandler(string queueId)
+        internal QueueHandler(params string[] arguments)
         {
-            this.ID = queueId;
+            if (arguments == null || arguments.Length < 1)
+            {
+                throw new ArgumentException("argument");
+            }
+
+            this.ID = arguments[0];
+            for (var i = 1; i < arguments.Length; i++)
+            {
+                var arg = arguments[i];
+                if (arg == "/K")
+                {
+                    this.keepQueueFile = true;
+                }
+            }
         }
 
         /// <summary>The process.</summary>
@@ -32,9 +48,9 @@
 
             using (var fileReader = new StreamReader(this.ID))
             {
-                string line;
                 using (var viewHandler = new WPFViewHandler())
                 {
+                    string line;
                     while ((line = fileReader.ReadLine()) != null)
                     {
                         if (File.Exists(line))
@@ -55,7 +71,11 @@
                 }
             }
 
-            File.Delete(this.ID);
+            if (!this.keepQueueFile)
+            {
+                File.Delete(this.ID);
+            }
+
             return true;
         }
     }

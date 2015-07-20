@@ -1,5 +1,6 @@
 ﻿namespace SubSearch.WPF
 {
+    using System;
     using System.Collections.Generic;
 
     using SubSearch.Data;
@@ -42,8 +43,17 @@
             return MainWindow.GetSelection(data, title, status);
         }
 
+        /// <summary>
+        /// Notifies a message.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        public void Notify(string message)
+        {
+            NotificationWindow.Show(message);
+        }
+
         /// <summary>The dispose.</summary>
-        public void Dispose()
+        void IDisposable.Dispose()
         {
             MainWindow.CloseAll();
         }

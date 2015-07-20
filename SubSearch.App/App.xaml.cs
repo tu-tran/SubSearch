@@ -17,15 +17,9 @@
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            string message = null;
-            if (new QueueHandler(e.Args.FirstOrDefault()).Process())
-            {
-                message = "Subtitles were downloaded successfully!";
-            }
-            else
-            {
-                message = "Could not process request. Please reinstall the application or try again from the Windows Shell's context menu!";
-            }
+            string message = new QueueHandler(e.Args).Process()
+                ? "Subtitles downloads were completed successfully!"
+                : "Could not process request. Please reinstall the application or try again from the Windows Shell's context menu!";
 
             NotificationWindow.Show(
                 message,

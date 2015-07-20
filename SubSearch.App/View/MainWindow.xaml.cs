@@ -18,6 +18,8 @@
         /// <summary>The active window.</summary>
         private static MainWindow activeWindow;
 
+        private static Tuple<double, double> lastPosition;
+
         /// <summary>The selections.</summary>
         private readonly ObservableCollection<ItemData> selections = new ObservableCollection<ItemData>();
 
@@ -278,14 +280,35 @@
         /// </param>
         private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
-            var mousePosition = Control.MousePosition;
-            var activeScreenArea = Screen.FromPoint(mousePosition).WorkingArea;
-            this.MaxHeight = activeScreenArea.Height;
-            this.MaxWidth = activeScreenArea.Width;
-            var left = mousePosition.X - (this.RenderSize.Width / 2);
-            var top = mousePosition.Y - (this.RenderSize.Height / 2);
-            this.Left = left > 0 ? left : 0;
-            this.Top = top > 0 ? top : 0;
+            if (lastPosition == null)
+            {
+                var mousePosition = Control.MousePosition;
+                var activeScreenArea = Screen.FromPoint(mousePosition).WorkingArea;
+                this.MaxHeight = activeScreenArea.Height;
+                this.MaxWidth = activeScreenArea.Width;
+                var left = mousePosition.X - (this.ActualWidth / 2);
+                var top = mousePosition.Y - (this.ActualHeight / 2);
+                this.Left = left > 0 ? left : 0;
+                this.Top = top > 0 ? top : 0;
+            }
+            else
+            {
+                this.Left = lastPosition.Item1;
+                this.Top = lastPosition.Item2;
+            }
+        }
+
+        /// <summary>
+        /// When the visibility is changed.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The event arguments.</param>
+        private void MainWindow_OnIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (e.NewValue.Equals(false))
+            {
+                lastPosition = new Tuple<double, double>(this.Left, this.Top);
+            }
         }
     }
 }

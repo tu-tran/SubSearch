@@ -73,11 +73,15 @@
                         var mousePosition = Control.MousePosition;
                         var screen = Screen.FromPoint(mousePosition);
                         var workingArea = screen.WorkingArea;
-                        var transform = PresentationSource.FromVisual(this).CompositionTarget.TransformFromDevice;
-                        var corner = transform.Transform(new Point(workingArea.Right, workingArea.Bottom));
+                        var presentationSource = PresentationSource.FromVisual(this);
+                        if (presentationSource != null && presentationSource.CompositionTarget != null)
+                        {
+                            var transform = presentationSource.CompositionTarget.TransformFromDevice;
+                            var corner = transform.Transform(new Point(workingArea.Right, workingArea.Bottom));
 
-                        this.Left = corner.X - this.ActualWidth;
-                        this.Top = corner.Y - this.ActualHeight;
+                            this.Left = corner.X - this.ActualWidth;
+                            this.Top = corner.Y - this.ActualHeight;
+                        }
                     }));
         }
 

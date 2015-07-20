@@ -9,6 +9,7 @@
     ContentRendered="MainWindow_OnContentRendered"
     Loaded="MainWindow_OnLoaded"
     PreviewKeyUp="MainWindow_OnPreviewKeyUp"
+    IsVisibleChanged="MainWindow_OnIsVisibleChanged"
     Icon="/SubSearch.App;component/SubSearchBig.ico"
     Style="{StaticResource DefaultWindowStyle}" SizeToContent="WidthAndHeight">
     <DockPanel>

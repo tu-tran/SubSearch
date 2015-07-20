@@ -48,7 +48,6 @@
             cookies.Add(new Cookie("LanguageFilter", "13", "/", ".subscene.com"));
 
             var queryResultDoc = this.GetDocument(queryUrl, "http://subscene.com", cookies);
-
             var searchResultUrl = this.ParseQueryDoc(queryResultDoc.Item1);
 
             Tuple<HtmlDocument, CookieContainer> subtitleDownloadDoc;
@@ -206,6 +205,10 @@
             {
                 selectedItem = this.view.GetSelection(selections, this.filePath, "Select the subtitle to download");
             }
+            else
+            {
+                this.view.Notify("No subtitle found for: " + this.filePath);
+            }
 
             return selectedItem == null ? string.Empty : selectedItem.Tag as string;
         }
@@ -324,7 +327,13 @@
                 return matchingTitle;
             }
 
-            var selections = popularList.Join(closeList, s => s.Name, s => s.Name, (s, s1) => s);
+            var selections = popularList.Join(closeList, s => s.Name, s => s.Name, (s, s1) => s).ToList();
+            if (!selections.Any())
+            {
+                this.view.Notify("No matching title could be found for: " + this.filePath);
+                return null;
+            }
+
             var matchingUrl = this.view.GetSelection(selections, this.filePath, "Select the matching movie title");
             return matchingUrl;
         }
