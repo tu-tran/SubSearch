@@ -22,6 +22,9 @@
 @echo Exit code %ERRORLEVEL% >> "%LOG_FILE%"
 @IF %ERRORLEVEL% NEQ 0 GOTO  Error
 
+@del /F /S /Q "%OUTPUT_DIR%\*.pdb" > nul 2>&1
+@del /F /S /Q "%OUTPUT_DIR%\*.xml" > nul 2>&1
+
 @echo.
 @echo Creating installers...
 @"%CD%\packages\Tools.InnoSetup.5.5.5\tools\ISCC.exe" "%CD%\SubSearchInstallerScript.iss" > "Publish.log" 2>&1
