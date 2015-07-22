@@ -27,7 +27,7 @@
 
 @echo.
 @echo Creating installers...
-@"%CD%\packages\Tools.InnoSetup.5.5.5\tools\ISCC.exe" "%CD%\SubSearchInstallerScript.iss" > "Publish.log" 2>&1
+@"%CD%\packages\Tools.InnoSetup.5.5.5\tools\ISCC.exe" "%CD%\Installer\Script\SubSearchInstallerScript.iss" > "Publish.log" 2>&1
 @IF %ERRORLEVEL% EQU 0 GOTO  End
 
 :Error

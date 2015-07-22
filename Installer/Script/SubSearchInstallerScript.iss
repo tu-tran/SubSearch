@@ -7,6 +7,20 @@
 #define MyAppURL "http://www.hayvaiz.com/"
 #define ShellDll "SubSearch.dll"
 
+#include "products.iss"
+#include "products\dotnetfxversion.iss"
+#include "products\dotnetfx45.iss"
+
+[Languages]
+Name: "en"; MessagesFile: "compiler:Default.isl"  
+
+[Code]
+function InitializeSetup(): boolean;
+begin
+  dotnetfx45(0);
+  result := true;
+end;
+
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
@@ -23,17 +37,14 @@ DefaultDirName={localappdata}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputBaseFilename=SubSearch-installer-{#MyAppVersion}
-OutputDir=Bin\
-SetupIconFile=SubSearch.App\SubSearchBig.ico
+OutputDir=..\..\Bin\
+SetupIconFile=..\..\SubSearch.App\SubSearchBig.ico
 UninstallDisplayIcon={app}\SubSearch.App.exe
 Compression=lzma
 SolidCompression=yes
 
-[Languages]
-Name: "english"; MessagesFile: "compiler:Default.isl"
-
 [Files]
-Source: "Bin\Release\*"; Excludes: "*.pdb,*.xml,*.vshost.exe"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\..\Bin\Release\*"; Excludes: "*.pdb,*.xml,*.vshost.exe"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Run]

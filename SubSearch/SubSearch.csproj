@@ -104,7 +104,7 @@
   </Target>
   <Target Name="AfterBuild">
     <ItemGroup>
-      <InstallerFiles Include="..\Installers\*" />
+      <InstallerFiles Include="..\Installer\*" Exclude="Script\*" />
     </ItemGroup>
     <Copy SourceFiles="@(InstallerFiles)" DestinationFolder="$(OutputPath)" ContinueOnError="false" />
   </Target>
