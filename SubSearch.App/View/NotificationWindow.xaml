@@ -3,7 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="Notification Popup" Width="300" SizeToContent="Height"
-    WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+    WindowStyle="None" AllowsTransparency="True" Background="Transparent" ShowInTaskbar="False"
     DataContext="{Binding RelativeSource={RelativeSource Self}}"
     ContentRendered="NotificationWindow_OnContentRendered"
     PreviewMouseUp="NotificationWindow_OnPreviewMouseUp">
