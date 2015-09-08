@@ -38,14 +38,15 @@
         }
 
         /// <summary>The process.</summary>
-        /// <returns>The <see cref="bool" />.</returns>
-        internal bool Process()
+        /// <returns>The <see cref="int" />.</returns>
+        internal int Process()
         {
             if (string.IsNullOrEmpty(this.ID) || !File.Exists(this.ID))
             {
-                return false;
+                return -1;
             }
 
+            int success = 0, fail = 0;
             using (var fileReader = new StreamReader(this.ID))
             {
                 using (var viewHandler = new WPFViewHandler())
@@ -64,7 +65,15 @@
                                     .Where(f => ShellExtension.FileAssociations.Any(ext => f.EndsWith(ext, StringComparison.OrdinalIgnoreCase)));
                             foreach (var file in files)
                             {
-                                new SubSceneDb(file, viewHandler).Query();
+                                var entryResult = new SubSceneDb(file, viewHandler).Query();
+                                if (entryResult > 0)
+                                {
+                                    success += 1;
+                                }
+                                else if (entryResult < 0)
+                                {
+                                    fail += 1;
+                                }
                             }
                         }
                     }
@@ -76,7 +85,7 @@
                 File.Delete(this.ID);
             }
 
-            return true;
+            return success > 0 ? 1 : (fail > 0 ? -1 : 0);
         }
     }
 }

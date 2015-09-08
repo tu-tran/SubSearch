@@ -37,8 +37,11 @@
             this.view = viewHandler;
         }
 
-        /// <summary>The query.</summary>
-        public void Query()
+        /// <summary>
+        /// Queries Subscene db.
+        /// </summary>
+        /// <returns>-1 on failure, 0 on skipping, 1 on success.</returns>
+        public int Query()
         {
             this.view.ShowProgress(this.filePath, "Searching for video title...");
             var title = Path.GetFileNameWithoutExtension(this.filePath);
@@ -62,15 +65,21 @@
 
             this.view.ShowProgress(this.filePath, "Searching for movie subtitle...");
             var subtitleDownloadUrl = this.ParseSubDownloadDoc(subtitleDownloadDoc.Item1);
-            if (string.IsNullOrEmpty(subtitleDownloadUrl))
+            if (subtitleDownloadUrl == null)
             {
-                return;
+                return -1;
+            }
+
+            if (subtitleDownloadUrl == string.Empty)
+            {
+                return 0;
             }
 
             var path = Path.GetDirectoryName(this.filePath);
             var targetFile = Path.Combine(path, title);
             this.view.ShowProgress(this.filePath, "Downloading the movie subtitle...");
-            this.DownloadSubtitle(subtitleDownloadUrl, subtitleDownloadUrl, subtitleDownloadDoc.Item2, targetFile);
+            var result = this.DownloadSubtitle(subtitleDownloadUrl, subtitleDownloadUrl, subtitleDownloadDoc.Item2, targetFile);
+            return result ? 1 : -1;
         }
 
         /// <summary>
@@ -123,44 +132,48 @@
         /// <param name="targetFileWithoutExtension">
         /// The target file without extension.
         /// </param>
-        private void DownloadSubtitle(string subtitleDownloadUrl, string referrer, CookieContainer cookies, string targetFileWithoutExtension)
+        private bool DownloadSubtitle(string subtitleDownloadUrl, string referrer, CookieContainer cookies, string targetFileWithoutExtension)
         {
             var htmlDoc = this.GetDocument("http://subscene.com" + subtitleDownloadUrl, referrer, cookies);
             var downloadNodes = htmlDoc.Item1.DocumentNode.SelectNodes("//a[@id='downloadButton']");
             if (downloadNodes == null)
             {
-                return;
+                return false;
             }
 
-            foreach (var downloadNode in downloadNodes)
+            try
             {
-                var link = downloadNode.GetAttributeValue("href", string.Empty);
-                var response = GetRequest("http://subscene.com" + link).GetResponse();
 
-                using (var respStream = response.GetResponseStream())
+                foreach (var downloadNode in downloadNodes)
                 {
-                    if (respStream == null)
-                    {
-                        continue;
-                    }
+                    var link = downloadNode.GetAttributeValue("href", string.Empty);
+                    var response = GetRequest("http://subscene.com" + link).GetResponse();
 
-                    using (var ms = new MemoryStream())
+                    using (var respStream = response.GetResponseStream())
                     {
-                        respStream.CopyTo(ms);
-                        ms.Seek(0, SeekOrigin.Begin);
-                        using (var zip = new ZipInputStream(ms))
+                        if (respStream == null)
                         {
-                            ZipEntry entry;
-                            while ((entry = zip.GetNextEntry()) != null)
+                            continue;
+                        }
+
+                        using (var ms = new MemoryStream())
+                        {
+                            respStream.CopyTo(ms);
+                            ms.Seek(0, SeekOrigin.Begin);
+                            using (var zip = new ZipInputStream(ms))
                             {
-                                var filePath = targetFileWithoutExtension + Path.GetExtension(entry.FileName);
-                                using (var fileStream = File.OpenWrite(filePath))
+                                ZipEntry entry;
+                                while ((entry = zip.GetNextEntry()) != null)
                                 {
-                                    int n;
-                                    var buffer = new byte[2048];
-                                    while ((n = zip.Read(buffer, 0, buffer.Length)) > 0)
+                                    var filePath = targetFileWithoutExtension + Path.GetExtension(entry.FileName);
+                                    using (var fileStream = File.OpenWrite(filePath))
                                     {
-                                        fileStream.Write(buffer, 0, n);
+                                        int n;
+                                        var buffer = new byte[2048];
+                                        while ((n = zip.Read(buffer, 0, buffer.Length)) > 0)
+                                        {
+                                            fileStream.Write(buffer, 0, n);
+                                        }
                                     }
                                 }
                             }
@@ -168,6 +181,13 @@
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                this.view.Notify("Failed to download subtitle: " + ex.Message);
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -204,10 +224,15 @@
             else if (selections.Count > 1)
             {
                 selectedItem = this.view.GetSelection(selections, this.filePath, "Select the subtitle to download");
+                if (selectedItem == null)
+                {
+                    return string.Empty;
+                }
             }
             else
             {
                 this.view.Notify("No subtitle found for: " + this.filePath);
+                return null;
             }
 
             return selectedItem == null ? string.Empty : selectedItem.Tag as string;

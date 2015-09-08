@@ -1,6 +1,5 @@
 ﻿namespace SubSearch.WPF
 {
-    using System.Linq;
     using System.Windows;
 
     using SubSearch.WPF.View;
@@ -17,7 +16,13 @@
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            string message = new QueueHandler(e.Args).Process()
+            var result = new QueueHandler(e.Args).Process();
+            if (result == 0)
+            {
+                return;
+            }
+
+            string message = result == 1
                 ? "Subtitles downloads were completed successfully!"
                 : "Could not process request. Please reinstall the application or try again from the Windows Shell's context menu!";
 
