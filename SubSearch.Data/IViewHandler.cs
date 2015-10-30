@@ -39,5 +39,10 @@
         /// </summary>
         /// <param name="message">The message.</param>
         void Notify(string message);
+
+        /// <summary>
+        /// Starts the view and wait for interaction.
+        /// </summary>
+        void Start();
     }
 }

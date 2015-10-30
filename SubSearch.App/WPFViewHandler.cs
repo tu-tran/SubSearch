@@ -7,7 +7,7 @@
     using SubSearch.WPF.View;
 
     /// <summary>The wpf view handler.</summary>
-    internal sealed class WPFViewHandler : IViewHandler
+    internal class WpfViewHandler : IViewHandler
     {
         /// <summary>
         /// The show progress.
@@ -38,7 +38,7 @@
         /// <returns>
         /// The <see cref="ItemData"/>.
         /// </returns>
-        public ItemData GetSelection(IEnumerable<ItemData> data, string title, string status)
+        public virtual ItemData GetSelection(IEnumerable<ItemData> data, string title, string status)
         {
             return MainWindow.GetSelection(data, title, status);
         }
@@ -50,6 +50,14 @@
         public void Notify(string message)
         {
             NotificationWindow.Show(message);
+        }
+
+        /// <summary>
+        /// Starts the view and wait for interaction.
+        /// </summary>
+        public void Start()
+        {
+            MainWindow.Start();
         }
 
         /// <summary>The dispose.</summary>

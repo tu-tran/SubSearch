@@ -29,8 +29,16 @@
         /// <summary>The title text.</summary>
         private string titleText;
 
+        /// <summary>
+        /// Static initialization.
+        /// </summary>
+        static MainWindow()
+        {
+            activeWindow = new MainWindow();
+        }
+
         /// <summary>Initializes a new instance of the <see cref="MainWindow" /> class.</summary>
-        public MainWindow()
+        private MainWindow()
         {
             this.InitializeComponent();
         }
@@ -98,7 +106,6 @@
         /// </param>
         public static void ShowProgress(string title, string status)
         {
-            CloseAll();
             activeWindow.SetProgress(title, status);
         }
 
@@ -130,15 +137,21 @@
             return null;
         }
 
+        /// <summary>
+        /// Starts the view and wait for interaction.
+        /// </summary>
+        public static void Start()
+        {
+            activeWindow.ShowDialog();
+        }
+
         /// <summary>The close all.</summary>
         public static void CloseAll()
         {
             if (activeWindow != null)
             {
-                activeWindow.Close();
+                activeWindow.Dispatcher.Invoke(() => activeWindow.Close());
             }
-
-            activeWindow = new MainWindow();
         }
 
         /// <summary>
@@ -181,11 +194,18 @@
         /// </param>
         private void SetProgress(string title, string status)
         {
-            this.SelectionBox.Visibility = Visibility.Collapsed;
-            this.ProgressBar.Visibility = Visibility.Visible;
-            this.TitleText = title;
-            this.Status = status;
-            this.Show();
+            this.Dispatcher.Invoke(
+                () =>
+                {
+                    this.SelectionBox.Visibility = Visibility.Collapsed;
+                    this.ProgressBar.Visibility = Visibility.Visible;
+                    this.TitleText = title;
+                    this.Status = status;
+                    if (!this.IsVisible)
+                    {
+                        this.Show();
+                    }
+                });
         }
 
         /// <summary>
@@ -202,16 +222,20 @@
         /// </param>
         private void SetSelections(IEnumerable<ItemData> data, string title, string status)
         {
-            this.selections.Clear();
-            foreach (var itemData in data)
-            {
-                this.selections.Add(itemData);
-            }
+            this.Dispatcher.Invoke(
+                () =>
+                {
+                    this.selections.Clear();
+                    foreach (var itemData in data)
+                    {
+                        this.selections.Add(itemData);
+                    }
 
-            this.TitleText = title;
-            this.Status = status;
-            this.SelectionBox.Visibility = Visibility.Visible;
-            this.ProgressBar.Visibility = Visibility.Collapsed;
+                    this.TitleText = title;
+                    this.Status = status;
+                    this.SelectionBox.Visibility = Visibility.Visible;
+                    this.ProgressBar.Visibility = Visibility.Collapsed;
+                });
         }
 
         /// <summary>The accept.</summary>
@@ -309,6 +333,16 @@
             {
                 lastPosition = new Tuple<double, double>(this.Left, this.Top);
             }
+        }
+
+        /// <summary>
+        /// When closing.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The event arguments.</param>
+        private void MainWindow_OnClosing(object sender, CancelEventArgs e)
+        {
+            activeWindow = new MainWindow();
         }
     }
 }

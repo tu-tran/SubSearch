@@ -3,6 +3,9 @@
     using System;
     using System.IO;
     using System.Linq;
+    using System.Threading;
+
+    using SubSearch.Data;
 
     /// <summary>The queue handler.</summary>
     internal sealed class QueueHandler
@@ -49,34 +52,55 @@
             int success = 0, fail = 0;
             using (var fileReader = new StreamReader(this.ID))
             {
-                using (var viewHandler = new WPFViewHandler())
+                IViewHandler viewHandler;
+                if (fileReader.ReadLine() == "__SILENT__")
                 {
-                    string line;
-                    while ((line = fileReader.ReadLine()) != null)
-                    {
-                        if (File.Exists(line))
-                        {
-                            new SubSceneDb(line, viewHandler).Query();
-                        }
-                        else if (Directory.Exists(line))
-                        {
-                            var files =
-                                Directory.EnumerateFiles(line, "*.*", SearchOption.AllDirectories)
-                                    .Where(f => ShellExtension.FileAssociations.Any(ext => f.EndsWith(ext, StringComparison.OrdinalIgnoreCase)));
-                            foreach (var file in files)
+                    viewHandler = new SilentViewHandler();
+                }
+                else
+                {
+                    viewHandler = new WpfViewHandler();
+                }
+
+                using (viewHandler)
+                {
+                    ThreadPool.QueueUserWorkItem(
+                        o =>
                             {
-                                var entryResult = new SubSceneDb(file, viewHandler).Query();
-                                if (entryResult > 0)
+                                string line;
+                                while ((line = fileReader.ReadLine()) != null)
                                 {
-                                    success += 1;
+                                    if (File.Exists(line))
+                                    {
+                                        new SubSceneDb(line, viewHandler).Query();
+                                    }
+                                    else if (Directory.Exists(line))
+                                    {
+                                        var files =
+                                            Directory.EnumerateFiles(line, "*.*", SearchOption.AllDirectories)
+                                                .Where(
+                                                    f =>
+                                                    ShellExtension.FileAssociations.Any(ext => f.EndsWith(ext, StringComparison.OrdinalIgnoreCase)));
+                                        foreach (var file in files)
+                                        {
+                                            var entryResult = new SubSceneDb(file, viewHandler).Query();
+                                            if (entryResult > 0)
+                                            {
+                                                success += 1;
+                                            }
+                                            else if (entryResult < 0)
+                                            {
+                                                fail += 1;
+                                            }
+                                        }
+                                    }
                                 }
-                                else if (entryResult < 0)
-                                {
-                                    fail += 1;
-                                }
-                            }
-                        }
-                    }
+
+                                viewHandler.Dispose();
+                                viewHandler = null;
+                            });
+
+                    viewHandler.Start();
                 }
             }
 

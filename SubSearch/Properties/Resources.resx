@@ -127,4 +127,7 @@
   <data name="ShellExtension_CreateMenu_Download_dir_subtitle" xml:space="preserve">
     <value>Download subtitles</value>
   </data>
+  <data name="ShellExtension_CreateMenu_Download_subtitle_lucky" xml:space="preserve">
+    <value>Download subtitle (Lucky)</value>
+  </data>
 </root>

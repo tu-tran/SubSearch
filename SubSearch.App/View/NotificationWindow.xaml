@@ -1,34 +1,24 @@
-﻿<Window
-    x:Class="SubSearch.WPF.View.NotificationWindow"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Notification Popup" Width="300" SizeToContent="Height"
-    WindowStyle="None" AllowsTransparency="True" Background="Transparent" ShowInTaskbar="False"
-    DataContext="{Binding RelativeSource={RelativeSource Self}}"
-    ContentRendered="NotificationWindow_OnContentRendered"
-    PreviewMouseUp="NotificationWindow_OnPreviewMouseUp">
+﻿<Window x:Class="SubSearch.WPF.View.NotificationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Notification Popup"
+        Width="300"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ContentRendered="NotificationWindow_OnContentRendered"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        PreviewMouseUp="NotificationWindow_OnPreviewMouseUp"
+        ShowInTaskbar="False"
+        SizeToContent="Height"
+        WindowStyle="None">
 
-    <Grid RenderTransformOrigin="0,1" IsVisibleChanged="Grid_OnIsVisibleChanged">
-        <Border BorderThickness="1" Background="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
-                BorderBrush="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}"
-                Padding="20">
-            <StackPanel>
-                <TextBlock TextWrapping="Wrap"
-                           Foreground="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}"
-                           Text="{Binding Message}" FontSize="16" />
-            </StackPanel>
-        </Border>
+    <Grid IsVisibleChanged="Grid_OnIsVisibleChanged" RenderTransformOrigin="0,1">
 
-        <!-- Animation -->
+        <!--  Animation  -->
         <Grid.Triggers>
             <EventTrigger RoutedEvent="FrameworkElement.Loaded">
                 <BeginStoryboard>
                     <Storyboard>
-                        <DoubleAnimationUsingKeyFrames
-                            Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)">
-                            <SplineDoubleKeyFrame KeyTime="0:0:0" Value="0" />
-                            <SplineDoubleKeyFrame KeyTime="0:0:0.5" Value="1" />
-                        </DoubleAnimationUsingKeyFrames>
                         <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)">
                             <SplineDoubleKeyFrame KeyTime="0:0:2" Value="1" />
                             <SplineDoubleKeyFrame KeyTime="0:0:4" Value="0" />
@@ -51,6 +41,17 @@
                 </Style.Triggers>
             </Style>
         </Grid.Resources>
+        <Border Background="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+                BorderBrush="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}"
+                BorderThickness="1"
+                Padding="20">
+            <StackPanel>
+                <TextBlock FontSize="16"
+                           Foreground="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}"
+                           Text="{Binding Message}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
     </Grid>
 
 </Window>

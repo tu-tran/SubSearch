@@ -1,21 +1,22 @@
-﻿<Window
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    x:Class="SubSearch.WPF.View.MainWindow"
-    Title="SubSearch"
-    Width="500" MinWidth="370"
-    Height="400" MinHeight="120"
-    DataContext="{Binding RelativeSource={RelativeSource Self}}"
-    ContentRendered="MainWindow_OnContentRendered"
-    Loaded="MainWindow_OnLoaded"
-    PreviewKeyUp="MainWindow_OnPreviewKeyUp"
-    IsVisibleChanged="MainWindow_OnIsVisibleChanged"
-    Icon="/SubSearch.App;component/SubSearchBig.ico"
-    Style="{StaticResource DefaultWindowStyle}" SizeToContent="WidthAndHeight">
+﻿<Window x:Class="SubSearch.WPF.View.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SubSearch"
+        Width="500"
+        Height="400"
+        MinWidth="370"
+        MinHeight="120"
+        Closing="MainWindow_OnClosing"
+        ContentRendered="MainWindow_OnContentRendered"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        Icon="/SubSearch.App;component/SubSearchBig.ico"
+        IsVisibleChanged="MainWindow_OnIsVisibleChanged"
+        Loaded="MainWindow_OnLoaded"
+        PreviewKeyUp="MainWindow_OnPreviewKeyUp"
+        SizeToContent="WidthAndHeight"
+        Style="{StaticResource DefaultWindowStyle}">
     <DockPanel>
-        <StatusBar
-            DockPanel.Dock="Bottom"
-            Height="24">
+        <StatusBar Height="24" DockPanel.Dock="Bottom">
             <TextBlock Margin="3,0,0,0">
                 <Run Text="{Binding Status}" />
             </TextBlock>
@@ -24,22 +25,34 @@
             </StatusBarItem>
         </StatusBar>
 
-        <TextBlock Name="TitleBlock" DockPanel.Dock="Top" Margin="4" Text="{Binding TitleText}" FontSize="16"
-                   HorizontalAlignment="Stretch" />
+        <TextBlock Name="TitleBlock"
+                   Margin="4"
+                   HorizontalAlignment="Stretch"
+                   DockPanel.Dock="Top"
+                   FontSize="16"
+                   Text="{Binding TitleText}" />
 
-        <ProgressBar Height="24" Name="ProgressBar" IsIndeterminate="True" DockPanel.Dock="Bottom"
-                     Foreground="{DynamicResource DefaultWindowBorderBrush}" />
+        <ProgressBar Name="ProgressBar"
+                     Height="24"
+                     DockPanel.Dock="Bottom"
+                     Foreground="{DynamicResource DefaultWindowBorderBrush}"
+                     IsIndeterminate="True" />
 
-        <ListBox Name="SelectionBox" ItemsSource="{Binding Selections}" DockPanel.Dock="Top"
-                 HorizontalContentAlignment="Stretch">
+        <ListBox Name="SelectionBox"
+                 HorizontalContentAlignment="Stretch"
+                 DockPanel.Dock="Top"
+                 ItemsSource="{Binding Selections}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Name}" FontSize="16" Padding="4" HorizontalAlignment="Stretch" />
+                    <TextBlock HorizontalAlignment="Stretch"
+                               FontSize="16"
+                               Padding="4"
+                               Text="{Binding Name}" />
                 </DataTemplate>
             </ListBox.ItemTemplate>
 
             <ListBox.Resources>
-                <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource MetroListBoxItemStyle}">
+                <Style BasedOn="{StaticResource MetroListBoxItemStyle}" TargetType="{x:Type ListBoxItem}">
                     <EventSetter Event="MouseDoubleClick" Handler="ListBoxItemMouseDoubleClick" />
                     <EventSetter Event="PreviewKeyUp" Handler="ListBoxItemPreviewKeyUp" />
                 </Style>

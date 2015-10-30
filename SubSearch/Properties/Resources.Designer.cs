@@ -79,6 +79,15 @@ namespace SubSearch.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Download subtitle (Lucky).
+        /// </summary>
+        internal static string ShellExtension_CreateMenu_Download_subtitle_lucky {
+            get {
+                return ResourceManager.GetString("ShellExtension_CreateMenu_Download_subtitle_lucky", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap SubSearch {

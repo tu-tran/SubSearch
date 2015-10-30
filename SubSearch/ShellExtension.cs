@@ -57,14 +57,22 @@
                                                Text = Resources.ShellExtension_CreateMenu_Download_subtitle, 
                                                Image = Resources.SubSearch
                                            };
+            var downloadSubtitleLuckyItem = new ToolStripMenuItem
+            {
+                Text = Resources.ShellExtension_CreateMenu_Download_subtitle_lucky,
+                Image = Resources.SubSearch
+            };
 
             downloadSubtitleItem.Click += (sender, args) => this.DownloadSubtitle();
+            downloadSubtitleLuckyItem.Click += (sender, args) => this.DownloadSubtitle(true);
             menu.Items.Add(downloadSubtitleItem);
+            menu.Items.Add(downloadSubtitleLuckyItem);
             return menu;
         }
 
         /// <summary>Download subtitle for the selected file.</summary>
-        private void DownloadSubtitle()
+        /// <param name="luckyMode">Lucky mode.</param>
+        private void DownloadSubtitle(bool luckyMode = false)
         {
             var currentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
             currentPath = Path.GetFullPath(currentPath);
@@ -84,6 +92,7 @@
             var newQueue = Path.Combine(queuePath, Guid.NewGuid().ToString());
             using (var queueFile = File.CreateText(newQueue))
             {
+                queueFile.WriteLine(luckyMode ? "__SILENT__" : "__");
                 foreach (var selectedFile in this.SelectedItemPaths)
                 {
                     queueFile.WriteLine(selectedFile);
