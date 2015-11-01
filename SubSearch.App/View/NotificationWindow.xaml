@@ -5,7 +5,7 @@
         Width="300"
         AllowsTransparency="True"
         Background="Transparent"
-        ContentRendered="NotificationWindow_OnContentRendered"
+        Loaded="NotificationWindow_OnLoaded"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
         PreviewMouseUp="NotificationWindow_OnPreviewMouseUp"
         ShowInTaskbar="False"

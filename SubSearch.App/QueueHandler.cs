@@ -81,6 +81,7 @@
                                                 .Where(
                                                     f =>
                                                     ShellExtension.FileAssociations.Any(ext => f.EndsWith(ext, StringComparison.OrdinalIgnoreCase)));
+
                                         foreach (var file in files)
                                         {
                                             var entryResult = new SubSceneDb(file, viewHandler).Query();

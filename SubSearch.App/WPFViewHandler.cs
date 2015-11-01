@@ -61,7 +61,7 @@
         }
 
         /// <summary>The dispose.</summary>
-        void IDisposable.Dispose()
+        public void Dispose()
         {
             MainWindow.CloseAll();
         }

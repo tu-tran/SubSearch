@@ -63,7 +63,12 @@
             Window.Show();
         }
 
-        private void NotificationWindow_OnContentRendered(object sender, EventArgs e)
+        /// <summary>
+        /// Occurs when the window is loaded.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="eventArgs">The event arguments.</param>
+        private void NotificationWindow_OnLoaded(object sender, RoutedEventArgs eventArgs)
         {
             this.Dispatcher.BeginInvoke(
                 DispatcherPriority.ApplicationIdle,
@@ -92,7 +97,7 @@
         /// The sender.
         /// </param>
         /// <param name="e">
-        /// The e.
+        /// The eventArgs.
         /// </param>
         private void NotificationWindow_OnPreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
@@ -106,7 +111,7 @@
         /// The sender.
         /// </param>
         /// <param name="e">
-        /// The e.
+        /// The eventArgs.
         /// </param>
         private void Grid_OnIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {

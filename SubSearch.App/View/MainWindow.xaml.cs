@@ -1,5 +1,6 @@
 ﻿namespace SubSearch.WPF.View
 {
+    using SubSearch.Data;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -7,9 +8,6 @@
     using System.Windows;
     using System.Windows.Forms;
     using System.Windows.Input;
-
-    using SubSearch.Data;
-
     using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
     /// <summary>Interaction logic for SelectionWindow.xaml</summary>
@@ -28,6 +26,11 @@
 
         /// <summary>The title text.</summary>
         private string titleText;
+
+        /// <summary>
+        /// Is disposing.
+        /// </summary>
+        private bool isDisposing = false;
 
         /// <summary>
         /// Static initialization.
@@ -126,15 +129,18 @@
         /// </returns>
         public static ItemData GetSelection(IEnumerable<ItemData> data, string title, string status)
         {
-            CloseAll();
-            activeWindow.SetSelections(data, title, status);
-            var confirm = activeWindow.ShowDialog();
-            if (confirm.HasValue && confirm.Value)
-            {
-                return activeWindow.SelectedItem;
-            }
+            return activeWindow.Dispatcher.Invoke(
+                () =>
+                {
+                    activeWindow.SetSelections(data, title, status);
+                    var confirm = activeWindow.ShowDialog();
+                    if (confirm.HasValue && confirm.Value)
+                    {
+                        return activeWindow.SelectedItem;
+                    }
 
-            return null;
+                    return null;
+                });
         }
 
         /// <summary>
@@ -142,7 +148,9 @@
         /// </summary>
         public static void Start()
         {
-            activeWindow.ShowDialog();
+            activeWindow.Dispatcher.Invoke(
+                () =>
+                { activeWindow.ShowDialog(); });
         }
 
         /// <summary>The close all.</summary>
@@ -150,8 +158,17 @@
         {
             if (activeWindow != null)
             {
-                activeWindow.Dispatcher.Invoke(() => activeWindow.Close());
+                activeWindow.Dispatcher.Invoke(() => activeWindow.Dispose());
             }
+        }
+
+        /// <summary>
+        /// Disposes the window.
+        /// </summary>
+        public void Dispose()
+        {
+            this.isDisposing = true;
+            this.Close();
         }
 
         /// <summary>

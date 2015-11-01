@@ -1,10 +1,10 @@
 @set NET_FRAMEWORK="%WINDIR%\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe"
-@set SOLUTION_FILE="SubSearch.sln"
+@set SOLUTION_FILE="%CD%\SubSearch.sln"
 
 @del /F /S /Q *.log > nul 2>&1
 
 @echo Restoring NuGet packages...
-@%CD%\.nuget\NuGet.exe restore %SOLUTION_FILE%
+@"%CD%\.nuget\NuGet.exe" restore %SOLUTION_FILE%
 @IF %ERRORLEVEL% NEQ 0 GOTO  Error
 @echo.
 
