@@ -1,11 +1,10 @@
 ﻿namespace SubSearch.WPF
 {
+    using SubSearch.Data;
     using System;
     using System.IO;
     using System.Linq;
     using System.Threading;
-
-    using SubSearch.Data;
 
     /// <summary>The queue handler.</summary>
     internal sealed class QueueHandler
@@ -50,59 +49,58 @@
             }
 
             int success = 0, fail = 0;
-            using (var fileReader = new StreamReader(this.ID))
+            var fileReader = new StreamReader(this.ID);
+            IViewHandler viewHandler;
+            if (fileReader.ReadLine() == "__SILENT__")
             {
-                IViewHandler viewHandler;
-                if (fileReader.ReadLine() == "__SILENT__")
-                {
-                    viewHandler = new SilentViewHandler();
-                }
-                else
-                {
-                    viewHandler = new WpfViewHandler();
-                }
+                viewHandler = new SilentViewHandler();
+            }
+            else
+            {
+                viewHandler = new WpfViewHandler();
+            }
 
-                using (viewHandler)
-                {
-                    ThreadPool.QueueUserWorkItem(
-                        o =>
+            using (viewHandler)
+            {
+                ThreadPool.QueueUserWorkItem(
+                    o =>
+                    {
+                        string line;
+                        while ((line = fileReader.ReadLine()) != null)
+                        {
+                            if (File.Exists(line))
                             {
-                                string line;
-                                while ((line = fileReader.ReadLine()) != null)
-                                {
-                                    if (File.Exists(line))
-                                    {
-                                        new SubSceneDb(line, viewHandler).Query();
-                                    }
-                                    else if (Directory.Exists(line))
-                                    {
-                                        var files =
-                                            Directory.EnumerateFiles(line, "*.*", SearchOption.AllDirectories)
-                                                .Where(
-                                                    f =>
-                                                    ShellExtension.FileAssociations.Any(ext => f.EndsWith(ext, StringComparison.OrdinalIgnoreCase)));
+                                new SubSceneDb(line, viewHandler).Query();
+                            }
+                            else if (Directory.Exists(line))
+                            {
+                                var files =
+                                    Directory.EnumerateFiles(line, "*.*", SearchOption.AllDirectories)
+                                        .Where(
+                                            f =>
+                                            ShellExtension.FileAssociations.Any(ext => f.EndsWith(ext, StringComparison.OrdinalIgnoreCase)));
 
-                                        foreach (var file in files)
-                                        {
-                                            var entryResult = new SubSceneDb(file, viewHandler).Query();
-                                            if (entryResult > 0)
-                                            {
-                                                success += 1;
-                                            }
-                                            else if (entryResult < 0)
-                                            {
-                                                fail += 1;
-                                            }
-                                        }
+                                foreach (var file in files)
+                                {
+                                    var entryResult = new SubSceneDb(file, viewHandler).Query();
+                                    if (entryResult > 0)
+                                    {
+                                        success += 1;
+                                    }
+                                    else if (entryResult < 0)
+                                    {
+                                        fail += 1;
                                     }
                                 }
+                            }
+                        }
 
-                                viewHandler.Dispose();
-                                viewHandler = null;
-                            });
+                        viewHandler.Dispose();
+                        viewHandler = null;
+                        fileReader.Dispose();
+                    });
 
-                    viewHandler.Start();
-                }
+                viewHandler.Start();
             }
 
             if (!this.keepQueueFile)
