@@ -1,4 +1,6 @@
-﻿namespace SubSearch.WPF
+﻿using System.Threading.Tasks;
+
+namespace SubSearch.WPF
 {
     using System;
     using System.Text;
@@ -20,7 +22,7 @@
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            InitializeErrorHandler();
+            this.InitializeErrorHandler();
             var result = new QueueHandler(e.Args).Process();
             if (result == 0)
             {
@@ -44,10 +46,22 @@
         /// <summary>
         /// Initializes the error handler.
         /// </summary>
-        private static void InitializeErrorHandler()
+        private void InitializeErrorHandler()
         {
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
-            Current.DispatcherUnhandledException += CurrentOnDispatcherUnhandledException;
+            this.Dispatcher.UnhandledException += CurrentOnDispatcherUnhandledException;
+            this.DispatcherUnhandledException += CurrentOnDispatcherUnhandledException;
+            TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
+        }
+
+        /// <summary>
+        /// Raises when there is unhandled exception.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="eventArgs">The event arguments.</param>
+        private static void TaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs eventArgs)
+        {
+            CurrentDomainOnUnhandledException(sender, new UnhandledExceptionEventArgs(eventArgs.Exception, false));
         }
 
         /// <summary>
