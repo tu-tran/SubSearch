@@ -14,9 +14,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{3D7BEA
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution items", "Solution items", "{88CA59C6-DB59-4864-B188-166127AE5AAA}"
 	ProjectSection(SolutionItems) = preProject
-		Installers\install.bat = Installers\install.bat
-		Installers\srm.exe = Installers\srm.exe
-		Installers\uninstall.bat = Installers\uninstall.bat
+		Installer\install.bat = Installer\install.bat
+		Installer\srm.exe = Installer\srm.exe
+		Installer\uninstall.bat = Installer\uninstall.bat
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubSearch.App", "SubSearch.App\SubSearch.App.csproj", "{A78C49ED-9854-4AE9-81EA-C15D900D691A}"
