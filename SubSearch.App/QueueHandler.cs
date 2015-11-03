@@ -1,12 +1,10 @@
 ﻿namespace SubSearch.WPF
 {
+    using SubSearch.Resources;
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Threading;
-
-    using SubSearch.Resources;
 
     /// <summary>The queue handler.</summary>
     internal sealed class QueueHandler
@@ -80,22 +78,30 @@
                             continue;
                         }
 
-                        var i = 0;                        
+                        var i = 0;
                         foreach (var file in targets)
                         {
-                            viewHandler.ShowProgress(++i, targets.Length);
-                            var entryResult = new SubSceneDb(file, viewHandler, language).Query();
-                            if (entryResult > 0)
+                            try
                             {
-                                success += 1;
+                                viewHandler.ShowProgress(++i, targets.Length);
+                                var entryResult = new SubSceneDb(file, viewHandler, language).Query();
+                                if (entryResult > 0)
+                                {
+                                    success++;
+                                }
+                                else if (entryResult < 0)
+                                {
+                                    fail++;
+                                }
+                                else if (entryResult == 0)
+                                {
+                                    break; // Users cancel
+                                }
                             }
-                            else if (entryResult < 0)
+                            catch (Exception ex)
                             {
-                                fail += 1;
-                            }
-                            else if (entryResult == 0)
-                            {
-                                break; // Users cancel
+                                fail++;
+                                Console.Error.WriteLine(ex);
                             }
                         }
                     }
