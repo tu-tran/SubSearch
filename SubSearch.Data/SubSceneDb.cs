@@ -10,7 +10,6 @@
     using HtmlAgilityPack;
 
     using SharpCompress.Archive;
-    using SharpCompress.Common;
 
     using SubSearch.Data;
 

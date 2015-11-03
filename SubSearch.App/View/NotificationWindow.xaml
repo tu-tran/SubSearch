@@ -10,7 +10,8 @@
         PreviewMouseUp="NotificationWindow_OnPreviewMouseUp"
         ShowInTaskbar="False"
         SizeToContent="Height"
-        WindowStyle="None" Topmost="True">
+        Topmost="True"
+        WindowStyle="None">
 
     <Grid IsVisibleChanged="Grid_OnIsVisibleChanged" RenderTransformOrigin="0,1">
 
