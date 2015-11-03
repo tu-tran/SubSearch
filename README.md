@@ -5,6 +5,8 @@
 SubSearch is a subtitle downloader implemented using .NET (C#)
 **The application requires .NET Framework 4.5** to be installed first. It can be downloaded and installed from [https://www.microsoft.com/en-sg/download/details.aspx?id=30653](https://www.microsoft.com/en-sg/download/details.aspx?id=30653)
 
+[![Donation](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=hostmax%40gmail%2ecom&lc=FI&item_name=SubSearch&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted)
+
 The code is licensed under the MIT license. See opensource.org for more details.
 
 ##Features
