@@ -1,7 +1,6 @@
-@set NET_FRAMEWORK="%WINDIR%\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe"
-@set SOLUTION_FILE="%CD%\SubSearch.sln"
 @CD /D "%~dp0"
 
+@call Params.bat
 @del /F /S /Q *.log > nul 2>&1
 
 @echo Restoring NuGet packages...
@@ -10,8 +9,6 @@
 @echo.
 
 :StartBuild
-@set OUTPUT_DIR=%CD%\Bin\Release
-@set LOG_FILE=Release.log
 @echo =========================================================
 @echo COMPILATION
 @echo =========================================================
