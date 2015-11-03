@@ -4,8 +4,8 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
+    using System.Threading;
     using System.Windows;
-    using System.Windows.Controls;
     using System.Windows.Forms;
     using System.Windows.Input;
 
@@ -13,7 +13,6 @@
 
     using Control = System.Windows.Forms.Control;
     using KeyEventArgs = System.Windows.Input.KeyEventArgs;
-    using Wpf = System.Windows;
 
     /// <summary>Interaction logic for SelectionWindow.xaml</summary>
     public partial class MainWindow : INotifyPropertyChanged
@@ -31,6 +30,11 @@
 
         /// <summary>The title text.</summary>
         private string titleText;
+
+        /// <summary>
+        /// Is disposing.
+        /// </summary>
+        private bool disposing;
 
         /// <summary>
         /// Static initialization.
@@ -89,6 +93,11 @@
             }
         }
 
+        /// <summary>
+        /// Gets the selection state.
+        /// </summary>
+        public bool SelectionState { get; private set; }
+
         /// <summary>Gets the selections.</summary>
         public ObservableCollection<ItemData> Selections
         {
@@ -129,25 +138,22 @@
         /// </returns>
         public static ItemData GetSelection(ICollection<ItemData> data, string title, string status)
         {
-            return activeWindow.Dispatcher.Invoke(
+            activeWindow.Dispatcher.Invoke(
                 () =>
                 {
                     activeWindow.SetSelections(data, title, status);
-                    if (activeWindow.IsVisible)
+                    if (!activeWindow.IsVisible)
                     {
-                        activeWindow.Hide();
+                        activeWindow.Show();
                     }
-
-                    var confirm = activeWindow.ShowDialog();
-                    var selection = activeWindow.SelectedItem;
-                    activeWindow = new MainWindow();
-                    if (confirm.HasValue && confirm.Value)
-                    {
-                        return selection;
-                    }
-
-                    return null;
                 });
+
+            while (activeWindow.Dispatcher.Invoke(() => activeWindow.ShowInTaskbar))
+            {
+                Thread.Sleep(500);
+            }
+
+            return activeWindow.Dispatcher.Invoke(() => activeWindow.SelectionState ? activeWindow.SelectedItem : null);
         }
 
         /// <summary>
@@ -170,10 +176,35 @@
         }
 
         /// <summary>
+        /// Hides the window.
+        /// </summary>
+        public new void Hide()
+        {
+            if (this.IsVisible)
+            {
+                this.WindowState = WindowState.Minimized;
+                this.ShowInTaskbar = false;
+            }
+        }
+
+        public new void Show()
+        {
+            if (!this.IsVisible)
+            {
+                base.Show();
+            }
+
+            this.WindowState = WindowState.Normal;
+            this.ShowInTaskbar = true;
+            this.SelectionState = false;
+        }
+
+        /// <summary>
         /// Disposes the window.
         /// </summary>
         public void Dispose()
         {
+            this.disposing = true;
             this.Close();
         }
 
@@ -224,10 +255,9 @@
                     this.ProgressBar.Visibility = Visibility.Visible;
                     this.TitleText = title;
                     this.Status = newStatus;
-                    if (!this.IsVisible)
-                    {
-                        this.Show();
-                    }
+                    this.SizeToContent = SizeToContent.WidthAndHeight;
+                    this.Show();
+                    this.SizeToContent = SizeToContent.Manual;
                 });
         }
 
@@ -278,8 +308,8 @@
         /// <summary>The accept.</summary>
         private void Accept()
         {
-            this.DialogResult = true;
-            this.Close();
+            this.SelectionState = true;
+            this.Hide();
         }
 
         /// <summary>
@@ -369,6 +399,20 @@
             if (e.NewValue.Equals(false))
             {
                 lastPosition = new Tuple<double, double>(this.Left, this.Top);
+            }
+        }
+
+        /// <summary>
+        /// When the window is closing.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The event arguments.</param>
+        private void MainWindow_OnClosing(object sender, CancelEventArgs e)
+        {
+            if (!this.disposing)
+            {
+                e.Cancel = true;
+                this.Hide();
             }
         }
     }

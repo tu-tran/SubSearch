@@ -1,5 +1,6 @@
 ﻿namespace SubSearch.WPF
 {
+    using System;
     using System.Collections.Generic;
 
     using SubSearch.Data;
@@ -8,6 +9,11 @@
     /// <summary>The wpf view handler.</summary>
     internal class WpfViewHandler : IViewHandler
     {
+        /// <summary>
+        /// Occurs when the view handler is disposed.
+        /// </summary>
+        public event Action Disposed;
+
         /// <summary>
         /// The show progress.
         /// </summary>
@@ -63,6 +69,10 @@
         public void Dispose()
         {
             MainWindow.CloseAll();
+            if (this.Disposed != null)
+            {
+                this.Disposed();
+            }
         }
     }
 }

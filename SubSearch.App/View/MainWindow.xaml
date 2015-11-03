@@ -10,6 +10,7 @@
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
         Icon="/SubSearch.App;component/SubSearchBig.ico"
         IsVisibleChanged="MainWindow_OnIsVisibleChanged"
+        Closing="MainWindow_OnClosing"
         Loaded="MainWindow_OnLoaded"
         PreviewKeyUp="MainWindow_OnPreviewKeyUp"
         SizeToContent="WidthAndHeight"

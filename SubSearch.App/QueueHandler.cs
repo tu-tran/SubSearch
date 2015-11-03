@@ -1,11 +1,11 @@
 ﻿namespace SubSearch.WPF
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Threading;
 
-    using SubSearch.Data;
 
     /// <summary>The queue handler.</summary>
     internal sealed class QueueHandler
@@ -50,80 +50,64 @@
             }
 
             int success = 0, fail = 0;
-            IViewHandler viewHandler = null;
-
-            var workerThread = new Thread(() => this.ExecutionEngineException(ref viewHandler, ref success, ref fail));
-            workerThread.SetApartmentState(ApartmentState.STA);
-            workerThread.Start();
-
-            Thread.Sleep(1000);
-            while (viewHandler != null)
-            {
-                Thread.Sleep(1000);
-            }
-
-            return success > 0 ? 1 : (fail > 0 ? -1 : 0);
-        }
-
-        /// <summary>
-        /// Executes the queue.
-        /// </summary>
-        /// <param name="viewHandler">The view handler.</param>
-        /// <param name="success">The success count.</param>
-        /// <param name="fail">The fail count.</param>
-        private void ExecutionEngineException(ref IViewHandler viewHandler, ref int success, ref int fail)
-        {
-            using (var fileReader = new StreamReader(this.ID))
-            {
-                var languageStr = fileReader.ReadLine();
-                Language language;
-                Enum.TryParse(languageStr, out language);
-                viewHandler = fileReader.ReadLine() == "__SILENT__" ? new SilentViewHandler() : new WpfViewHandler();
-
-                using (viewHandler)
+            var fileReader = new StreamReader(this.ID);
+            var languageStr = fileReader.ReadLine();
+            Language language;
+            Enum.TryParse(languageStr, out language);
+            var viewHandler = fileReader.ReadLine() == "__SILENT__" ? new SilentViewHandler() : new WpfViewHandler();
+            ThreadPool.QueueUserWorkItem(
+                o =>
                 {
                     string line;
                     while ((line = fileReader.ReadLine()) != null)
                     {
+                        IEnumerable<string> targets = null;
                         if (File.Exists(line))
                         {
-                            new SubSceneDb(line, viewHandler, language).Query();
+                            targets = new[] { line };
                         }
                         else if (Directory.Exists(line))
                         {
-                            var files =
+                            targets =
                                 Directory.EnumerateFiles(line, "*.*", SearchOption.AllDirectories)
-                                    .Where(
-                                        f =>
-                                        ShellExtension.FileAssociations.Any(ext => f.EndsWith(ext, StringComparison.OrdinalIgnoreCase)));
+                                    .Where(f => ShellExtension.FileAssociations.Any(ext => f.EndsWith(ext, StringComparison.OrdinalIgnoreCase)));
+                        }
 
-                            foreach (var file in files)
+                        if (targets == null)
+                        {
+                            continue;
+                        }
+
+                        foreach (var file in targets)
+                        {
+                            var entryResult = new SubSceneDb(file, viewHandler, language).Query();
+                            if (entryResult > 0)
                             {
-                                var entryResult = new SubSceneDb(file, viewHandler, language).Query();
-                                if (entryResult > 0)
-                                {
-                                    success += 1;
-                                }
-                                else if (entryResult < 0)
-                                {
-                                    fail += 1;
-                                }
-                                else if (entryResult == 0)
-                                {
-                                    break; // Users cancel
-                                }
+                                success += 1;
+                            }
+                            else if (entryResult < 0)
+                            {
+                                fail += 1;
+                            }
+                            else if (entryResult == 0)
+                            {
+                                break; // Users cancel
                             }
                         }
                     }
-                }
-            }
 
+                    fileReader.Dispose();
+                    viewHandler.Dispose();
+                    viewHandler = null;
+                });
+
+            viewHandler.Start();
             if (!this.keepQueueFile)
             {
                 File.Delete(this.ID);
             }
 
-            viewHandler = null;
+            return success > 0 ? 1 : (fail > 0 ? -1 : 0);
         }
     }
 }

@@ -7,6 +7,11 @@
     public interface IViewHandler : IDisposable
     {
         /// <summary>
+        /// Occurs when the view handler is disposed.
+        /// </summary>
+        event Action Disposed;
+
+        /// <summary>
         /// The show progress.
         /// </summary>
         /// <param name="title">
@@ -41,7 +46,7 @@
         void Notify(string message);
 
         /// <summary>
-        /// Starts the view and wait for interaction.
+        /// Starts the view handler.
         /// </summary>
         void Start();
     }
