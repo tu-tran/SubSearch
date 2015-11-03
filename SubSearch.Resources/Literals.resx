@@ -133,10 +133,10 @@
     <value>Failed to download subtitle: </value>
   </data>
   <data name="Data_No_matching_title_for" xml:space="preserve">
-    <value>No matching title could be found for:</value>
+    <value>No matching title could be found for: </value>
   </data>
   <data name="Data_No_subtitle_for" xml:space="preserve">
-    <value>No subtitle found for:</value>
+    <value>No subtitle found for: </value>
   </data>
   <data name="Data_Searching_video_subtitle" xml:space="preserve">
     <value>Searching for video subtitle...</value>

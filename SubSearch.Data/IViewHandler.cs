@@ -22,6 +22,14 @@
         /// </param>
         void ShowProgress(string title, string status);
 
+
+        /// <summary>
+        /// Sets the progress.
+        /// </summary>
+        /// <param name="done">Done.</param>
+        /// <param name="total">Total</param>
+        void ShowProgress(int done, int total);
+
         /// <summary>
         /// The get selection.
         /// </summary>

@@ -10,7 +10,7 @@
     public partial class NotificationWindow : INotifyPropertyChanged
     {
         /// <summary>The window.</summary>
-        private static readonly NotificationWindow Window = new NotificationWindow();
+        private static NotificationWindow Window;
 
         /// <summary>The end event handler.</summary>
         private static DependencyPropertyChangedEventHandler endEventHandler;
@@ -56,10 +56,21 @@
         /// </param>
         public static void Show(string message, DependencyPropertyChangedEventHandler endHandler = null)
         {
-            Window.Hide();
-            Window.Message = message;
-            endEventHandler = endHandler;
-            Window.Show();
+            Window.Dispatcher.Invoke(() =>
+            {
+                Window.Hide();
+                Window.Message = message;
+                endEventHandler = endHandler;
+                Window.Show();
+            });
+        }
+
+        /// <summary>
+        /// Initializes the singleton instance.
+        /// </summary>
+        internal static void Initialize()
+        {
+            Window = new NotificationWindow();
         }
 
         /// <summary>

@@ -122,6 +122,16 @@
         }
 
         /// <summary>
+        /// Sets the progress.
+        /// </summary>
+        /// <param name="done">Done.</param>
+        /// <param name="total">Total</param>
+        public static void ShowProgress(int done, int total)
+        {
+            activeWindow.SetProgress(done, total);
+        }
+
+        /// <summary>
         /// The get selection.
         /// </summary>
         /// <param name="data">
@@ -163,7 +173,9 @@
         {
             activeWindow.Dispatcher.Invoke(
                 () =>
-                { activeWindow.ShowDialog(); });
+                {
+                    activeWindow.ShowDialog();
+                });
         }
 
         /// <summary>The close all.</summary>
@@ -256,6 +268,27 @@
                     this.TitleText = title;
                     this.Status = newStatus;
                     this.SizeToContent = SizeToContent.WidthAndHeight;
+                    this.Show();
+                    this.SizeToContent = SizeToContent.Manual;
+                });
+        }
+
+        /// <summary>
+        /// Sets the progress.
+        /// </summary>
+        /// <param name="done">Done.</param>
+        /// <param name="total">Total</param>
+        private void SetProgress(int done, int total)
+        {
+            this.Dispatcher.Invoke(
+                () =>
+                {
+                    this.SelectionBox.Visibility = Visibility.Collapsed;
+                    this.ProgressBar.Visibility = Visibility.Visible;
+                    this.SizeToContent = SizeToContent.WidthAndHeight;
+                    this.ProgressBar.Value = done;
+                    this.ProgressBar.Maximum = total;
+                    this.ProgressBar.IsIndeterminate = done < 1;
                     this.Show();
                     this.SizeToContent = SizeToContent.Manual;
                 });

@@ -63,7 +63,7 @@
                     string line;
                     while ((line = fileReader.ReadLine()) != null)
                     {
-                        IEnumerable<string> targets = null;
+                        string[] targets = null;
                         if (File.Exists(line))
                         {
                             targets = new[] { line };
@@ -72,7 +72,7 @@
                         {
                             targets =
                                 Directory.EnumerateFiles(line, "*.*", SearchOption.AllDirectories)
-                                    .Where(f => ShellExtension.FileAssociations.Any(ext => f.EndsWith(ext, StringComparison.OrdinalIgnoreCase)));
+                                    .Where(f => ShellExtension.FileAssociations.Any(ext => f.EndsWith(ext, StringComparison.OrdinalIgnoreCase))).ToArray();
                         }
 
                         if (targets == null)
@@ -80,8 +80,10 @@
                             continue;
                         }
 
+                        var i = 0;                        
                         foreach (var file in targets)
                         {
+                            viewHandler.ShowProgress(++i, targets.Length);
                             var entryResult = new SubSceneDb(file, viewHandler, language).Query();
                             if (entryResult > 0)
                             {

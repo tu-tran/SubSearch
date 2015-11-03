@@ -15,6 +15,14 @@
         public event Action Disposed;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="WpfViewHandler"/> class.
+        /// </summary>
+        public WpfViewHandler()
+        {
+            NotificationWindow.Initialize();
+        }
+
+        /// <summary>
         /// The show progress.
         /// </summary>
         /// <param name="title">
@@ -26,6 +34,16 @@
         public void ShowProgress(string title, string status)
         {
             MainWindow.ShowProgress(title, status);
+        }
+
+        /// <summary>
+        /// Sets the progress.
+        /// </summary>
+        /// <param name="done">Done.</param>
+        /// <param name="total">Total</param>
+        public void ShowProgress(int done, int total)
+        {
+            MainWindow.ShowProgress(done, total);
         }
 
         /// <summary>

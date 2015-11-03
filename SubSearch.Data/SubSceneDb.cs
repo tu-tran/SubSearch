@@ -223,7 +223,7 @@
             var subtitleNodes = htmlDoc.DocumentNode.SelectNodes("//a[@class='list-group-item']");
             if (subtitleNodes == null)
             {
-                return string.Empty;
+                return null;
             }
 
             var selections = new List<ItemData>();
@@ -246,6 +246,7 @@
                     selections,
                     this.filePath,
                     string.Format(Literals.Data_Select_subtitle, this.Language.Localize()));
+
                 if (selectedItem == null)
                 {
                     return string.Empty;

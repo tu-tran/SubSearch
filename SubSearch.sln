@@ -22,6 +22,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubSearch.App", "SubSearch.App\SubSearch.App.csproj", "{A78C49ED-9854-4AE9-81EA-C15D900D691A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubSearch.Data", "SubSearch.Data\SubSearch.Data.csproj", "{7DF6B254-73C6-4CE2-91BC-AD69073D7554}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B28465BA-23D2-4307-A21E-A00BFED86CC6} = {B28465BA-23D2-4307-A21E-A00BFED86CC6}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubSearch.Resources", "SubSearch.Resources\SubSearch.Resources.csproj", "{B28465BA-23D2-4307-A21E-A00BFED86CC6}"
 EndProject
