@@ -1,14 +1,19 @@
 ﻿namespace SubSearch.WPF.View
 {
-    using SubSearch.Data;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Windows;
+    using System.Windows.Controls;
     using System.Windows.Forms;
     using System.Windows.Input;
+
+    using SubSearch.Data;
+
+    using Control = System.Windows.Forms.Control;
     using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+    using Wpf = System.Windows;
 
     /// <summary>Interaction logic for SelectionWindow.xaml</summary>
     public partial class MainWindow : INotifyPropertyChanged
@@ -26,11 +31,6 @@
 
         /// <summary>The title text.</summary>
         private string titleText;
-
-        /// <summary>
-        /// Is disposing.
-        /// </summary>
-        private bool isDisposing = false;
 
         /// <summary>
         /// Static initialization.
@@ -127,16 +127,23 @@
         /// <returns>
         /// The <see cref="ItemData"/>.
         /// </returns>
-        public static ItemData GetSelection(IEnumerable<ItemData> data, string title, string status)
+        public static ItemData GetSelection(ICollection<ItemData> data, string title, string status)
         {
             return activeWindow.Dispatcher.Invoke(
                 () =>
                 {
                     activeWindow.SetSelections(data, title, status);
+                    if (activeWindow.IsVisible)
+                    {
+                        activeWindow.Hide();
+                    }
+
                     var confirm = activeWindow.ShowDialog();
+                    var selection = activeWindow.SelectedItem;
+                    activeWindow = new MainWindow();
                     if (confirm.HasValue && confirm.Value)
                     {
-                        return activeWindow.SelectedItem;
+                        return selection;
                     }
 
                     return null;
@@ -167,7 +174,6 @@
         /// </summary>
         public void Dispose()
         {
-            this.isDisposing = true;
             this.Close();
         }
 
@@ -206,10 +212,10 @@
         /// <param name="title">
         /// The title.
         /// </param>
-        /// <param name="status">
+        /// <param name="newStatus">
         /// The status.
         /// </param>
-        private void SetProgress(string title, string status)
+        private void SetProgress(string title, string newStatus)
         {
             this.Dispatcher.Invoke(
                 () =>
@@ -217,7 +223,7 @@
                     this.SelectionBox.Visibility = Visibility.Collapsed;
                     this.ProgressBar.Visibility = Visibility.Visible;
                     this.TitleText = title;
-                    this.Status = status;
+                    this.Status = newStatus;
                     if (!this.IsVisible)
                     {
                         this.Show();
@@ -237,7 +243,7 @@
         /// <param name="status">
         /// The status.
         /// </param>
-        private void SetSelections(IEnumerable<ItemData> data, string title, string status)
+        private void SetSelections(ICollection<ItemData> data, string title, string status)
         {
             this.Dispatcher.Invoke(
                 () =>
@@ -246,6 +252,20 @@
                     foreach (var itemData in data)
                     {
                         this.selections.Add(itemData);
+                    }
+
+                    var remainderHeight = this.ActualHeight - this.SelectionBox.ActualHeight;
+                    var maxHeight = Utils.GetActiveScreen().WorkingArea.Height - remainderHeight;
+                    var newHeight = (this.SelectionBox.FontSize + 5) * data.Count;
+
+                    if (newHeight > maxHeight)
+                    {
+                        newHeight = maxHeight;
+                    }
+
+                    if (newHeight > 0)
+                    {
+                        this.Height = newHeight + remainderHeight;
                     }
 
                     this.TitleText = title;
@@ -350,16 +370,6 @@
             {
                 lastPosition = new Tuple<double, double>(this.Left, this.Top);
             }
-        }
-
-        /// <summary>
-        /// When closing.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The event arguments.</param>
-        private void MainWindow_OnClosing(object sender, CancelEventArgs e)
-        {
-            activeWindow = new MainWindow();
         }
     }
 }

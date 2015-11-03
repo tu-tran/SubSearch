@@ -1,10 +1,11 @@
-﻿using System;
-using System.Text;
-
-namespace SubSearch.WPF
+﻿namespace SubSearch.WPF
 {
-    using SubSearch.WPF.View;
+    using System;
+    using System.Text;
     using System.Windows;
+    using System.Windows.Threading;
+
+    using SubSearch.WPF.View;
 
     /// <summary>Interaction logic for App.xaml</summary>
     public partial class App
@@ -18,10 +19,11 @@ namespace SubSearch.WPF
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            this.InitializeErrorHandler();
+            InitializeErrorHandler();
             var result = new QueueHandler(e.Args).Process();
             if (result == 0)
             {
+                this.Dispatcher.InvokeShutdown();
                 return;
             }
 
@@ -35,7 +37,7 @@ namespace SubSearch.WPF
                 {
                     if (args.NewValue.Equals(false))
                     {
-                        this.Shutdown();
+                        this.Dispatcher.InvokeShutdown();
                     }
                 });
         }
@@ -43,9 +45,21 @@ namespace SubSearch.WPF
         /// <summary>
         /// Initializes the error handler.
         /// </summary>
-        private void InitializeErrorHandler()
+        private static void InitializeErrorHandler()
         {
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
+            Current.DispatcherUnhandledException += CurrentOnDispatcherUnhandledException;
+        }
+
+        /// <summary>
+        /// Raises when there is unhandled exception.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="eventArgs">The event arguments.</param>
+        private static void CurrentOnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs eventArgs)
+        {
+            CurrentDomainOnUnhandledException(sender, new UnhandledExceptionEventArgs(eventArgs.Exception, false));
+            eventArgs.Handled = true;
         }
 
         /// <summary>
@@ -65,7 +79,9 @@ namespace SubSearch.WPF
                 exception = exception.InnerException;
             }
 
-            new MessageDialog { Title = "Unexpected errors", Message = sb.ToString() }.Show();
+            var dialog = new MessageDialog { Title = "Unexpected errors", Message = sb.ToString() };
+            dialog.Closed += (o, args) => Current.Dispatcher.InvokeShutdown();
+            dialog.Show();
         }
     }
 }

@@ -3,7 +3,6 @@
     using System;
     using System.ComponentModel;
     using System.Windows;
-    using System.Windows.Forms;
     using System.Windows.Input;
     using System.Windows.Threading;
 
@@ -70,13 +69,12 @@
         /// <param name="eventArgs">The event arguments.</param>
         private void NotificationWindow_OnLoaded(object sender, RoutedEventArgs eventArgs)
         {
-            this.Dispatcher.BeginInvoke(
+            this.Dispatcher.Invoke(
                 DispatcherPriority.ApplicationIdle,
                 new Action(
                     () =>
                     {
-                        var mousePosition = Control.MousePosition;
-                        var screen = Screen.FromPoint(mousePosition);
+                        var screen = Utils.GetActiveScreen();
                         var workingArea = screen.WorkingArea;
                         var presentationSource = PresentationSource.FromVisual(this);
                         if (presentationSource != null && presentationSource.CompositionTarget != null)

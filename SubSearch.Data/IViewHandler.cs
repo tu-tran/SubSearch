@@ -32,7 +32,7 @@
         /// <returns>
         /// The <see cref="ItemData"/>.
         /// </returns>
-        ItemData GetSelection(IEnumerable<ItemData> data, string title, string status);
+        ItemData GetSelection(ICollection<ItemData> data, string title, string status);
 
         /// <summary>
         /// Notifies a message.

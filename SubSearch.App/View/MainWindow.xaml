@@ -6,7 +6,6 @@
         Height="400"
         MinWidth="370"
         MinHeight="120"
-        Closing="MainWindow_OnClosing"
         ContentRendered="MainWindow_OnContentRendered"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
         Icon="/SubSearch.App;component/SubSearchBig.ico"

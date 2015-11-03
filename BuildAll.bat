@@ -1,5 +1,6 @@
 @set NET_FRAMEWORK="%WINDIR%\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe"
 @set SOLUTION_FILE="%CD%\SubSearch.sln"
+@CD /D "%~dp0"
 
 @del /F /S /Q *.log > nul 2>&1
 
@@ -27,7 +28,7 @@
 
 @echo.
 @echo Creating installers...
-@"%CD%\packages\Tools.InnoSetup.5.5.5\tools\ISCC.exe" "%CD%\Installer\Script\SubSearchInstallerScript.iss" > "Publish.log" 2>&1
+@CALL "%CD%\packages\Tools.InnoSetup.5.5.5\tools\ISCC.exe" "%CD%\Installer\Script\SubSearchInstallerScript.iss" > "Publish.log" 2>&1
 @IF %ERRORLEVEL% EQU 0 GOTO  End
 
 :Error

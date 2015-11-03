@@ -9,7 +9,8 @@
 
     using HtmlAgilityPack;
 
-    using Ionic.Zip;
+    using SharpCompress.Archive;
+    using SharpCompress.Common;
 
     using SubSearch.Data;
 
@@ -22,6 +23,17 @@
         /// <summary>The view.</summary>
         private readonly IViewHandler view;
 
+        private static readonly Dictionary<Language, string> LanguageCodes = new Dictionary<Language, string>
+                                                                                 {
+                                                                                     { Language.English, "13" },
+                                                                                     { Language.Vietnamese, "45" }
+                                                                                 };
+
+        /// <summary>
+        /// The language.
+        /// </summary>
+        public Language Language { get; private set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SubSceneDb"/> class.
         /// </summary>
@@ -31,10 +43,11 @@
         /// <param name="viewHandler">
         /// The view handler.
         /// </param>
-        public SubSceneDb(string filePath, IViewHandler viewHandler)
+        public SubSceneDb(string filePath, IViewHandler viewHandler, Language language)
         {
             this.filePath = filePath;
             this.view = viewHandler;
+            this.Language = language;
         }
 
         /// <summary>
@@ -47,8 +60,15 @@
             var title = Path.GetFileNameWithoutExtension(this.filePath);
             var encodedTitle = HttpUtility.UrlEncode(title);
             var queryUrl = string.Format("http://subscene.com/subtitles/title?q={0}&l=", encodedTitle);
+
+            string languageCode;
+            if (!LanguageCodes.TryGetValue(this.Language, out languageCode))
+            {
+                languageCode = LanguageCodes.Values.FirstOrDefault();
+            }
+
             var cookies = new CookieContainer();
-            cookies.Add(new Cookie("LanguageFilter", "13", "/", ".subscene.com"));
+            cookies.Add(new Cookie("LanguageFilter", languageCode, "/", ".subscene.com"));
 
             var queryResultDoc = this.GetDocument(queryUrl, "http://subscene.com", cookies);
             var searchResultUrl = this.ParseQueryDoc(queryResultDoc.Item1);
@@ -77,7 +97,7 @@
 
             var path = Path.GetDirectoryName(this.filePath);
             var targetFile = Path.Combine(path, title);
-            this.view.ShowProgress(this.filePath, "Downloading the movie subtitle...");
+            this.view.ShowProgress(this.filePath, string.Format("Downloading the movie subtitle [{0}]...", this.Language));
             var result = this.DownloadSubtitle(subtitleDownloadUrl, subtitleDownloadUrl, subtitleDownloadDoc.Item2, targetFile);
             return result ? 1 : -1;
         }
@@ -160,23 +180,22 @@
                         {
                             respStream.CopyTo(ms);
                             ms.Seek(0, SeekOrigin.Begin);
-                            using (var zip = new ZipInputStream(ms))
+
+                            var reader = ArchiveFactory.Open(ms);
+                            if (reader != null)
                             {
-                                ZipEntry entry;
-                                while ((entry = zip.GetNextEntry()) != null)
+                                foreach (var entry in reader.Entries)
                                 {
-                                    var filePath = targetFileWithoutExtension + Path.GetExtension(entry.FileName);
-                                    using (var fileStream = File.OpenWrite(filePath))
+                                    if (entry.IsDirectory)
                                     {
-                                        int n;
-                                        var buffer = new byte[2048];
-                                        while ((n = zip.Read(buffer, 0, buffer.Length)) > 0)
-                                        {
-                                            fileStream.Write(buffer, 0, n);
-                                        }
+                                        continue;
                                     }
+
+                                    var entryPath = targetFileWithoutExtension + Path.GetExtension(entry.Key);
+                                    entry.WriteToFile(entryPath);
                                 }
                             }
+
                         }
                     }
                 }
@@ -223,7 +242,10 @@
             }
             else if (selections.Count > 1)
             {
-                selectedItem = this.view.GetSelection(selections, this.filePath, "Select the subtitle to download");
+                selectedItem = this.view.GetSelection(
+                    selections,
+                    this.filePath,
+                    string.Format("Select the subtitle to download [{0}]...", this.Language));
                 if (selectedItem == null)
                 {
                     return string.Empty;

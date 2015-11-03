@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Drawing;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -25,6 +26,11 @@
     {
         /// <summary>The file associations.</summary>
         public static readonly IEnumerable<string> FileAssociations;
+
+        /// <summary>
+        /// The supported languages.
+        /// </summary>
+        private static readonly List<Language> SupportedLanguage = new List<Language> { Language.English, Language.Vietnamese };
 
         /// <summary>Initializes static members of the <see cref="ShellExtension" /> class.</summary>
         static ShellExtension()
@@ -52,27 +58,14 @@
         protected override ContextMenuStrip CreateMenu()
         {
             var menu = new ContextMenuStrip();
-            var downloadSubtitleItem = new ToolStripMenuItem
-                                           {
-                                               Text = Resources.ShellExtension_CreateMenu_Download_subtitle, 
-                                               Image = Resources.SubSearch
-                                           };
-            var downloadSubtitleLuckyItem = new ToolStripMenuItem
-            {
-                Text = Resources.ShellExtension_CreateMenu_Download_subtitle_lucky,
-                Image = Resources.SubSearch
-            };
-
-            downloadSubtitleItem.Click += (sender, args) => this.DownloadSubtitle();
-            downloadSubtitleLuckyItem.Click += (sender, args) => this.DownloadSubtitle(true);
-            menu.Items.Add(downloadSubtitleItem);
-            menu.Items.Add(downloadSubtitleLuckyItem);
+            menu.Items.Add(this.GetLanguageItems(false));
+            menu.Items.Add(this.GetLanguageItems(true));
             return menu;
         }
 
         /// <summary>Download subtitle for the selected file.</summary>
-        /// <param name="luckyMode">Lucky mode.</param>
-        private void DownloadSubtitle(bool luckyMode = false)
+        /// <param name="option">The download option.</param>
+        private void DownloadSubtitle(DownloadOption option)
         {
             var currentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
             currentPath = Path.GetFullPath(currentPath);
@@ -80,9 +73,9 @@
             if (!File.Exists(executable))
             {
                 MessageBox.Show(
-                    "SubSearch application was not properly installed. Please try restarting the computer and reinstall SubSearch!", 
-                    "Corrupted Installation", 
-                    MessageBoxButton.OK, 
+                    "SubSearch application was not properly installed. Please try restarting the computer and reinstall SubSearch!",
+                    "Corrupted Installation",
+                    MessageBoxButton.OK,
                     MessageBoxImage.Error);
                 return;
             }
@@ -92,7 +85,8 @@
             var newQueue = Path.Combine(queuePath, Guid.NewGuid().ToString());
             using (var queueFile = File.CreateText(newQueue))
             {
-                queueFile.WriteLine(luckyMode ? "__SILENT__" : "__");
+                queueFile.WriteLine(option.Language);
+                queueFile.WriteLine(option.IsLuckyMode ? "__SILENT__" : "__");
                 foreach (var selectedFile in this.SelectedItemPaths)
                 {
                     queueFile.WriteLine(selectedFile);
@@ -100,6 +94,69 @@
             }
 
             Process.Start(executable, newQueue);
+        }
+
+        /// <summary>
+        /// Get menu item.
+        /// </summary>
+        /// <param name="isLuckyMode">Is lucky mode.</param>
+        /// <returns>Menu item.</returns>
+        private ToolStripMenuItem GetLanguageItems(bool isLuckyMode)
+        {
+            var option = new DownloadOption { Language = SupportedLanguage.FirstOrDefault(), IsLuckyMode = isLuckyMode };
+            var topMenu = new ToolStripMenuItem
+                              {
+                                  Text =
+                                      isLuckyMode
+                                          ? Resources.ShellExtension_CreateMenu_Download_subtitle_lucky
+                                          : Resources.ShellExtension_CreateMenu_Download_subtitle,
+                                  Image = Resources.SubSearch,
+                                  Tag = option
+                              };
+            topMenu.Click += (sender, args) => this.DownloadSubtitle(option);
+
+            foreach (var language in SupportedLanguage)
+            {
+                var subOption = new DownloadOption { Language = language, IsLuckyMode = isLuckyMode };
+                var newLanguageItem = new ToolStripMenuItem
+                {
+                    Text = language.ToString(),
+                    Image = GetLanguageIcon(language.ToString()),
+                    Tag = subOption
+                };
+
+                newLanguageItem.Click += (sender, args) => this.DownloadSubtitle(subOption);
+                topMenu.DropDownItems.Add(newLanguageItem);
+            }
+
+            return topMenu;
+        }
+
+        /// <summary>
+        /// Gets the language icon.
+        /// </summary>
+        /// <param name="name">The language.</param>
+        /// <returns>The language icon.</returns>
+        private static Bitmap GetLanguageIcon(string name)
+        {
+            var resource = Languages.ResourceManager.GetObject(name.ToLower()) as Bitmap;
+            return resource;
+        }
+
+        /// <summary>
+        /// The download option.
+        /// </summary>
+        private struct DownloadOption
+        {
+            /// <summary>
+            /// The language.
+            /// </summary>
+            public Language Language;
+
+            /// <summary>
+            /// Is lucky mode.
+            /// </summary>
+            public bool IsLuckyMode;
         }
     }
 }

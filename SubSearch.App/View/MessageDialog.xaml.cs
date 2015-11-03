@@ -13,6 +13,12 @@
         /// <summary>The property changed.</summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>Initializes a new instance of the <see cref="MessageDialog" /> class.</summary>
+        public MessageDialog()
+        {
+            this.InitializeComponent();
+        }
+
         /// <summary>Gets or sets the message.</summary>
         public string Message
         {

@@ -1,6 +1,5 @@
 ﻿namespace SubSearch.WPF
 {
-    using System;
     using System.Collections.Generic;
 
     using SubSearch.Data;
@@ -38,7 +37,7 @@
         /// <returns>
         /// The <see cref="ItemData"/>.
         /// </returns>
-        public virtual ItemData GetSelection(IEnumerable<ItemData> data, string title, string status)
+        public virtual ItemData GetSelection(ICollection<ItemData> data, string title, string status)
         {
             return MainWindow.GetSelection(data, title, status);
         }

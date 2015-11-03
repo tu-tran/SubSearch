@@ -5,12 +5,12 @@
         Width="300"
         AllowsTransparency="True"
         Background="Transparent"
-        Loaded="NotificationWindow_OnLoaded"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        Loaded="NotificationWindow_OnLoaded"
         PreviewMouseUp="NotificationWindow_OnPreviewMouseUp"
         ShowInTaskbar="False"
         SizeToContent="Height"
-        WindowStyle="None">
+        WindowStyle="None" Topmost="True">
 
     <Grid IsVisibleChanged="Grid_OnIsVisibleChanged" RenderTransformOrigin="0,1">
 
