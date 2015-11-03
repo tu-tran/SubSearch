@@ -15,6 +15,7 @@
     using SharpShell.SharpContextMenu;
 
     using SubSearch.Properties;
+    using SubSearch.Resources;
 
     using MessageBox = System.Windows.MessageBox;
 
@@ -108,9 +109,9 @@
                               {
                                   Text =
                                       isLuckyMode
-                                          ? Resources.ShellExtension_CreateMenu_Download_subtitle_lucky
-                                          : Resources.ShellExtension_CreateMenu_Download_subtitle,
-                                  Image = Resources.SubSearch,
+                                          ? Literals.ShellExtension_CreateMenu_Download_subtitle_lucky
+                                          : Literals.ShellExtension_CreateMenu_Download_subtitle,
+                                  Image = isLuckyMode ? Icons.SubSearchLucky : Icons.SubSearch,
                                   Tag = option
                               };
             topMenu.Click += (sender, args) => this.DownloadSubtitle(option);
@@ -139,7 +140,7 @@
         /// <returns>The language icon.</returns>
         private static Bitmap GetLanguageIcon(string name)
         {
-            var resource = Languages.ResourceManager.GetObject(name.ToLower()) as Bitmap;
+            var resource = Icons.ResourceManager.GetObject(name.ToLower()) as Bitmap;
             return resource;
         }
 

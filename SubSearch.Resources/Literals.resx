@@ -117,10 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="SubSearch" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>SubSearch.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="ShellExtension_CreateMenu_Download_subtitle" xml:space="preserve">
     <value>Download subtitle</value>
   </data>
@@ -129,5 +125,41 @@
   </data>
   <data name="ShellExtension_CreateMenu_Download_subtitle_lucky" xml:space="preserve">
     <value>Download subtitle (Lucky)</value>
+  </data>
+  <data name="Data_Downloading_video_subtitle" xml:space="preserve">
+    <value>Downloading the video subtitle [{0}]...</value>
+  </data>
+  <data name="Data_Failed_download_subtitles" xml:space="preserve">
+    <value>Failed to download subtitle: </value>
+  </data>
+  <data name="Data_No_matching_title_for" xml:space="preserve">
+    <value>No matching title could be found for:</value>
+  </data>
+  <data name="Data_No_subtitle_for" xml:space="preserve">
+    <value>No subtitle found for:</value>
+  </data>
+  <data name="Data_Searching_video_subtitle" xml:space="preserve">
+    <value>Searching for video subtitle...</value>
+  </data>
+  <data name="Data_Searching_video_title" xml:space="preserve">
+    <value>Searching for video title...</value>
+  </data>
+  <data name="Data_Select_matching_video_title" xml:space="preserve">
+    <value>Select the matching video title</value>
+  </data>
+  <data name="Data_Select_subtitle" xml:space="preserve">
+    <value>Select the subtitle to download [{0}]...</value>
+  </data>
+  <data name="English" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="ShellExtension_Failed_process_request" xml:space="preserve">
+    <value>Could not process request. Please reinstall the application or try again from the Windows Shell's context menu!</value>
+  </data>
+  <data name="ShellExtension_Subtitles_downloaded_successfully" xml:space="preserve">
+    <value>Subtitles downloads were completed successfully!</value>
+  </data>
+  <data name="Vietnamese" xml:space="preserve">
+    <value>Vietnamese</value>
   </data>
 </root>

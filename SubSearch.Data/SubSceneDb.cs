@@ -12,6 +12,7 @@
     using SharpCompress.Archive;
 
     using SubSearch.Data;
+    using SubSearch.Resources;
 
     /// <summary>The sub scene db.</summary>
     public sealed class SubSceneDb
@@ -55,7 +56,7 @@
         /// <returns>-1 on failure, 0 on skipping, 1 on success.</returns>
         public int Query()
         {
-            this.view.ShowProgress(this.filePath, "Searching for video title...");
+            this.view.ShowProgress(this.filePath, Literals.Data_Searching_video_title);
             var title = Path.GetFileNameWithoutExtension(this.filePath);
             var encodedTitle = HttpUtility.UrlEncode(title);
             var queryUrl = string.Format("http://subscene.com/subtitles/title?q={0}&l=", encodedTitle);
@@ -82,7 +83,7 @@
                 subtitleDownloadDoc = this.GetDocument(searchResultUrl, queryUrl, queryResultDoc.Item2);
             }
 
-            this.view.ShowProgress(this.filePath, "Searching for movie subtitle...");
+            this.view.ShowProgress(this.filePath, Literals.Data_Searching_video_subtitle);
             var subtitleDownloadUrl = this.ParseSubDownloadDoc(subtitleDownloadDoc.Item1);
             if (subtitleDownloadUrl == null)
             {
@@ -96,7 +97,7 @@
 
             var path = Path.GetDirectoryName(this.filePath);
             var targetFile = Path.Combine(path, title);
-            this.view.ShowProgress(this.filePath, string.Format("Downloading the movie subtitle [{0}]...", this.Language));
+            this.view.ShowProgress(this.filePath, string.Format(Literals.Data_Downloading_video_subtitle, this.Language.Localize()));
             var result = this.DownloadSubtitle(subtitleDownloadUrl, subtitleDownloadUrl, subtitleDownloadDoc.Item2, targetFile);
             return result ? 1 : -1;
         }
@@ -201,7 +202,7 @@
             }
             catch (Exception ex)
             {
-                this.view.Notify("Failed to download subtitle: " + ex.Message);
+                this.view.Notify(Literals.Data_Failed_download_subtitles + ex.Message);
                 return false;
             }
 
@@ -244,7 +245,7 @@
                 selectedItem = this.view.GetSelection(
                     selections,
                     this.filePath,
-                    string.Format("Select the subtitle to download [{0}]...", this.Language));
+                    string.Format(Literals.Data_Select_subtitle, this.Language.Localize()));
                 if (selectedItem == null)
                 {
                     return string.Empty;
@@ -252,7 +253,7 @@
             }
             else
             {
-                this.view.Notify("No subtitle found for: " + this.filePath);
+                this.view.Notify(Literals.Data_No_subtitle_for + this.filePath);
                 return null;
             }
 
@@ -376,11 +377,11 @@
             var selections = popularList.Join(closeList, s => s.Name, s => s.Name, (s, s1) => s).ToList();
             if (!selections.Any())
             {
-                this.view.Notify("No matching title could be found for: " + this.filePath);
+                this.view.Notify(Literals.Data_No_matching_title_for + this.filePath);
                 return null;
             }
 
-            var matchingUrl = this.view.GetSelection(selections, this.filePath, "Select the matching movie title");
+            var matchingUrl = this.view.GetSelection(selections, this.filePath, Literals.Data_Select_matching_video_title);
             return matchingUrl;
         }
     }

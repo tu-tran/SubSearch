@@ -6,12 +6,13 @@
     using System.Linq;
     using System.Threading;
 
+    using SubSearch.Resources;
 
     /// <summary>The queue handler.</summary>
     internal sealed class QueueHandler
     {
         /// <summary>The id.</summary>
-        private readonly string ID;
+        private readonly string id;
 
         /// <summary>Keeps the queue file after processing.</summary>
         private readonly bool keepQueueFile;
@@ -29,7 +30,7 @@
                 throw new ArgumentException("argument");
             }
 
-            this.ID = arguments[0];
+            this.id = arguments[0];
             for (var i = 1; i < arguments.Length; i++)
             {
                 var arg = arguments[i];
@@ -44,13 +45,13 @@
         /// <returns>The <see cref="int" />.</returns>
         internal int Process()
         {
-            if (string.IsNullOrEmpty(this.ID) || !File.Exists(this.ID))
+            if (string.IsNullOrEmpty(this.id) || !File.Exists(this.id))
             {
                 return -1;
             }
 
             int success = 0, fail = 0;
-            var fileReader = new StreamReader(this.ID);
+            var fileReader = new StreamReader(this.id);
             var languageStr = fileReader.ReadLine();
             Language language;
             Enum.TryParse(languageStr, out language);
@@ -58,6 +59,7 @@
             ThreadPool.QueueUserWorkItem(
                 o =>
                 {
+                    LocalizationManager.Initialize(language);
                     string line;
                     while ((line = fileReader.ReadLine()) != null)
                     {
@@ -104,7 +106,7 @@
             viewHandler.Start();
             if (!this.keepQueueFile)
             {
-                File.Delete(this.ID);
+                File.Delete(this.id);
             }
 
             return success > 0 ? 1 : (fail > 0 ? -1 : 0);

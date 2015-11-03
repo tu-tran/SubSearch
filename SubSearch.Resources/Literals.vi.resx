@@ -117,11 +117,49 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="english" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\english.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="ShellExtension_CreateMenu_Download_subtitle" xml:space="preserve">
+    <value>Tải phụ đề</value>
   </data>
-  <data name="vietnamese" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\vietnamese.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="ShellExtension_CreateMenu_Download_dir_subtitle" xml:space="preserve">
+    <value>Tải phụ đề</value>
+  </data>
+  <data name="ShellExtension_CreateMenu_Download_subtitle_lucky" xml:space="preserve">
+    <value>Tải phụ đề (thử vận may)</value>
+  </data>
+  <data name="Data_Downloading_video_subtitle" xml:space="preserve">
+    <value>Đang tải phụ đề [{0}]...</value>
+  </data>
+  <data name="Data_Failed_download_subtitles" xml:space="preserve">
+    <value>Không thể tải phụ đề: </value>
+  </data>
+  <data name="Data_No_matching_title_for" xml:space="preserve">
+    <value>Không tìm thấy tiêu đề cho video: </value>
+  </data>
+  <data name="Data_No_subtitle_for" xml:space="preserve">
+    <value>Không tìm thấy phụ đề cho: </value>
+  </data>
+  <data name="Data_Searching_video_subtitle" xml:space="preserve">
+    <value>Đang tìm phụ đề video...</value>
+  </data>
+  <data name="Data_Searching_video_title" xml:space="preserve">
+    <value>Đang tìm tựa đề video...</value>
+  </data>
+  <data name="Data_Select_matching_video_title" xml:space="preserve">
+    <value>Chọn tiêu đề</value>
+  </data>
+  <data name="Data_Select_subtitle" xml:space="preserve">
+    <value>Chọn phụ đề đẩ tải [{0}]...</value>
+  </data>
+  <data name="ShellExtension_Failed_process_request" xml:space="preserve">
+    <value>Không thể thực thi yêu cầu! Bạn vui lòng cài đặt lại ứng dụng hoặc thử lại từ thực đơn hoàn cảnh!</value>
+  </data>
+  <data name="ShellExtension_Subtitles_downloaded_successfully" xml:space="preserve">
+    <value>Phụ đề đã được tải thành công!</value>
+  </data>
+  <data name="Vietnamese" xml:space="preserve">
+    <value>Tiếng Việt</value>
+  </data>
+  <data name="English" xml:space="preserve">
+    <value>Tiếng Anh</value>
   </data>
 </root>

@@ -5,6 +5,7 @@
     using System.Windows;
     using System.Windows.Threading;
 
+    using SubSearch.Resources;
     using SubSearch.WPF.View;
 
     /// <summary>Interaction logic for App.xaml</summary>
@@ -27,9 +28,7 @@
                 return;
             }
 
-            string message = result == 1
-                ? "Subtitles downloads were completed successfully!"
-                : "Could not process request. Please reinstall the application or try again from the Windows Shell's context menu!";
+            var message = result == 1 ? Literals.ShellExtension_Subtitles_downloaded_successfully : Literals.ShellExtension_Failed_process_request;
 
             NotificationWindow.Show(
                 message,

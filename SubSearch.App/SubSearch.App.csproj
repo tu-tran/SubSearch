@@ -139,6 +139,10 @@
       <Project>{7df6b254-73c6-4ce2-91bc-ad69073d7554}</Project>
       <Name>SubSearch.Data</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SubSearch.Resources\SubSearch.Resources.csproj">
+      <Project>{b28465ba-23d2-4307-a21e-a00bfed86cc6}</Project>
+      <Name>SubSearch.Resources</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SubSearch\SubSearch.csproj">
       <Project>{6af4e02e-defc-4efe-ad5d-4c0f463a8d01}</Project>
       <Name>SubSearch</Name>

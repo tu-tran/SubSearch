@@ -1,4 +1,4 @@
-﻿namespace SubSearch
+﻿namespace SubSearch.Resources
 {
     /// <summary>
     /// The language enum.
