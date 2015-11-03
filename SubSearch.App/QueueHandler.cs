@@ -19,8 +19,8 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="QueueHandler"/> class.
         /// </summary>
-        /// <param name="queueId">
-        /// The queue id.
+        /// <param name="arguments">
+        /// The arguments.
         /// </param>
         internal QueueHandler(params string[] arguments)
         {
