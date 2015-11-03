@@ -302,6 +302,8 @@
                     this.Status = status;
                     this.SelectionBox.Visibility = Visibility.Visible;
                     this.ProgressBar.Visibility = Visibility.Collapsed;
+                    lastPosition = null;
+                    this.AutoPosition();
                 });
         }
 
@@ -370,6 +372,14 @@
         /// The e.
         /// </param>
         private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            this.AutoPosition();
+        }
+
+        /// <summary>
+        /// Auto position.
+        /// </summary>
+        private void AutoPosition()
         {
             if (lastPosition == null)
             {
