@@ -105,12 +105,6 @@
     <None Include="Resources\SubSearchLucky.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\SubSearch1.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\SubSearchLucky1.png" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\SubSearch.Resources\SubSearch.Resources.csproj">
       <Project>{b28465ba-23d2-4307-a21e-a00bfed86cc6}</Project>
       <Name>SubSearch.Resources</Name>
