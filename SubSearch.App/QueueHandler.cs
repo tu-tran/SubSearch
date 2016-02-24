@@ -1,10 +1,22 @@
-﻿namespace SubSearch.WPF
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="QueueHandler.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The queue handler.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace SubSearch.WPF
 {
-    using SubSearch.Resources;
     using System;
     using System.IO;
     using System.Linq;
     using System.Threading;
+    using System.Windows;
+
+    using SubSearch.Data;
+    using SubSearch.Resources;
 
     /// <summary>The queue handler.</summary>
     internal sealed class QueueHandler
@@ -15,12 +27,8 @@
         /// <summary>Keeps the queue file after processing.</summary>
         private readonly bool keepQueueFile;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="QueueHandler"/> class.
-        /// </summary>
-        /// <param name="arguments">
-        /// The arguments.
-        /// </param>
+        /// <summary>Initializes a new instance of the <see cref="QueueHandler"/> class.</summary>
+        /// <param name="arguments">The arguments.</param>
         internal QueueHandler(params string[] arguments)
         {
             if (arguments == null || arguments.Length < 1)
@@ -53,63 +61,66 @@
             var languageStr = fileReader.ReadLine();
             Language language;
             Enum.TryParse(languageStr, out language);
-            var viewHandler = fileReader.ReadLine() == "__SILENT__" ? new SilentViewHandler() : new WpfViewHandler();
+            var viewHandler = fileReader.ReadLine() == Constants.SilentModeIdentifier ? new SilentViewHandler() : new WpfViewHandler();
             ThreadPool.QueueUserWorkItem(
                 o =>
-                {
-                    LocalizationManager.Initialize(language);
-                    string line;
-                    while ((line = fileReader.ReadLine()) != null)
                     {
-                        string[] targets = null;
-                        if (File.Exists(line))
+                        LocalizationManager.Initialize(language);
+                        viewHandler.CustomActionRequested += this.OnViewHandlerCustomActionRequested;
+                        string line;
+                        while ((line = fileReader.ReadLine()) != null)
                         {
-                            targets = new[] { line };
-                        }
-                        else if (Directory.Exists(line))
-                        {
-                            targets =
-                                Directory.EnumerateFiles(line, "*.*", SearchOption.AllDirectories)
-                                    .Where(f => ShellExtension.FileAssociations.Any(ext => f.EndsWith(ext, StringComparison.OrdinalIgnoreCase))).ToArray();
-                        }
-
-                        if (targets == null)
-                        {
-                            continue;
-                        }
-
-                        var i = 0;
-                        foreach (var file in targets)
-                        {
-                            try
+                            string[] targets = null;
+                            if (File.Exists(line))
                             {
-                                viewHandler.ShowProgress(++i, targets.Length);
-                                var entryResult = new SubSceneDb(file, viewHandler, language).Query();
-                                if (entryResult > 0)
+                                targets = new[] { line };
+                            }
+                            else if (Directory.Exists(line))
+                            {
+                                targets =
+                                    Directory.EnumerateFiles(line, "*.*", SearchOption.AllDirectories)
+                                        .Where(f => ShellExtension.FileAssociations.Any(ext => f.EndsWith(ext, StringComparison.OrdinalIgnoreCase)))
+                                        .ToArray();
+                            }
+
+                            if (targets == null)
+                            {
+                                continue;
+                            }
+
+                            var i = 0;
+                            foreach (var file in targets)
+                            {
+                                try
                                 {
-                                    success++;
+                                    viewHandler.TargetFile = file;
+                                    viewHandler.ShowProgress(++i, targets.Length);
+                                    var entryResult = new SubSceneDb(file, viewHandler, language).Query();
+                                    if (entryResult > 0)
+                                    {
+                                        success++;
+                                    }
+                                    else if (entryResult < 0)
+                                    {
+                                        fail++;
+                                    }
+                                    else if (entryResult == 0)
+                                    {
+                                        break; // Users cancel
+                                    }
                                 }
-                                else if (entryResult < 0)
+                                catch (Exception ex)
                                 {
                                     fail++;
+                                    Console.Error.WriteLine(ex);
                                 }
-                                else if (entryResult == 0)
-                                {
-                                    break; // Users cancel
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                fail++;
-                                Console.Error.WriteLine(ex);
                             }
                         }
-                    }
 
-                    fileReader.Dispose();
-                    viewHandler.Dispose();
-                    viewHandler = null;
-                });
+                        fileReader.Dispose();
+                        viewHandler.Dispose();
+                        viewHandler = null;
+                    });
 
             viewHandler.Start();
             if (!this.keepQueueFile)
@@ -118,6 +129,55 @@
             }
 
             return success > 0 ? 1 : (fail > 0 ? -1 : 0);
+        }
+
+        /// <summary>The handle action.</summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="parameter">The parameter.</param>
+        /// <param name="actionName">The action name.</param>
+        private void HandleAction(IViewHandler sender, object parameter, string actionName)
+        {
+            var itemData = parameter as ItemData;
+            if (itemData == null)
+            {
+                return;
+            }
+
+            var file = sender.TargetFile;
+            if (actionName == CustomActions.DownloadSubtitle)
+            {
+                new SubSceneDb(file, sender).DownloadSubtitle(itemData.Tag as string);
+            }
+            else if (actionName == CustomActions.Play)
+            {
+                try
+                {
+                    if (File.Exists(file))
+                    {
+                        System.Diagnostics.Process.Start(file);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    sender.Notify(string.Format("Failed to play {0}: {1}", file, ex.Message));
+                }
+            }
+            else if (actionName == CustomActions.Close)
+            {
+                Application.Current.Shutdown();
+            }
+        }
+
+        /// <summary>The on view handler custom action requested.</summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="parameter">The parameter.</param>
+        /// <param name="actionNames">The action names.</param>
+        private void OnViewHandlerCustomActionRequested(IViewHandler sender, object parameter, params string[] actionNames)
+        {
+            foreach (var actionName in actionNames)
+            {
+                this.HandleAction(sender, parameter, actionName);
+            }
         }
     }
 }

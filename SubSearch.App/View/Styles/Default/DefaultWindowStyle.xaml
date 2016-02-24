@@ -32,12 +32,22 @@
             </Setter.Value>
         </Setter>
     </Style>
+    
+    <Style x:Key="TextBlockStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="Padding" Value="4" />
+        <Setter Property="Margin" Value="4" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
 
     <Style x:Key="DefaultWindowStyle" TargetType="{x:Type Window}">
         <Setter Property="WindowStyle" Value="None" />
         <Setter Property="AllowsTransparency" Value="true" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="ResizeMode" Value="CanResizeWithGrip" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Padding" Value="4" />
         <Setter Property="WindowChrome.WindowChrome">
             <Setter.Value>
                 <WindowChrome CaptionHeight="32"

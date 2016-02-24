@@ -61,6 +61,33 @@ namespace SubSearch.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to _Download.
+        /// </summary>
+        public static string Data__Download {
+            get {
+                return ResourceManager.GetString("Data__Download", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Download &amp;amp; _Close.
+        /// </summary>
+        public static string Data_Download__Close {
+            get {
+                return ResourceManager.GetString("Data_Download__Close", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Download &amp;amp; _Play.
+        /// </summary>
+        public static string Data_Download__Play {
+            get {
+                return ResourceManager.GetString("Data_Download__Play", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Downloading the video subtitle [{0}]....
         /// </summary>
         public static string Data_Downloading_video_subtitle {

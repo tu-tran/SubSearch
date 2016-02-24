@@ -28,9 +28,7 @@
         /// <summary>The file associations.</summary>
         public static readonly IEnumerable<string> FileAssociations;
 
-        /// <summary>
-        /// The supported languages.
-        /// </summary>
+        /// <summary>The supported languages.</summary>
         private static readonly List<Language> SupportedLanguage = new List<Language> { Language.English, Language.Vietnamese };
 
         /// <summary>Initializes static members of the <see cref="ShellExtension" /> class.</summary>
@@ -64,6 +62,15 @@
             return menu;
         }
 
+        /// <summary>Gets the language icon.</summary>
+        /// <param name="name">The language.</param>
+        /// <returns>The language icon.</returns>
+        private static Bitmap GetLanguageIcon(string name)
+        {
+            var resource = Icons.ResourceManager.GetObject(name.ToLower()) as Bitmap;
+            return resource;
+        }
+
         /// <summary>Download subtitle for the selected file.</summary>
         /// <param name="option">The download option.</param>
         private void DownloadSubtitle(DownloadOption option)
@@ -74,9 +81,9 @@
             if (!File.Exists(executable))
             {
                 MessageBox.Show(
-                    "SubSearch application was not properly installed. Please try restarting the computer and reinstall SubSearch!",
-                    "Corrupted Installation",
-                    MessageBoxButton.OK,
+                    "SubSearch application was not properly installed. Please try restarting the computer and reinstall SubSearch!", 
+                    "Corrupted Installation", 
+                    MessageBoxButton.OK, 
                     MessageBoxImage.Error);
                 return;
             }
@@ -87,7 +94,7 @@
             using (var queueFile = File.CreateText(newQueue))
             {
                 queueFile.WriteLine(option.Language);
-                queueFile.WriteLine(option.IsLuckyMode ? "__SILENT__" : "__");
+                queueFile.WriteLine(option.IsLuckyMode ? Constants.SilentModeIdentifier : Constants.NormalModeIdentifier);
                 foreach (var selectedFile in this.SelectedItemPaths)
                 {
                     queueFile.WriteLine(selectedFile);
@@ -97,9 +104,7 @@
             Process.Start(executable, newQueue);
         }
 
-        /// <summary>
-        /// Get menu item.
-        /// </summary>
+        /// <summary>Get menu item.</summary>
         /// <param name="isLuckyMode">Is lucky mode.</param>
         /// <returns>Menu item.</returns>
         private ToolStripMenuItem GetLanguageItems(bool isLuckyMode)
@@ -110,8 +115,8 @@
                                   Text =
                                       isLuckyMode
                                           ? Literals.ShellExtension_CreateMenu_Download_subtitle_lucky
-                                          : Literals.ShellExtension_CreateMenu_Download_subtitle,
-                                  Image = isLuckyMode ? Icons.SubSearchLucky : Icons.SubSearch,
+                                          : Literals.ShellExtension_CreateMenu_Download_subtitle, 
+                                  Image = isLuckyMode ? Icons.SubSearchLucky : Icons.SubSearch, 
                                   Tag = option
                               };
             topMenu.Click += (sender, args) => this.DownloadSubtitle(option);
@@ -120,11 +125,11 @@
             {
                 var subOption = new DownloadOption { Language = language, IsLuckyMode = isLuckyMode };
                 var newLanguageItem = new ToolStripMenuItem
-                {
-                    Text = language.ToString(),
-                    Image = GetLanguageIcon(language.ToString()),
-                    Tag = subOption
-                };
+                                          {
+                                              Text = language.ToString(), 
+                                              Image = GetLanguageIcon(language.ToString()), 
+                                              Tag = subOption
+                                          };
 
                 newLanguageItem.Click += (sender, args) => this.DownloadSubtitle(subOption);
                 topMenu.DropDownItems.Add(newLanguageItem);
@@ -133,30 +138,13 @@
             return topMenu;
         }
 
-        /// <summary>
-        /// Gets the language icon.
-        /// </summary>
-        /// <param name="name">The language.</param>
-        /// <returns>The language icon.</returns>
-        private static Bitmap GetLanguageIcon(string name)
-        {
-            var resource = Icons.ResourceManager.GetObject(name.ToLower()) as Bitmap;
-            return resource;
-        }
-
-        /// <summary>
-        /// The download option.
-        /// </summary>
+        /// <summary>The download option.</summary>
         private struct DownloadOption
         {
-            /// <summary>
-            /// The language.
-            /// </summary>
+            /// <summary>The language.</summary>
             public Language Language;
 
-            /// <summary>
-            /// Is lucky mode.
-            /// </summary>
+            /// <summary>Is lucky mode.</summary>
             public bool IsLuckyMode;
         }
     }

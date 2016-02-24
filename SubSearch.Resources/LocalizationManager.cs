@@ -1,15 +1,23 @@
-﻿namespace SubSearch.Resources
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="LocalizationManager.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The localization manager.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace SubSearch.Resources
 {
     using System;
     using System.Globalization;
     using System.Linq;
     using System.Threading;
 
+    /// <summary>The localization manager.</summary>
     public static class LocalizationManager
     {
-        /// <summary>
-        /// Initializes the culture.
-        /// </summary>
+        /// <summary>Initializes the culture.</summary>
         /// <param name="language">The language.</param>
         public static void Initialize(Language language)
         {
@@ -23,9 +31,7 @@
             }
         }
 
-        /// <summary>
-        /// Localizes the object value.
-        /// </summary>
+        /// <summary>Localizes the object value.</summary>
         /// <param name="target">The target object.</param>
         /// <returns>The localized object value.</returns>
         public static string Localize(this object target)

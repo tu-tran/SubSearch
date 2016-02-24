@@ -1,10 +1,19 @@
-﻿namespace SubSearch
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="SubSceneDb.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The sub scene db.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+namespace SubSearch
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Net;
+    using System.Text;
     using System.Web;
 
     using HtmlAgilityPack;
@@ -17,42 +26,66 @@
     /// <summary>The sub scene db.</summary>
     public sealed class SubSceneDb
     {
+        /// <summary>The language codes.</summary>
+        private static readonly Dictionary<Language, string> LanguageCodes = new Dictionary<Language, string>
+                                                                                 {
+                                                                                     { Language.English, "13" }, 
+                                                                                     { Language.Vietnamese, "45" }
+                                                                                 };
+
         /// <summary>The file path.</summary>
         private readonly string filePath;
 
         /// <summary>The view.</summary>
         private readonly IViewHandler view;
 
-        private static readonly Dictionary<Language, string> LanguageCodes = new Dictionary<Language, string>
-                                                                                 {
-                                                                                     { Language.English, "13" },
-                                                                                     { Language.Vietnamese, "45" }
-                                                                                 };
-
-        /// <summary>
-        /// The language.
-        /// </summary>
-        public Language Language { get; private set; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SubSceneDb"/> class.
-        /// </summary>
-        /// <param name="filePath">
-        /// The file path.
-        /// </param>
-        /// <param name="viewHandler">
-        /// The view handler.
-        /// </param>
+        /// <summary>Initializes a new instance of the <see cref="SubSceneDb"/> class.</summary>
+        /// <param name="filePath">The file path.</param>
+        /// <param name="viewHandler">The view handler.</param>
+        /// <param name="language">The language.</param>
         public SubSceneDb(string filePath, IViewHandler viewHandler, Language language)
+            : this(filePath, viewHandler)
         {
-            this.filePath = filePath;
-            this.view = viewHandler;
             this.Language = language;
         }
 
-        /// <summary>
-        /// Queries Subscene db.
-        /// </summary>
+        /// <summary>Initializes a new instance of the <see cref="SubSceneDb"/> class.</summary>
+        /// <param name="filePath">The file path.</param>
+        /// <param name="viewHandler">The view handler.</param>
+        public SubSceneDb(string filePath, IViewHandler viewHandler)
+        {
+            this.filePath = filePath;
+            this.view = viewHandler;
+        }
+
+        /// <summary>The language.</summary>
+        public Language Language { get; private set; }
+
+        /// <summary>The download subtitle.</summary>
+        /// <param name="subtitleDownloadUrl">The subtitle download url.</param>
+        /// <param name="cookies">The cookies.</param>
+        /// <returns>-1 on failure, 0 on skipping, 1 on success.</returns>
+        public int DownloadSubtitle(string subtitleDownloadUrl, CookieContainer cookies = null)
+        {
+            if (subtitleDownloadUrl == null)
+            {
+                return -1;
+            }
+
+            if (subtitleDownloadUrl == string.Empty)
+            {
+                return 0;
+            }
+
+            var title = Path.GetFileNameWithoutExtension(this.filePath);
+            var path = Path.GetDirectoryName(this.filePath);
+            var targetFile = Path.Combine(path, title);
+            this.view.ShowProgress(this.filePath, string.Format(Literals.Data_Downloading_video_subtitle, this.Language.Localize()));
+            var result = this.DoDownloadSubtitle(subtitleDownloadUrl, subtitleDownloadUrl, cookies, targetFile);
+            return result ? 1 : -1;
+        }
+
+        /// <summary>Queries Subscene db.</summary>
         /// <returns>-1 on failure, 0 on skipping, 1 on success.</returns>
         public int Query()
         {
@@ -70,7 +103,7 @@
             var cookies = new CookieContainer();
             cookies.Add(new Cookie("LanguageFilter", languageCode, "/", ".subscene.com"));
 
-            var queryResultDoc = this.GetDocument(queryUrl, "http://subscene.com", cookies);
+            var queryResultDoc = this.GetDocument(queryUrl, "http://subscene.com", cookies, false);
             var searchResultUrl = this.ParseQueryDoc(queryResultDoc.Item1);
 
             Tuple<HtmlDocument, CookieContainer> subtitleDownloadDoc;
@@ -80,48 +113,26 @@
             }
             else
             {
-                subtitleDownloadDoc = this.GetDocument(searchResultUrl, queryUrl, queryResultDoc.Item2);
+                subtitleDownloadDoc = this.GetDocument(searchResultUrl, queryUrl, queryResultDoc.Item2, false);
             }
 
             this.view.ShowProgress(this.filePath, Literals.Data_Searching_video_subtitle);
             var subtitleDownloadUrl = this.ParseSubDownloadDoc(subtitleDownloadDoc.Item1);
-            if (subtitleDownloadUrl == null)
-            {
-                return -1;
-            }
-
-            if (subtitleDownloadUrl == string.Empty)
-            {
-                return 0;
-            }
-
-            var path = Path.GetDirectoryName(this.filePath);
-            var targetFile = Path.Combine(path, title);
-            this.view.ShowProgress(this.filePath, string.Format(Literals.Data_Downloading_video_subtitle, this.Language.Localize()));
-            var result = this.DownloadSubtitle(subtitleDownloadUrl, subtitleDownloadUrl, subtitleDownloadDoc.Item2, targetFile);
-            return result ? 1 : -1;
+            return this.DownloadSubtitle(subtitleDownloadUrl, subtitleDownloadDoc.Item2);
         }
 
-        /// <summary>
-        /// The get request.
-        /// </summary>
-        /// <param name="url">
-        /// The url.
-        /// </param>
-        /// <param name="referrer">
-        /// The referrer.
-        /// </param>
-        /// <param name="cookies">
-        /// The cookies.
-        /// </param>
-        /// <returns>
-        /// The <see cref="HttpWebRequest"/>.
-        /// </returns>
-        private static HttpWebRequest GetRequest(string url, string referrer = "", CookieContainer cookies = null)
+        /// <summary>The get request.</summary>
+        /// <param name="url">The url.</param>
+        /// <param name="referrer">The referrer.</param>
+        /// <param name="cookies">The cookies.</param>
+        /// <param name="isMobile">The is Mobile.</param>
+        /// <returns>The <see cref="HttpWebRequest"/>.</returns>
+        private static HttpWebRequest GetRequest(string url, string referrer = "", CookieContainer cookies = null, bool isMobile = true)
         {
             var request = (HttpWebRequest)WebRequest.Create(url);
-            request.UserAgent =
-                "Mozilla/5.0 (Linux; U; Android 4.2; en-us; SonyC6903 Build/14.1.G.1.518) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30";
+            request.UserAgent = isMobile
+                                    ? "Mozilla/5.0 (Linux; U; Android 4.2; en-us; SonyC6903 Build/14.1.G.1.518) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
+                                    : "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; AS; rv:11.0) like Gecko";
             request.Referer = referrer;
             request.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8";
 
@@ -137,22 +148,13 @@
             return request;
         }
 
-        /// <summary>
-        /// The download subtitle.
-        /// </summary>
-        /// <param name="subtitleDownloadUrl">
-        /// The subtitle download url.
-        /// </param>
-        /// <param name="referrer">
-        /// The referrer.
-        /// </param>
-        /// <param name="cookies">
-        /// The cookies.
-        /// </param>
-        /// <param name="targetFileWithoutExtension">
-        /// The target file without extension.
-        /// </param>
-        private bool DownloadSubtitle(string subtitleDownloadUrl, string referrer, CookieContainer cookies, string targetFileWithoutExtension)
+        /// <summary>The download subtitle.</summary>
+        /// <param name="subtitleDownloadUrl">The subtitle download url.</param>
+        /// <param name="referrer">The referrer.</param>
+        /// <param name="cookies">The cookies.</param>
+        /// <param name="targetFileWithoutExtension">The target file without extension.</param>
+        /// <returns>The <see cref="bool"/>.</returns>
+        private bool DoDownloadSubtitle(string subtitleDownloadUrl, string referrer, CookieContainer cookies, string targetFileWithoutExtension)
         {
             var htmlDoc = this.GetDocument("http://subscene.com" + subtitleDownloadUrl, referrer, cookies);
             var downloadNodes = htmlDoc.Item1.DocumentNode.SelectNodes("//a[@id='downloadButton']");
@@ -163,7 +165,6 @@
 
             try
             {
-
                 foreach (var downloadNode in downloadNodes)
                 {
                     var link = downloadNode.GetAttributeValue("href", string.Empty);
@@ -195,7 +196,6 @@
                                     entry.WriteToFile(entryPath);
                                 }
                             }
-
                         }
                     }
                 }
@@ -209,97 +209,58 @@
             return true;
         }
 
-        /// <summary>
-        /// The parse sub download doc.
-        /// </summary>
-        /// <param name="htmlDoc">
-        /// The html doc.
-        /// </param>
-        /// <returns>
-        /// The <see cref="string"/>.
-        /// </returns>
-        private string ParseSubDownloadDoc(HtmlDocument htmlDoc)
-        {
-            var subtitleNodes = htmlDoc.DocumentNode.SelectNodes("//a[@class='list-group-item']");
-            if (subtitleNodes == null)
-            {
-                return null;
-            }
-
-            var selections = new List<ItemData>();
-            foreach (var subtitleNode in subtitleNodes)
-            {
-                var link = subtitleNode.GetAttributeValue("href", string.Empty);
-                var titleNode = subtitleNode.SelectSingleNode(".//h4");
-                var title = titleNode.InnerText.Trim(' ', '\r', '\n');
-                selections.Add(new ItemData(title, link));
-            }
-
-            ItemData selectedItem = null;
-            if (selections.Count == 1)
-            {
-                selectedItem = selections.First();
-            }
-            else if (selections.Count > 1)
-            {
-                selectedItem = this.view.GetSelection(
-                    selections,
-                    this.filePath,
-                    string.Format(Literals.Data_Select_subtitle, this.Language.Localize()));
-
-                if (selectedItem == null)
-                {
-                    return string.Empty;
-                }
-            }
-            else
-            {
-                this.view.Notify(Literals.Data_No_subtitle_for + this.filePath);
-                return null;
-            }
-
-            return selectedItem == null ? string.Empty : selectedItem.Tag as string;
-        }
-
-        /// <summary>
-        /// The get document.
-        /// </summary>
-        /// <param name="url">
-        /// The url.
-        /// </param>
-        /// <param name="referrer">
-        /// The referrer.
-        /// </param>
-        /// <param name="cookies">
-        /// The cookies.
-        /// </param>
-        /// <returns>
-        /// The <see cref="Tuple"/>.
-        /// </returns>
-        private Tuple<HtmlDocument, CookieContainer> GetDocument(string url, string referrer = "", CookieContainer cookies = null)
+        /// <summary>The get document.</summary>
+        /// <param name="url">The url.</param>
+        /// <param name="referrer">The referrer.</param>
+        /// <param name="cookies">The cookies.</param>
+        /// <param name="isMobile">The is mobile.</param>
+        /// <returns>The <see cref="Tuple"/>.</returns>
+        private Tuple<HtmlDocument, CookieContainer> GetDocument(
+            string url, 
+            string referrer = "", 
+            CookieContainer cookies = null, 
+            bool isMobile = true)
         {
             var htmlDoc = new HtmlDocument();
-            var request = GetRequest(url, referrer, cookies);
+            var request = GetRequest(url, referrer, cookies, isMobile);
             using (var respStream = request.GetResponse().GetResponseStream())
             {
                 if (respStream != null)
                 {
-                    htmlDoc.Load(respStream);
+                    htmlDoc.Load(respStream, Encoding.UTF8);
                 }
             }
 
             return Tuple.Create(htmlDoc, request.CookieContainer);
         }
 
-        /// <summary>
-        /// The parse query doc.
-        /// </summary>
-        /// <param name="htmlDoc">
-        /// The html doc.
-        /// </param>
-        /// <returns>
-        /// The <see cref="string"/>.
-        /// </returns>
+        /// <summary>The get matching url.</summary>
+        /// <param name="exactList">The exact list.</param>
+        /// <param name="popularList">The popular list.</param>
+        /// <param name="closeList">The close list.</param>
+        /// <returns>The <see cref="ItemData"/>.</returns>
+        private ItemData GetMatchingUrl(List<ItemData> exactList, List<ItemData> popularList, List<ItemData> closeList)
+        {
+            // Process the actual subtitle link
+            foreach (var matchingTitle in exactList)
+            {
+                return matchingTitle;
+            }
+
+            var selections = popularList.Join(closeList, s => s.Text, s => s.Text, (s, s1) => s).ToList();
+            if (!selections.Any())
+            {
+                this.view.Notify(Literals.Data_No_matching_title_for + this.filePath);
+                return null;
+            }
+
+            var matchingUrl = this.view.GetSelection(selections, this.filePath, Literals.Data_Select_matching_video_title);
+            return matchingUrl;
+        }
+
+        /// <summary>The parse query doc.</summary>
+        /// <param name="htmlDoc">The html doc.</param>
+        /// <returns>The <see cref="string"/>.</returns>
         private string ParseQueryDoc(HtmlDocument htmlDoc)
         {
             var resultNodes = htmlDoc.DocumentNode.SelectNodes("//div[@class='search-result']");
@@ -328,7 +289,7 @@
 
                     if (activeList != null && childNode.Name == "ul")
                     {
-                        var titleNodes = childNode.SelectNodes(".//div[@class='title']/a");
+                        var titleNodes = childNode.SelectNodes(".//div[@class='title']");
                         if (titleNodes == null)
                         {
                             continue;
@@ -336,10 +297,30 @@
 
                         foreach (var titleNode in titleNodes)
                         {
-                            var link = titleNode.GetAttributeValue("href", string.Empty);
+                            var linkNode = titleNode.SelectNodes(".//a").FirstOrDefault();
+                            if (linkNode == null)
+                            {
+                                continue;
+                            }
+
+                            var link = linkNode.GetAttributeValue("href", string.Empty);
                             if (!string.IsNullOrEmpty(link))
                             {
-                                activeList.Add(new ItemData(titleNode.InnerText, link));
+                                string count = null;
+                                var countNode = titleNode.NextSibling;
+                                while (countNode != null)
+                                {
+                                    if (countNode.GetAttributeValue("class", string.Empty).Contains("count"))
+                                    {
+                                        count = string.Format("({0})", countNode.InnerText.Trim());
+                                        break;
+                                    }
+
+                                    countNode = countNode.NextSibling;
+                                }
+
+                                activeList.Add(
+                                    new ItemData(HttpUtility.HtmlDecode(titleNode.InnerText), link) { Description = HttpUtility.HtmlDecode(count) });
                             }
                         }
 
@@ -352,38 +333,82 @@
             return matchingUrl == null || string.IsNullOrEmpty(matchingUrl.Tag as string) ? string.Empty : "http://subscene.com" + matchingUrl.Tag;
         }
 
-        /// <summary>
-        /// The get matching url.
-        /// </summary>
-        /// <param name="exactList">
-        /// The exact list.
-        /// </param>
-        /// <param name="popularList">
-        /// The popular list.
-        /// </param>
-        /// <param name="closeList">
-        /// The close list.
-        /// </param>
-        /// <returns>
-        /// The <see cref="ItemData"/>.
-        /// </returns>
-        private ItemData GetMatchingUrl(List<ItemData> exactList, List<ItemData> popularList, List<ItemData> closeList)
+        /// <summary>The parse sub download doc.</summary>
+        /// <param name="htmlDoc">The html doc.</param>
+        /// <returns>The <see cref="string"/>.</returns>
+        private string ParseSubDownloadDoc(HtmlDocument htmlDoc)
         {
-            // Process the actual subtitle link
-            foreach (var matchingTitle in exactList)
+            var subtitleNodes = htmlDoc.DocumentNode.SelectNodes("//td[@class='a1']");
+            if (subtitleNodes == null)
             {
-                return matchingTitle;
-            }
-
-            var selections = popularList.Join(closeList, s => s.Name, s => s.Name, (s, s1) => s).ToList();
-            if (!selections.Any())
-            {
-                this.view.Notify(Literals.Data_No_matching_title_for + this.filePath);
                 return null;
             }
 
-            var matchingUrl = this.view.GetSelection(selections, this.filePath, Literals.Data_Select_matching_video_title);
-            return matchingUrl;
+            var selections = new List<ItemData>();
+            foreach (var subtitleNode in subtitleNodes)
+            {
+                var linkNode = subtitleNode.SelectSingleNode(".//a");
+                if (linkNode == null)
+                {
+                    continue;
+                }
+
+                var link = linkNode.GetAttributeValue("href", string.Empty);
+                var icon = Icon.Dot;
+                var linkSpanNodes = linkNode.SelectNodes(".//span");
+                var rateNode = linkSpanNodes.FirstOrDefault();
+                if (rateNode != null)
+                {
+                    var rateClass = rateNode.GetAttributeValue("class", string.Empty).Split(' ').LastOrDefault();
+                    if (!string.IsNullOrEmpty(rateClass) && rateClass.Contains("-icon"))
+                    {
+                        var rate = rateClass.Substring(0, rateClass.Length - 5);
+                        Enum.TryParse(rate, true, out icon);
+                    }
+                }
+
+                var titleNode = linkSpanNodes.LastOrDefault();
+                if (titleNode == null)
+                {
+                    continue;
+                }
+
+                var title = titleNode.InnerText.Trim();
+                var commentNode = subtitleNode.ParentNode.SelectSingleNode(".//td[@class='a6']/div");
+                string description = null;
+                if (commentNode != null)
+                {
+                    description = commentNode.InnerText.Trim();
+                }
+
+                selections.Add(new ItemData(HttpUtility.HtmlDecode(title), link) { Icon = icon, Description = HttpUtility.HtmlDecode(description.Replace(Environment.NewLine, " ")) });
+            }
+
+            ItemData selectedItem = null;
+            if (selections.Count == 1)
+            {
+                selectedItem = selections.First();
+            }
+            else if (selections.Count > 1)
+            {
+                selections = selections.OrderByDescending(i => i.Icon).ToList();
+                selectedItem = this.view.GetSelection(
+                    selections, 
+                    this.filePath, 
+                    string.Format(Literals.Data_Select_subtitle, this.Language.Localize()));
+
+                if (selectedItem == null)
+                {
+                    return string.Empty;
+                }
+            }
+            else
+            {
+                this.view.Notify(Literals.Data_No_subtitle_for + this.filePath);
+                return null;
+            }
+
+            return selectedItem == null ? string.Empty : selectedItem.Tag as string;
         }
     }
 }

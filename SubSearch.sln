@@ -15,6 +15,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution items", "Solution items", "{88CA59C6-DB59-4864-B188-166127AE5AAA}"
 	ProjectSection(SolutionItems) = preProject
 		Installer\install.bat = Installer\install.bat
+		.nuget\packages.config = .nuget\packages.config
 		Installer\srm.exe = Installer\srm.exe
 		Installer\uninstall.bat = Installer\uninstall.bat
 	EndProjectSection

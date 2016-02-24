@@ -1,9 +1,8 @@
-﻿using System.Threading.Tasks;
-
-namespace SubSearch.WPF
+﻿namespace SubSearch.WPF
 {
     using System;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Threading;
 
@@ -13,12 +12,8 @@ namespace SubSearch.WPF
     /// <summary>Interaction logic for App.xaml</summary>
     public partial class App
     {
-        /// <summary>
-        /// The on startup.
-        /// </summary>
-        /// <param name="e">
-        /// The e.
-        /// </param>
+        /// <summary>The on startup.</summary>
+        /// <param name="e">The e.</param>
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -33,51 +28,17 @@ namespace SubSearch.WPF
             var message = result == 1 ? Literals.ShellExtension_Subtitles_downloaded_successfully : Literals.ShellExtension_Failed_process_request;
 
             NotificationWindow.Show(
-                message,
+                message, 
                 (sender, args) =>
-                {
-                    if (args.NewValue.Equals(false))
                     {
-                        this.Dispatcher.InvokeShutdown();
-                    }
-                });
+                        if (args.NewValue.Equals(false))
+                        {
+                            this.Dispatcher.InvokeShutdown();
+                        }
+                    });
         }
 
-        /// <summary>
-        /// Initializes the error handler.
-        /// </summary>
-        private void InitializeErrorHandler()
-        {
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
-            this.Dispatcher.UnhandledException += CurrentOnDispatcherUnhandledException;
-            this.DispatcherUnhandledException += CurrentOnDispatcherUnhandledException;
-            TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
-        }
-
-        /// <summary>
-        /// Raises when there is unhandled exception.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="eventArgs">The event arguments.</param>
-        private static void TaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs eventArgs)
-        {
-            CurrentDomainOnUnhandledException(sender, new UnhandledExceptionEventArgs(eventArgs.Exception, false));
-        }
-
-        /// <summary>
-        /// Raises when there is unhandled exception.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="eventArgs">The event arguments.</param>
-        private static void CurrentOnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs eventArgs)
-        {
-            CurrentDomainOnUnhandledException(sender, new UnhandledExceptionEventArgs(eventArgs.Exception, false));
-            eventArgs.Handled = true;
-        }
-
-        /// <summary>
-        /// Raises when there is unhandled exception.
-        /// </summary>
+        /// <summary>Raises when there is unhandled exception.</summary>
         /// <param name="sender">The sender.</param>
         /// <param name="eventArgs">The event arguments.</param>
         private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs eventArgs)
@@ -95,6 +56,32 @@ namespace SubSearch.WPF
             var dialog = new MessageDialog { Title = "Unexpected errors", Message = sb.ToString() };
             dialog.Closed += (o, args) => Current.Dispatcher.InvokeShutdown();
             dialog.Show();
+        }
+
+        /// <summary>Raises when there is unhandled exception.</summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="eventArgs">The event arguments.</param>
+        private static void CurrentOnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs eventArgs)
+        {
+            CurrentDomainOnUnhandledException(sender, new UnhandledExceptionEventArgs(eventArgs.Exception, false));
+            eventArgs.Handled = true;
+        }
+
+        /// <summary>Raises when there is unhandled exception.</summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="eventArgs">The event arguments.</param>
+        private static void TaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs eventArgs)
+        {
+            CurrentDomainOnUnhandledException(sender, new UnhandledExceptionEventArgs(eventArgs.Exception, false));
+        }
+
+        /// <summary>Initializes the error handler.</summary>
+        private void InitializeErrorHandler()
+        {
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
+            this.Dispatcher.UnhandledException += CurrentOnDispatcherUnhandledException;
+            this.DispatcherUnhandledException += CurrentOnDispatcherUnhandledException;
+            TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
         }
     }
 }

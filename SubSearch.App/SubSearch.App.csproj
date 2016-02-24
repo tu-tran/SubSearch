@@ -67,15 +67,22 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ActionCommand.cs" />
+    <Compile Include="ActionCommand{T}.cs" />
+    <Compile Include="CommandBase.cs" />
+    <Compile Include="CustomActions.cs" />
     <Compile Include="QueueHandler.cs" />
     <Compile Include="SilentViewHandler.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="View\BindingProxy.cs" />
+    <Compile Include="View\BindingSource.cs" />
     <Compile Include="View\MessageDialog.xaml.cs">
       <DependentUpon>MessageDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\NameToResourceConverter.cs" />
     <Compile Include="View\NotificationWindow.xaml.cs">
       <DependentUpon>NotificationWindow.xaml</DependentUpon>
     </Compile>
@@ -138,14 +145,17 @@
     <ProjectReference Include="..\SubSearch.Data\SubSearch.Data.csproj">
       <Project>{7df6b254-73c6-4ce2-91bc-ad69073d7554}</Project>
       <Name>SubSearch.Data</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\SubSearch.Resources\SubSearch.Resources.csproj">
       <Project>{b28465ba-23d2-4307-a21e-a00bfed86cc6}</Project>
       <Name>SubSearch.Resources</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\SubSearch\SubSearch.csproj">
       <Project>{6af4e02e-defc-4efe-ad5d-4c0f463a8d01}</Project>
       <Name>SubSearch</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

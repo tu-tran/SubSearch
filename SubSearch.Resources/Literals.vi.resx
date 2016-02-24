@@ -162,4 +162,13 @@
   <data name="English" xml:space="preserve">
     <value>Tiếng Anh</value>
   </data>
+  <data name="Data_Download__Close" xml:space="preserve">
+    <value>Tả &amp;amp; đó_ng</value>
+  </data>
+  <data name="Data_Download__Play" xml:space="preserve">
+    <value>Tả &amp;amp; _phát</value>
+  </data>
+  <data name="Data__Download" xml:space="preserve">
+    <value>_Tải về</value>
+  </data>
 </root>
