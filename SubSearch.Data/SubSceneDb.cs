@@ -82,6 +82,7 @@ namespace SubSearch
             var targetFile = Path.Combine(path, title);
             this.view.ShowProgress(this.filePath, string.Format(Literals.Data_Downloading_video_subtitle, this.Language.Localize()));
             var result = this.DoDownloadSubtitle(subtitleDownloadUrl, subtitleDownloadUrl, cookies, targetFile);
+            this.view.ShowProgress(this.filePath, Literals.Data_Idle);
             return result ? 1 : -1;
         }
 

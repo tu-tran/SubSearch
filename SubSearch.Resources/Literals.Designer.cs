@@ -106,6 +106,15 @@ namespace SubSearch.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Idle.
+        /// </summary>
+        public static string Data_Idle {
+            get {
+                return ResourceManager.GetString("Data_Idle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No matching title could be found for: .
         /// </summary>
         public static string Data_No_matching_title_for {

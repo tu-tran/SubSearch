@@ -218,6 +218,12 @@ namespace SubSearch.WPF.View
             activeWindow.Dispatcher.Invoke(() => { activeWindow.ShowDialog(); });
         }
 
+        /// <summary>Continues the pending operation and cancel any selection.</summary>
+        public static void Continue()
+        {
+            activeWindow.Accept();
+        }
+
         /// <summary>Disposes the window.</summary>
         public void Dispose()
         {
@@ -286,13 +292,6 @@ namespace SubSearch.WPF.View
             {
                 this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
-        }
-
-        /// <summary>The accept.</summary>
-        private void Accept()
-        {
-            this.SelectionState = true;
-            this.Hide();
         }
 
         /// <summary>Auto position.</summary>
@@ -467,6 +466,13 @@ namespace SubSearch.WPF.View
                         this.ProgressBar.IsIndeterminate = done < 1;
                         this.Show();
                     });
+        }
+
+        /// <summary>The accept.</summary>
+        private void Accept()
+        {
+            this.SelectionState = true;
+            this.Hide();
         }
 
         /// <summary>The set selections.</summary>

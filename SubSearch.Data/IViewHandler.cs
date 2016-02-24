@@ -53,5 +53,8 @@ namespace SubSearch.Data
 
         /// <summary>Starts the view handler.</summary>
         void Start();
+
+        /// <summary>Continues the pending operation and cancel any selection.</summary>
+        void Continue();
     }
 }

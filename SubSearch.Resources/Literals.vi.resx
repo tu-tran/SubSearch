@@ -171,4 +171,7 @@
   <data name="Data__Download" xml:space="preserve">
     <value>_Tải về</value>
   </data>
+  <data name="Data_Idle" xml:space="preserve">
+    <value>Tĩnh</value>
+  </data>
 </root>

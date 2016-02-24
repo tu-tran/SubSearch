@@ -171,4 +171,7 @@
   <data name="Data__Download" xml:space="preserve">
     <value>_Download</value>
   </data>
+  <data name="Data_Idle" xml:space="preserve">
+    <value>Idle</value>
+  </data>
 </root>

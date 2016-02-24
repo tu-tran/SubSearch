@@ -164,7 +164,7 @@ namespace SubSearch.WPF
             }
             else if (actionName == CustomActions.Close)
             {
-                Application.Current.Shutdown();
+                sender.Continue();
             }
         }
 

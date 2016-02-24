@@ -103,5 +103,11 @@ namespace SubSearch.WPF
         {
             MainWindow.Start();
         }
+
+        /// <summary>Continues the pending operation and cancel any selection.</summary>
+        public void Continue()
+        {
+            MainWindow.Continue();
+        }
     }
 }
