@@ -12,6 +12,7 @@ namespace SubSearch.WPF.View
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
+    using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Windows;
     using System.Windows.Forms;
@@ -35,6 +36,9 @@ namespace SubSearch.WPF.View
 
         /// <summary>Is disposing.</summary>
         private bool disposing;
+
+        /// <summary>The max comment width.</summary>
+        private int maxCommentWidth = Screen.PrimaryScreen.WorkingArea.Width / 5;
 
         /// <summary>The status.</summary>
         private string status;
@@ -88,6 +92,21 @@ namespace SubSearch.WPF.View
             }
         }
 
+        /// <summary>Gets or sets the max comment width.</summary>
+        public int MaxCommentWidth
+        {
+            get
+            {
+                return this.maxCommentWidth;
+            }
+
+            set
+            {
+                this.maxCommentWidth = value;
+                this.RaisePropertyChanged();
+            }
+        }
+
         /// <summary>Gets the selected item.</summary>
         public ItemData SelectedItem
         {
@@ -120,7 +139,7 @@ namespace SubSearch.WPF.View
             set
             {
                 this.status = value;
-                this.RaisePropertyChanged("Status");
+                this.RaisePropertyChanged();
             }
         }
 
@@ -135,7 +154,7 @@ namespace SubSearch.WPF.View
             set
             {
                 this.titleText = value;
-                this.RaisePropertyChanged("TitleText");
+                this.RaisePropertyChanged();
                 this.TitleBlock.Visibility = string.IsNullOrEmpty(value) ? Visibility.Collapsed : Visibility.Visible;
             }
         }
@@ -256,12 +275,16 @@ namespace SubSearch.WPF.View
 
         /// <summary>The raise property changed.</summary>
         /// <param name="propertyName">The property name.</param>
-        protected void RaisePropertyChanged(string propertyName)
+        protected void RaisePropertyChanged([CallerMemberName] string propertyName = null)
         {
-            var handler = this.PropertyChanged;
-            if (handler != null)
+            if (propertyName == null)
             {
-                handler(this, new PropertyChangedEventArgs(propertyName));
+                throw new ArgumentNullException("propertyName");
+            }
+
+            if (this.PropertyChanged != null)
+            {
+                this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
 
@@ -275,31 +298,41 @@ namespace SubSearch.WPF.View
         /// <summary>Auto position.</summary>
         private void AutoPosition()
         {
+            this.SizeToContent = SizeToContent.WidthAndHeight;
+            this.SizeToContent = SizeToContent.Manual;
             if (lastPosition == null)
             {
                 var mousePosition = Control.MousePosition;
                 var activeScreenArea = Screen.FromPoint(mousePosition).WorkingArea;
+                if (this.ActualWidth > activeScreenArea.Width)
+                {
+                    this.Width = activeScreenArea.Width;
+                }
+
+                if (this.ActualHeight > activeScreenArea.Height)
+                {
+                    this.Height = activeScreenArea.Height;
+                }
+
                 var left = mousePosition.X - this.ActualWidth / 2;
                 var top = mousePosition.Y - this.ActualHeight / 2;
-                var xLimit = activeScreenArea.X + activeScreenArea.Width;
-                var yLimit = activeScreenArea.Y + activeScreenArea.Height;
 
                 if (left < 0)
                 {
                     left = 0;
                 }
-                else if (left + this.ActualWidth > xLimit)
+                else if (left + this.ActualWidth > activeScreenArea.Right)
                 {
-                    left = xLimit - this.ActualWidth;
+                    left = activeScreenArea.Right - this.ActualWidth;
                 }
 
                 if (top < 0)
                 {
                     top = 0;
                 }
-                else if (top + this.ActualHeight > yLimit)
+                else if (top + this.ActualHeight > activeScreenArea.Bottom)
                 {
-                    top = yLimit - this.ActualHeight;
+                    top = activeScreenArea.Bottom - this.ActualHeight;
                 }
 
                 this.Left = left;
@@ -416,9 +449,7 @@ namespace SubSearch.WPF.View
                         this.ProgressBar.Visibility = Visibility.Visible;
                         this.TitleText = title;
                         this.Status = newStatus;
-                        this.SizeToContent = SizeToContent.WidthAndHeight;
                         this.Show();
-                        this.SizeToContent = SizeToContent.Manual;
                     });
         }
 
@@ -431,12 +462,10 @@ namespace SubSearch.WPF.View
                 () =>
                     {
                         this.ProgressBar.Visibility = Visibility.Visible;
-                        this.SizeToContent = SizeToContent.WidthAndHeight;
                         this.ProgressBar.Value = done;
                         this.ProgressBar.Maximum = total;
                         this.ProgressBar.IsIndeterminate = done < 1;
                         this.Show();
-                        this.SizeToContent = SizeToContent.Manual;
                     });
         }
 

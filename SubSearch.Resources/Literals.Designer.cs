@@ -70,7 +70,7 @@ namespace SubSearch.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Download &amp;amp; _Close.
+        ///   Looks up a localized string similar to Download &amp; _Close.
         /// </summary>
         public static string Data_Download__Close {
             get {
@@ -79,7 +79,7 @@ namespace SubSearch.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Download &amp;amp; _Play.
+        ///   Looks up a localized string similar to Download &amp; _Play.
         /// </summary>
         public static string Data_Download__Play {
             get {

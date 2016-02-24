@@ -45,39 +45,6 @@
                  HorizontalContentAlignment="Stretch"
                  DockPanel.Dock="Top"
                  ItemsSource="{Binding Selections}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" MinWidth="12" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition MaxHeight="32" />
-                        </Grid.RowDefinitions>
-                        <Grid.Resources>
-                            <view:NameToResourceConverter x:Key="ImageResourceConverter" />
-                        </Grid.Resources>
-                        <Image x:Name="Icon"
-                               HorizontalAlignment="Left"
-                               Source="{Binding Icon,
-                                                Converter={StaticResource ImageResourceConverter}}"
-                               Stretch="None"
-                               ToolTip="{Binding Icon}" />
-                        <TextBlock Grid.Column="1"
-                                   HorizontalAlignment="Stretch"
-                                   Style="{StaticResource TextBlockStyle}"
-                                   Text="{Binding Text}"
-                                   ToolTip="{Binding Text}" />
-                        <TextBlock Grid.Column="2"
-                                   HorizontalAlignment="Stretch"
-                                   Style="{StaticResource TextBlockStyle}"
-                                   Text="{Binding Description}"
-                                   ToolTip="{Binding Description}" />
-                    </Grid>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
 
             <ListBox.Resources>
                 <view:BindingProxy x:Key="DataContextProxy" Data="{Binding}" />
@@ -104,6 +71,39 @@
                     <Setter Property="ContextMenu" Value="{StaticResource MenuItemContextMenu}" />
                 </Style>
             </ListBox.Resources>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" MinWidth="12" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" MaxWidth="{Binding Source={StaticResource DataContextProxy}, Mode=OneWay, Path=Data.MaxCommentWidth}" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition MaxHeight="32" />
+                        </Grid.RowDefinitions>
+                        <Grid.Resources>
+                            <view:NameToResourceConverter x:Key="ImageResourceConverter" />
+                        </Grid.Resources>
+                        <Image x:Name="Icon"
+                               HorizontalAlignment="Left"
+                               Source="{Binding Icon,
+                                                Converter={StaticResource ImageResourceConverter}}"
+                               Stretch="None"
+                               ToolTip="{Binding Icon}" />
+                        <TextBlock Grid.Column="1"
+                                   HorizontalAlignment="Stretch"
+                                   Style="{StaticResource TextBlockStyle}"
+                                   Text="{Binding Text}"
+                                   ToolTip="{Binding Text}" />
+                        <TextBlock Grid.Column="2"
+                                   HorizontalAlignment="Stretch"
+                                   Style="{StaticResource DescriptiveTextBlockStyle}"
+                                   Text="{Binding Description}"
+                                   ToolTip="{Binding Description}" />
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
         </ListBox>
     </DockPanel>
 </Window>
