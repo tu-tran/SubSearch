@@ -15,8 +15,8 @@ namespace SubSearch.Data
     /// <summary>The query result.</summary>
     public enum QueryResult
     {
-        /// <summary>The changed.</summary>
-        Changed = -2, 
+        /// <summary>The cancelled.</summary>
+        Cancelled = -2, 
 
         /// <summary>The failure.</summary>
         Failure = -1, 

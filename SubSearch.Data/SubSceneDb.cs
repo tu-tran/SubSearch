@@ -108,15 +108,19 @@ namespace SubSearch.Data
 
             var queryResultDoc = this.GetDocument(queryUrl, "http://subscene.com", cookies, false);
             var searchResultUrl = this.ParseQueryDoc(queryResultDoc.Item1);
+            if (searchResultUrl.Item1 == QueryResult.Cancelled)
+            {
+                return QueryResult.Cancelled;
+            }
 
             Tuple<HtmlDocument, CookieContainer> subtitleDownloadDoc;
-            if (string.IsNullOrEmpty(searchResultUrl))
+            if (string.IsNullOrEmpty(searchResultUrl.Item2))
             {
                 subtitleDownloadDoc = queryResultDoc;
             }
             else
             {
-                subtitleDownloadDoc = this.GetDocument(searchResultUrl, queryUrl, queryResultDoc.Item2, false);
+                subtitleDownloadDoc = this.GetDocument(searchResultUrl.Item2, queryUrl, queryResultDoc.Item2, false);
             }
 
             this.view.ShowProgress(this.FilePath, Literals.Data_Searching_video_subtitle);
@@ -242,12 +246,12 @@ namespace SubSearch.Data
         /// <param name="popularList">The popular list.</param>
         /// <param name="closeList">The close list.</param>
         /// <returns>The <see cref="ItemData"/>.</returns>
-        private ItemData GetMatchingUrl(List<ItemData> exactList, List<ItemData> popularList, List<ItemData> closeList)
+        private Tuple<QueryResult, ItemData> GetMatchingUrl(List<ItemData> exactList, List<ItemData> popularList, List<ItemData> closeList)
         {
             // Process the actual subtitle link
             foreach (var matchingTitle in exactList)
             {
-                return matchingTitle;
+                return Tuple.Create(QueryResult.Success, matchingTitle);
             }
 
             var comparer = new InlineComparer<ItemData>((a, b) => string.Equals(a.Text, b.Text), i => i == null ? 0 : i.GetHashCode());
@@ -265,12 +269,12 @@ namespace SubSearch.Data
         /// <summary>The parse query doc.</summary>
         /// <param name="htmlDoc">The html doc.</param>
         /// <returns>The <see cref="string"/>.</returns>
-        private string ParseQueryDoc(HtmlDocument htmlDoc)
+        private Tuple<QueryResult, string> ParseQueryDoc(HtmlDocument htmlDoc)
         {
             var resultNodes = htmlDoc.DocumentNode.SelectNodes("//div[@class='search-result']");
             if (resultNodes == null)
             {
-                return string.Empty;
+                return Tuple.Create(QueryResult.Failure, string.Empty);
             }
 
             var exactList = new List<ItemData>();
@@ -334,7 +338,9 @@ namespace SubSearch.Data
             }
 
             var matchingUrl = this.GetMatchingUrl(exactList, popularList, closeList);
-            return matchingUrl == null || string.IsNullOrEmpty(matchingUrl.Tag as string) ? string.Empty : "http://subscene.com" + matchingUrl.Tag;
+            var itemData = matchingUrl.Item2;
+            var url = itemData == null || string.IsNullOrEmpty(itemData.Tag as string) ? string.Empty : "http://subscene.com" + itemData.Tag;
+            return Tuple.Create(matchingUrl.Item1, url);
         }
 
         /// <summary>The parse sub download doc.</summary>
@@ -394,7 +400,7 @@ namespace SubSearch.Data
                         });
             }
 
-            ItemData selectedItem = null;
+            ItemData selectedItem;
             if (selections.Count == 1)
             {
                 selectedItem = selections.First();
@@ -405,7 +411,7 @@ namespace SubSearch.Data
                 selectedItem = this.view.GetSelection(
                     selections, 
                     this.FilePath, 
-                    string.Format(Literals.Data_Select_subtitle, this.Language.Localize()));
+                    string.Format(Literals.Data_Select_subtitle, this.Language.Localize())).Item2;
 
                 if (selectedItem == null)
                 {

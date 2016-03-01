@@ -115,7 +115,7 @@ namespace SubSearch.WPF
                                     {
                                         fail++;
                                     }
-                                    else if (entryResult == QueryResult.Skipped)
+                                    else if (entryResult == QueryResult.Cancelled)
                                     {
                                         break; // Users cancel
                                     }
@@ -152,7 +152,7 @@ namespace SubSearch.WPF
             var language = this.activeQuery != null ? this.activeQuery.Language : Language.English;
             if (actionName == CustomActions.CustomQuery && parameter != null)
             {
-                var query = this.activeQuery != null ? this.activeQuery : new SubSceneDb(file, sender, language);
+                var query = this.activeQuery ?? new SubSceneDb(file, sender, language);
                 query.Title = parameter.ToString();
                 this.activeIndex--;
                 sender.Continue();

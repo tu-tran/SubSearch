@@ -8,6 +8,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 namespace SubSearch.WPF
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -21,9 +22,14 @@ namespace SubSearch.WPF
         /// <param name="title">The title.</param>
         /// <param name="status">The status.</param>
         /// <returns>The <see cref="ItemData"/>.</returns>
-        public override ItemData GetSelection(ICollection<ItemData> data, string title, string status)
+        public override Tuple<QueryResult, ItemData> GetSelection(ICollection<ItemData> data, string title, string status)
         {
-            return data.FirstOrDefault();
+            if (data == null || !data.Any())
+            {
+                return Tuple.Create<QueryResult, ItemData>(QueryResult.Failure, null);
+            }
+
+            return Tuple.Create<QueryResult, ItemData>(QueryResult.Success, data.FirstOrDefault());
         }
     }
 }

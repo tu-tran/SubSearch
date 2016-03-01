@@ -37,7 +37,7 @@ namespace SubSearch.Data
         /// <param name="title">The title.</param>
         /// <param name="status">The status.</param>
         /// <returns>The <see cref="ItemData"/>.</returns>
-        ItemData GetSelection(ICollection<ItemData> data, string title, string status);
+        Tuple<QueryResult, ItemData> GetSelection(ICollection<ItemData> data, string title, string status);
 
         /// <summary>Notifies a message.</summary>
         /// <param name="message">The message.</param>

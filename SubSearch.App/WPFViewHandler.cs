@@ -65,7 +65,7 @@ namespace SubSearch.WPF
         /// <param name="title">The title.</param>
         /// <param name="status">The status.</param>
         /// <returns>The <see cref="ItemData"/>.</returns>
-        public virtual ItemData GetSelection(ICollection<ItemData> data, string title, string status)
+        public virtual Tuple<QueryResult, ItemData> GetSelection(ICollection<ItemData> data, string title, string status)
         {
             return MainWindow.GetSelection(data, title, status);
         }
