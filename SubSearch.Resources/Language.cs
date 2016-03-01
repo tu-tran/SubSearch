@@ -6,7 +6,6 @@
 //   The language enum.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-
 namespace SubSearch.Resources
 {
     /// <summary>The language enum.</summary>

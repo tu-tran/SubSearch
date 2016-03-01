@@ -43,6 +43,12 @@ namespace SubSearch.WPF
             }
         }
 
+        /// <summary>Continues the pending operation and cancel any selection.</summary>
+        public void Continue()
+        {
+            MainWindow.Continue();
+        }
+
         /// <summary>The dispose.</summary>
         public void Dispose()
         {
@@ -102,12 +108,6 @@ namespace SubSearch.WPF
         public void Start()
         {
             MainWindow.Start();
-        }
-
-        /// <summary>Continues the pending operation and cancel any selection.</summary>
-        public void Continue()
-        {
-            MainWindow.Continue();
         }
     }
 }

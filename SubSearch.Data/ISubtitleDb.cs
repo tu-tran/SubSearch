@@ -12,6 +12,22 @@ namespace SubSearch.Data
 
     using SubSearch.Resources;
 
+    /// <summary>The query result.</summary>
+    public enum QueryResult
+    {
+        /// <summary>The changed.</summary>
+        Changed = -2, 
+
+        /// <summary>The failure.</summary>
+        Failure = -1, 
+
+        /// <summary>The skipped.</summary>
+        Skipped = 0, 
+
+        /// <summary>The success.</summary>
+        Success = 1
+    }
+
     /// <summary>The SubtitleDb interface.</summary>
     public interface ISubtitleDb
     {
@@ -21,16 +37,17 @@ namespace SubSearch.Data
         /// <summary>The language.</summary>
         Language Language { get; }
 
+        /// <summary>Gets or sets the title.</summary>
         string Title { get; set; }
 
         /// <summary>The download subtitle.</summary>
         /// <param name="subtitleDownloadUrl">The subtitle download url.</param>
         /// <param name="cookies">The cookies.</param>
-        /// <returns>-1 on failure, 0 on skipping, 1 on success.</returns>
-        int DownloadSubtitle(string subtitleDownloadUrl, CookieContainer cookies = null);
+        /// <returns>The query result.</returns>
+        QueryResult DownloadSubtitle(string subtitleDownloadUrl, CookieContainer cookies = null);
 
         /// <summary>Queries the subtitle database.</summary>
-        /// <returns>-1 on failure, 0 on skipping, 1 on success.</returns>
-        int Query();
+        /// <returns>The query result.</returns>
+        QueryResult Query();
     }
 }

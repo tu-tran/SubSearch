@@ -6,7 +6,6 @@
 //   The silent view handler.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-
 namespace SubSearch.WPF
 {
     using System.Collections.Generic;

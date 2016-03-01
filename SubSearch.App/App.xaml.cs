@@ -1,4 +1,13 @@
-﻿namespace SubSearch.WPF
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="App.xaml.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   Interaction logic for App.xaml
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace SubSearch.WPF
 {
     using System;
     using System.Text;

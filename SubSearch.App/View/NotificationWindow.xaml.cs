@@ -6,7 +6,6 @@
 //   Interaction logic for NotificationWindow.xaml
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-
 namespace SubSearch.WPF.View
 {
     using System;
@@ -18,11 +17,11 @@ namespace SubSearch.WPF.View
     /// <summary>Interaction logic for NotificationWindow.xaml</summary>
     public partial class NotificationWindow : INotifyPropertyChanged
     {
-        /// <summary>The window.</summary>
-        private static NotificationWindow Window;
-
         /// <summary>The end event handler.</summary>
         private static DependencyPropertyChangedEventHandler endEventHandler;
+
+        /// <summary>The window.</summary>
+        private static NotificationWindow Window;
 
         /// <summary>The message.</summary>
         private string message;

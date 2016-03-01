@@ -3,10 +3,9 @@
 //   
 // </copyright>
 // <summary>
-//   The <see cref="ActionCommand{T}" /> class represents an input command which invokes a delegate.
+//   The  class represents an input command which invokes a delegate.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-
 namespace SubSearch.WPF
 {
     using System;

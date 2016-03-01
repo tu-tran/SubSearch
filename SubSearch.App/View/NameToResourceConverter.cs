@@ -1,4 +1,13 @@
-﻿namespace SubSearch.WPF.View
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="NameToResourceConverter.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   Resource name to actual resource object converter.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace SubSearch.WPF.View
 {
     using System;
     using System.Globalization;

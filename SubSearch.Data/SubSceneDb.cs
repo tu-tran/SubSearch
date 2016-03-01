@@ -67,17 +67,17 @@ namespace SubSearch.Data
         /// <summary>The download subtitle.</summary>
         /// <param name="subtitleDownloadUrl">The subtitle download url.</param>
         /// <param name="cookies">The cookies.</param>
-        /// <returns>-1 on failure, 0 on skipping, 1 on success.</returns>
-        public int DownloadSubtitle(string subtitleDownloadUrl, CookieContainer cookies = null)
+        /// <returns>The query result.</returns>
+        public QueryResult DownloadSubtitle(string subtitleDownloadUrl, CookieContainer cookies = null)
         {
             if (subtitleDownloadUrl == null)
             {
-                return -1;
+                return QueryResult.Failure;
             }
 
             if (subtitleDownloadUrl == string.Empty)
             {
-                return 0;
+                return QueryResult.Skipped;
             }
 
             var title = Path.GetFileNameWithoutExtension(this.FilePath);
@@ -86,12 +86,12 @@ namespace SubSearch.Data
             this.view.ShowProgress(this.FilePath, string.Format(Literals.Data_Downloading_video_subtitle, this.Language.Localize()));
             var result = this.DoDownloadSubtitle(subtitleDownloadUrl, subtitleDownloadUrl, cookies, targetFile);
             this.view.ShowProgress(this.FilePath, Literals.Data_Idle);
-            return result ? 1 : -1;
+            return result ? QueryResult.Success : QueryResult.Failure;
         }
 
         /// <summary>Queries Subscene database.</summary>
-        /// <returns>-1 on failure, 0 on skipping, 1 on success.</returns>
-        public int Query()
+        /// <returns>The query result.</returns>
+        public QueryResult Query()
         {
             this.view.ShowProgress(this.FilePath, Literals.Data_Searching_video_title);
             var encodedTitle = HttpUtility.UrlEncode(this.Title);

@@ -3,10 +3,9 @@
 //   
 // </copyright>
 // <summary>
-//   The <see cref="CommandBase" /> class represents an input command.
+//   The  class represents an input command.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-
 namespace SubSearch.WPF
 {
     using System;

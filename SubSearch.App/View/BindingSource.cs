@@ -1,4 +1,13 @@
-﻿namespace SubSearch.WPF.View
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="BindingSource.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The binding source.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace SubSearch.WPF.View
 {
     using System;
     using System.ComponentModel;

@@ -1,12 +1,11 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Utils.cs" company="">
+// <copyright file="Extensions.cs" company="">
 //   
 // </copyright>
 // <summary>
 //   The utilities.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-
 namespace SubSearch.WPF
 {
     using System.Windows.Forms;

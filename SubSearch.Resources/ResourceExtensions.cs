@@ -6,7 +6,6 @@
 //   The resource extensions.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-
 namespace SubSearch.Resources
 {
     using System;

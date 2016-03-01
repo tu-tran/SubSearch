@@ -1,4 +1,13 @@
-﻿namespace SubSearch.WPF.View
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="MessageDialog.xaml.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   Interaction logic for MessageDialog.xaml
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace SubSearch.WPF.View
 {
     using System.ComponentModel;
 

@@ -6,7 +6,6 @@
 //   The delegate for view custom action.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-
 namespace SubSearch.Data
 {
     using System;
@@ -29,6 +28,9 @@ namespace SubSearch.Data
 
         /// <summary>Gets or sets the target file.</summary>
         string TargetFile { get; set; }
+
+        /// <summary>Continues the pending operation and cancel any selection.</summary>
+        void Continue();
 
         /// <summary>The get selection.</summary>
         /// <param name="data">The data.</param>
@@ -53,8 +55,5 @@ namespace SubSearch.Data
 
         /// <summary>Starts the view handler.</summary>
         void Start();
-
-        /// <summary>Continues the pending operation and cancel any selection.</summary>
-        void Continue();
     }
 }

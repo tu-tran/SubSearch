@@ -1,4 +1,13 @@
-﻿namespace SubSearch
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ShellExtension.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The shell extension.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace SubSearch
 {
     using System;
     using System.Collections.Generic;

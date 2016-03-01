@@ -8,7 +8,6 @@
 // --------------------------------------------------------------------------------------------------------------------
 namespace SubSearch.WPF.View
 {
-    using SubSearch.Data;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -18,6 +17,9 @@ namespace SubSearch.WPF.View
     using System.Windows;
     using System.Windows.Forms;
     using System.Windows.Input;
+
+    using SubSearch.Data;
+
     using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
     /// <summary>Interaction logic for SelectionWindow.xaml</summary>
@@ -178,6 +180,12 @@ namespace SubSearch.WPF.View
             }
         }
 
+        /// <summary>Continues the pending operation and cancel any selection.</summary>
+        public static void Continue()
+        {
+            activeWindow.Accept();
+        }
+
         /// <summary>The get selection.</summary>
         /// <param name="data">The data.</param>
         /// <param name="title">The title.</param>
@@ -187,13 +195,13 @@ namespace SubSearch.WPF.View
         {
             activeWindow.Dispatcher.Invoke(
                 () =>
-                {
-                    activeWindow.SetSelections(data, title, status);
-                    if (!activeWindow.IsVisible)
                     {
-                        activeWindow.Show();
-                    }
-                });
+                        activeWindow.SetSelections(data, title, status);
+                        if (!activeWindow.IsVisible)
+                        {
+                            activeWindow.Show();
+                        }
+                    });
 
             while (activeWindow.Dispatcher.Invoke(() => activeWindow.ShowInTaskbar))
             {
@@ -223,12 +231,6 @@ namespace SubSearch.WPF.View
         public static void Start()
         {
             activeWindow.Dispatcher.Invoke(() => { activeWindow.ShowDialog(); });
-        }
-
-        /// <summary>Continues the pending operation and cancel any selection.</summary>
-        public static void Continue()
-        {
-            activeWindow.Accept();
         }
 
         /// <summary>Disposes the window.</summary>
@@ -299,6 +301,13 @@ namespace SubSearch.WPF.View
             {
                 this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
+        }
+
+        /// <summary>The accept.</summary>
+        private void Accept()
+        {
+            this.SelectionState = true;
+            this.Hide();
         }
 
         /// <summary>Auto position.</summary>
@@ -398,13 +407,6 @@ namespace SubSearch.WPF.View
             this.RaiseCustomAction(parameter, CustomActions.DownloadSubtitle, CustomActions.Play);
         }
 
-        /// <summary>The query box enter key.</summary>
-        /// <param name="parameter">The parameter.</param>
-        private void QueryBoxEnterKey(object parameter)
-        {
-            this.RaiseCustomAction(parameter, CustomActions.CustomQuery);
-        }
-
         /// <summary>The list box item preview key up.</summary>
         /// <param name="sender">The sender.</param>
         /// <param name="e">The e.</param>
@@ -466,6 +468,13 @@ namespace SubSearch.WPF.View
             }
         }
 
+        /// <summary>The query box enter key.</summary>
+        /// <param name="parameter">The parameter.</param>
+        private void QueryBoxEnterKey(object parameter)
+        {
+            this.RaiseCustomAction(parameter, CustomActions.CustomQuery);
+        }
+
         /// <summary>The raise custom action.</summary>
         /// <param name="parameter">The parameter.</param>
         /// <param name="actionNames">The action names.</param>
@@ -484,12 +493,12 @@ namespace SubSearch.WPF.View
         {
             this.Dispatcher.Invoke(
                 () =>
-                {
-                    this.ProgressBar.Visibility = Visibility.Visible;
-                    this.TitleText = title;
-                    this.Status = newStatus;
-                    this.Show();
-                });
+                    {
+                        this.ProgressBar.Visibility = Visibility.Visible;
+                        this.TitleText = title;
+                        this.Status = newStatus;
+                        this.Show();
+                    });
         }
 
         /// <summary>Sets the progress.</summary>
@@ -499,20 +508,13 @@ namespace SubSearch.WPF.View
         {
             this.Dispatcher.Invoke(
                 () =>
-                {
-                    this.ProgressBar.Visibility = Visibility.Visible;
-                    this.ProgressBar.Value = done;
-                    this.ProgressBar.Maximum = total;
-                    this.ProgressBar.IsIndeterminate = done < 1;
-                    this.Show();
-                });
-        }
-
-        /// <summary>The accept.</summary>
-        private void Accept()
-        {
-            this.SelectionState = true;
-            this.Hide();
+                    {
+                        this.ProgressBar.Visibility = Visibility.Visible;
+                        this.ProgressBar.Value = done;
+                        this.ProgressBar.Maximum = total;
+                        this.ProgressBar.IsIndeterminate = done < 1;
+                        this.Show();
+                    });
         }
 
         /// <summary>The set selections.</summary>
@@ -523,34 +525,34 @@ namespace SubSearch.WPF.View
         {
             this.Dispatcher.Invoke(
                 () =>
-                {
-                    this.selections.Clear();
-                    foreach (var itemData in data)
                     {
-                        this.selections.Add(itemData);
-                    }
+                        this.selections.Clear();
+                        foreach (var itemData in data)
+                        {
+                            this.selections.Add(itemData);
+                        }
 
-                    var remainderHeight = this.ActualHeight - this.SelectionBox.ActualHeight;
-                    var maxHeight = Utils.GetActiveScreen().WorkingArea.Height - remainderHeight;
-                    var newHeight = (this.SelectionBox.FontSize + 5) * data.Count;
+                        var remainderHeight = this.ActualHeight - this.SelectionBox.ActualHeight;
+                        var maxHeight = Utils.GetActiveScreen().WorkingArea.Height - remainderHeight;
+                        var newHeight = (this.SelectionBox.FontSize + 5) * data.Count;
 
-                    if (newHeight > maxHeight)
-                    {
-                        newHeight = maxHeight;
-                    }
+                        if (newHeight > maxHeight)
+                        {
+                            newHeight = maxHeight;
+                        }
 
-                    if (newHeight > 0)
-                    {
-                        this.Height = newHeight + remainderHeight;
-                    }
+                        if (newHeight > 0)
+                        {
+                            this.Height = newHeight + remainderHeight;
+                        }
 
-                    this.TitleText = title;
-                    this.Status = status;
-                    this.SelectionBox.Visibility = Visibility.Visible;
-                    this.ProgressBar.Visibility = Visibility.Collapsed;
-                    lastPosition = null;
-                    this.AutoSize();
-                });
+                        this.TitleText = title;
+                        this.Status = status;
+                        this.SelectionBox.Visibility = Visibility.Visible;
+                        this.ProgressBar.Visibility = Visibility.Collapsed;
+                        lastPosition = null;
+                        this.AutoSize();
+                    });
         }
     }
 }

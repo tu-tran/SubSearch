@@ -104,18 +104,18 @@ namespace SubSearch.WPF
                                 try
                                 {
                                     this.activeQuery = this.activeQueue[this.activeIndex];
-                                    viewHandler.TargetFile = this.activeQuery.FilePath;                                    
+                                    viewHandler.TargetFile = this.activeQuery.FilePath;
                                     viewHandler.ShowProgress(this.activeIndex, this.activeQueue.Count);
                                     var entryResult = this.activeQuery.Query();
-                                    if (entryResult > 0)
+                                    if (entryResult == QueryResult.Success)
                                     {
                                         success++;
                                     }
-                                    else if (entryResult < 0)
+                                    else if (entryResult == QueryResult.Failure)
                                     {
                                         fail++;
                                     }
-                                    else if (entryResult == 0)
+                                    else if (entryResult == QueryResult.Skipped)
                                     {
                                         break; // Users cancel
                                     }

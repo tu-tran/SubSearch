@@ -1,4 +1,13 @@
-﻿namespace SubSearch.WPF.View
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="BindingProxy.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The binding proxy.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace SubSearch.WPF.View
 {
     using System.Windows;
 
@@ -28,7 +37,7 @@
         }
 
         /// <summary>The create instance core.</summary>
-        /// <returns>The <see cref="Freezable"/>.</returns>
+        /// <returns>The <see cref="Freezable" />.</returns>
         protected override Freezable CreateInstanceCore()
         {
             return new BindingProxy();

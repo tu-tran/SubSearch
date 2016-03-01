@@ -6,7 +6,6 @@
 //   The localization manager.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-
 namespace SubSearch.Resources
 {
     using System;
