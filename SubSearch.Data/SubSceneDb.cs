@@ -6,7 +6,7 @@
 //   The sub scene db.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-namespace SubSearch
+namespace SubSearch.Data
 {
     using System;
     using System.Collections.Generic;
@@ -20,11 +20,10 @@ namespace SubSearch
 
     using SharpCompress.Archive;
 
-    using SubSearch.Data;
     using SubSearch.Resources;
 
     /// <summary>The sub scene db.</summary>
-    public sealed class SubSceneDb
+    public sealed class SubSceneDb : ISubtitleDb
     {
         /// <summary>The language codes.</summary>
         private static readonly Dictionary<Language, string> LanguageCodes = new Dictionary<Language, string>
@@ -32,9 +31,6 @@ namespace SubSearch
                                                                                      { Language.English, "13" }, 
                                                                                      { Language.Vietnamese, "45" }
                                                                                  };
-
-        /// <summary>The file path.</summary>
-        private readonly string filePath;
 
         /// <summary>The view.</summary>
         private readonly IViewHandler view;
@@ -54,12 +50,19 @@ namespace SubSearch
         /// <param name="viewHandler">The view handler.</param>
         public SubSceneDb(string filePath, IViewHandler viewHandler)
         {
-            this.filePath = filePath;
+            this.FilePath = filePath;
+            this.Title = Path.GetFileNameWithoutExtension(filePath);
             this.view = viewHandler;
         }
 
+        /// <summary>The file path.</summary>
+        public string FilePath { get; private set; }
+
         /// <summary>The language.</summary>
         public Language Language { get; private set; }
+
+        /// <summary>Gets or sets the title.</summary>
+        public string Title { get; set; }
 
         /// <summary>The download subtitle.</summary>
         /// <param name="subtitleDownloadUrl">The subtitle download url.</param>
@@ -77,22 +80,21 @@ namespace SubSearch
                 return 0;
             }
 
-            var title = Path.GetFileNameWithoutExtension(this.filePath);
-            var path = Path.GetDirectoryName(this.filePath);
+            var title = Path.GetFileNameWithoutExtension(this.FilePath);
+            var path = Path.GetDirectoryName(this.FilePath);
             var targetFile = Path.Combine(path, title);
-            this.view.ShowProgress(this.filePath, string.Format(Literals.Data_Downloading_video_subtitle, this.Language.Localize()));
+            this.view.ShowProgress(this.FilePath, string.Format(Literals.Data_Downloading_video_subtitle, this.Language.Localize()));
             var result = this.DoDownloadSubtitle(subtitleDownloadUrl, subtitleDownloadUrl, cookies, targetFile);
-            this.view.ShowProgress(this.filePath, Literals.Data_Idle);
+            this.view.ShowProgress(this.FilePath, Literals.Data_Idle);
             return result ? 1 : -1;
         }
 
-        /// <summary>Queries Subscene db.</summary>
+        /// <summary>Queries Subscene database.</summary>
         /// <returns>-1 on failure, 0 on skipping, 1 on success.</returns>
         public int Query()
         {
-            this.view.ShowProgress(this.filePath, Literals.Data_Searching_video_title);
-            var title = Path.GetFileNameWithoutExtension(this.filePath);
-            var encodedTitle = HttpUtility.UrlEncode(title);
+            this.view.ShowProgress(this.FilePath, Literals.Data_Searching_video_title);
+            var encodedTitle = HttpUtility.UrlEncode(this.Title);
             var queryUrl = string.Format("http://subscene.com/subtitles/title?q={0}&l=", encodedTitle);
 
             string languageCode;
@@ -117,7 +119,7 @@ namespace SubSearch
                 subtitleDownloadDoc = this.GetDocument(searchResultUrl, queryUrl, queryResultDoc.Item2, false);
             }
 
-            this.view.ShowProgress(this.filePath, Literals.Data_Searching_video_subtitle);
+            this.view.ShowProgress(this.FilePath, Literals.Data_Searching_video_subtitle);
             var subtitleDownloadUrl = this.ParseSubDownloadDoc(subtitleDownloadDoc.Item1);
             return this.DownloadSubtitle(subtitleDownloadUrl, subtitleDownloadDoc.Item2);
         }
@@ -248,14 +250,15 @@ namespace SubSearch
                 return matchingTitle;
             }
 
-            var selections = popularList.Join(closeList, s => s.Text, s => s.Text, (s, s1) => s).ToList();
+            var comparer = new InlineComparer<ItemData>((a, b) => string.Equals(a.Text, b.Text), i => i == null ? 0 : i.GetHashCode());
+            var selections = popularList.Union(closeList, comparer).ToList();
             if (!selections.Any())
             {
-                this.view.Notify(Literals.Data_No_matching_title_for + this.filePath);
+                this.view.Notify(Literals.Data_No_matching_title_for + this.FilePath);
                 return null;
             }
 
-            var matchingUrl = this.view.GetSelection(selections, this.filePath, Literals.Data_Select_matching_video_title);
+            var matchingUrl = this.view.GetSelection(selections, this.FilePath, Literals.Data_Select_matching_video_title);
             return matchingUrl;
         }
 
@@ -304,7 +307,7 @@ namespace SubSearch
                                 continue;
                             }
 
-                            var link = linkNode.GetAttributeValue("href", string.Empty);
+                            var link = linkNode.GetAttributeValue("href", string.Empty).Trim();
                             if (!string.IsNullOrEmpty(link))
                             {
                                 string count = null;
@@ -320,8 +323,8 @@ namespace SubSearch
                                     countNode = countNode.NextSibling;
                                 }
 
-                                activeList.Add(
-                                    new ItemData(HttpUtility.HtmlDecode(titleNode.InnerText), link) { Description = HttpUtility.HtmlDecode(count) });
+                                var title = HttpUtility.HtmlDecode(titleNode.InnerText).Trim();
+                                activeList.Add(new ItemData(title, link) { Description = HttpUtility.HtmlDecode(count) });
                             }
                         }
 
@@ -382,7 +385,13 @@ namespace SubSearch
                     description = commentNode.InnerText.Trim();
                 }
 
-                selections.Add(new ItemData(HttpUtility.HtmlDecode(title), link) { Icon = icon, Description = HttpUtility.HtmlDecode(description.Replace(Environment.NewLine, " ")) });
+                selections.Add(
+                    new ItemData(HttpUtility.HtmlDecode(title), link)
+                        {
+                            Icon = icon, 
+                            Description =
+                                HttpUtility.HtmlDecode(description.Replace(Environment.NewLine, " "))
+                        });
             }
 
             ItemData selectedItem = null;
@@ -395,7 +404,7 @@ namespace SubSearch
                 selections = selections.OrderByDescending(i => i.Icon).ToList();
                 selectedItem = this.view.GetSelection(
                     selections, 
-                    this.filePath, 
+                    this.FilePath, 
                     string.Format(Literals.Data_Select_subtitle, this.Language.Localize()));
 
                 if (selectedItem == null)
@@ -405,7 +414,7 @@ namespace SubSearch
             }
             else
             {
-                this.view.Notify(Literals.Data_No_subtitle_for + this.filePath);
+                this.view.Notify(Literals.Data_No_subtitle_for + this.FilePath);
                 return null;
             }
 

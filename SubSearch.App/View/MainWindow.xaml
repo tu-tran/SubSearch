@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:resources="clr-namespace:SubSearch.Resources;assembly=SubSearch.Resources"
         xmlns:view="clr-namespace:SubSearch.WPF.View"
+        xmlns:wpf="clr-namespace:SubSearch.WPF"
         Name="RootWindow"
         Title="SubSearch"
         Width="500"
@@ -28,12 +29,22 @@
             </StatusBarItem>
         </StatusBar>
 
-        <TextBlock Name="TitleBlock"
-                   Margin="4"
-                   HorizontalAlignment="Stretch"
-                   DockPanel.Dock="Top"
-                   FontSize="16"
-                   Text="{Binding TitleText}" />
+        <TextBox Name="QueryBox"
+                 Margin="4"
+                 HorizontalAlignment="Stretch"
+                 DockPanel.Dock="Top"
+                 FontSize="16"
+                 Padding="5 2 5 2"
+                 Text="{Binding TitleText,
+                                Mode=OneWay}"
+                 wpf:Extensions.FocusNextOnEnter="True">
+            <TextBox.InputBindings>
+                <KeyBinding Key="Enter"
+                            Command="{Binding QueryBoxEnterKeyCommand}"
+                            CommandParameter="{Binding Text,
+                                                       ElementName=QueryBox}" />
+            </TextBox.InputBindings>
+        </TextBox>
 
         <ProgressBar Name="ProgressBar"
                      Height="24"

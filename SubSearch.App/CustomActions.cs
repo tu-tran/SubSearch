@@ -20,5 +20,8 @@ namespace SubSearch.WPF
 
         /// <summary>The play.</summary>
         public static string Play = "Action.Play";
+
+        /// <summary>The custom query.</summary>
+        public static string CustomQuery = "CustomQuery";
     }
 }

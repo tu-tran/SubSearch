@@ -6,14 +6,13 @@
 //   The queue handler.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-
 namespace SubSearch.WPF
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Threading;
-    using System.Windows;
 
     using SubSearch.Data;
     using SubSearch.Resources;
@@ -26,6 +25,15 @@ namespace SubSearch.WPF
 
         /// <summary>Keeps the queue file after processing.</summary>
         private readonly bool keepQueueFile;
+
+        /// <summary>The active index.</summary>
+        private int activeIndex;
+
+        /// <summary>The active query.</summary>
+        private ISubtitleDb activeQuery;
+
+        /// <summary>The active queue.</summary>
+        private List<ISubtitleDb> activeQueue;
 
         /// <summary>Initializes a new instance of the <see cref="QueueHandler"/> class.</summary>
         /// <param name="arguments">The arguments.</param>
@@ -88,14 +96,17 @@ namespace SubSearch.WPF
                                 continue;
                             }
 
-                            var i = 0;
-                            foreach (var file in targets)
+                            var handler = viewHandler;
+                            this.activeQueue = targets.Select<string, ISubtitleDb>(f => new SubSceneDb(f, handler, language)).ToList();
+
+                            for (this.activeIndex = 0; this.activeIndex < this.activeQueue.Count; this.activeIndex++)
                             {
                                 try
                                 {
-                                    viewHandler.TargetFile = file;
-                                    viewHandler.ShowProgress(++i, targets.Length);
-                                    var entryResult = new SubSceneDb(file, viewHandler, language).Query();
+                                    this.activeQuery = this.activeQueue[this.activeIndex];
+                                    viewHandler.TargetFile = this.activeQuery.FilePath;                                    
+                                    viewHandler.ShowProgress(this.activeIndex, this.activeQueue.Count);
+                                    var entryResult = this.activeQuery.Query();
                                     if (entryResult > 0)
                                     {
                                         success++;
@@ -137,16 +148,26 @@ namespace SubSearch.WPF
         /// <param name="actionName">The action name.</param>
         private void HandleAction(IViewHandler sender, object parameter, string actionName)
         {
+            var file = sender.TargetFile;
+            var language = this.activeQuery != null ? this.activeQuery.Language : Language.English;
+            if (actionName == CustomActions.CustomQuery && parameter != null)
+            {
+                var query = this.activeQuery != null ? this.activeQuery : new SubSceneDb(file, sender, language);
+                query.Title = parameter.ToString();
+                this.activeIndex--;
+                sender.Continue();
+                return;
+            }
+
             var itemData = parameter as ItemData;
             if (itemData == null)
             {
                 return;
             }
 
-            var file = sender.TargetFile;
             if (actionName == CustomActions.DownloadSubtitle)
             {
-                new SubSceneDb(file, sender).DownloadSubtitle(itemData.Tag as string);
+                new SubSceneDb(file, sender, language).DownloadSubtitle(itemData.Tag as string);
             }
             else if (actionName == CustomActions.Play)
             {

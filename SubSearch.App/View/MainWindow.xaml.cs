@@ -8,6 +8,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 namespace SubSearch.WPF.View
 {
+    using SubSearch.Data;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -17,9 +18,6 @@ namespace SubSearch.WPF.View
     using System.Windows;
     using System.Windows.Forms;
     using System.Windows.Input;
-
-    using SubSearch.Data;
-
     using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
     /// <summary>Interaction logic for SelectionWindow.xaml</summary>
@@ -107,6 +105,15 @@ namespace SubSearch.WPF.View
             }
         }
 
+        /// <summary>Gets the query box enter key command.</summary>
+        public ICommand QueryBoxEnterKeyCommand
+        {
+            get
+            {
+                return new ActionCommand<object>(this.QueryBoxEnterKey);
+            }
+        }
+
         /// <summary>Gets the selected item.</summary>
         public ItemData SelectedItem
         {
@@ -155,7 +162,7 @@ namespace SubSearch.WPF.View
             {
                 this.titleText = value;
                 this.RaisePropertyChanged();
-                this.TitleBlock.Visibility = string.IsNullOrEmpty(value) ? Visibility.Collapsed : Visibility.Visible;
+                this.QueryBox.Visibility = string.IsNullOrEmpty(value) ? Visibility.Collapsed : Visibility.Visible;
             }
         }
 
@@ -180,13 +187,13 @@ namespace SubSearch.WPF.View
         {
             activeWindow.Dispatcher.Invoke(
                 () =>
+                {
+                    activeWindow.SetSelections(data, title, status);
+                    if (!activeWindow.IsVisible)
                     {
-                        activeWindow.SetSelections(data, title, status);
-                        if (!activeWindow.IsVisible)
-                        {
-                            activeWindow.Show();
-                        }
-                    });
+                        activeWindow.Show();
+                    }
+                });
 
             while (activeWindow.Dispatcher.Invoke(() => activeWindow.ShowInTaskbar))
             {
@@ -344,6 +351,32 @@ namespace SubSearch.WPF.View
             }
         }
 
+        /// <summary>Auto size.</summary>
+        private void AutoSize()
+        {
+            this.SizeToContent = SizeToContent.WidthAndHeight;
+            this.SizeToContent = SizeToContent.Manual;
+            var mousePosition = Control.MousePosition;
+            var activeScreenArea = Screen.FromPoint(mousePosition).WorkingArea;
+            if (this.Left + this.ActualWidth > activeScreenArea.Right)
+            {
+                var newWidth = activeScreenArea.Right - this.Left;
+                if (newWidth > 0)
+                {
+                    this.Width = newWidth;
+                }
+            }
+
+            if (this.Top + this.ActualHeight > activeScreenArea.Bottom)
+            {
+                var newHeight = activeScreenArea.Bottom - this.Top;
+                if (newHeight > 0)
+                {
+                    this.Height = newHeight;
+                }
+            }
+        }
+
         /// <summary>The download.</summary>
         /// <param name="parameter">The parameter.</param>
         private void Download(object parameter)
@@ -363,6 +396,13 @@ namespace SubSearch.WPF.View
         private void DownloadPlay(object parameter)
         {
             this.RaiseCustomAction(parameter, CustomActions.DownloadSubtitle, CustomActions.Play);
+        }
+
+        /// <summary>The query box enter key.</summary>
+        /// <param name="parameter">The parameter.</param>
+        private void QueryBoxEnterKey(object parameter)
+        {
+            this.RaiseCustomAction(parameter, CustomActions.CustomQuery);
         }
 
         /// <summary>The list box item preview key up.</summary>
@@ -444,12 +484,12 @@ namespace SubSearch.WPF.View
         {
             this.Dispatcher.Invoke(
                 () =>
-                    {
-                        this.ProgressBar.Visibility = Visibility.Visible;
-                        this.TitleText = title;
-                        this.Status = newStatus;
-                        this.Show();
-                    });
+                {
+                    this.ProgressBar.Visibility = Visibility.Visible;
+                    this.TitleText = title;
+                    this.Status = newStatus;
+                    this.Show();
+                });
         }
 
         /// <summary>Sets the progress.</summary>
@@ -459,13 +499,13 @@ namespace SubSearch.WPF.View
         {
             this.Dispatcher.Invoke(
                 () =>
-                    {
-                        this.ProgressBar.Visibility = Visibility.Visible;
-                        this.ProgressBar.Value = done;
-                        this.ProgressBar.Maximum = total;
-                        this.ProgressBar.IsIndeterminate = done < 1;
-                        this.Show();
-                    });
+                {
+                    this.ProgressBar.Visibility = Visibility.Visible;
+                    this.ProgressBar.Value = done;
+                    this.ProgressBar.Maximum = total;
+                    this.ProgressBar.IsIndeterminate = done < 1;
+                    this.Show();
+                });
         }
 
         /// <summary>The accept.</summary>
@@ -483,34 +523,34 @@ namespace SubSearch.WPF.View
         {
             this.Dispatcher.Invoke(
                 () =>
+                {
+                    this.selections.Clear();
+                    foreach (var itemData in data)
                     {
-                        this.selections.Clear();
-                        foreach (var itemData in data)
-                        {
-                            this.selections.Add(itemData);
-                        }
+                        this.selections.Add(itemData);
+                    }
 
-                        var remainderHeight = this.ActualHeight - this.SelectionBox.ActualHeight;
-                        var maxHeight = Utils.GetActiveScreen().WorkingArea.Height - remainderHeight;
-                        var newHeight = (this.SelectionBox.FontSize + 5) * data.Count;
+                    var remainderHeight = this.ActualHeight - this.SelectionBox.ActualHeight;
+                    var maxHeight = Utils.GetActiveScreen().WorkingArea.Height - remainderHeight;
+                    var newHeight = (this.SelectionBox.FontSize + 5) * data.Count;
 
-                        if (newHeight > maxHeight)
-                        {
-                            newHeight = maxHeight;
-                        }
+                    if (newHeight > maxHeight)
+                    {
+                        newHeight = maxHeight;
+                    }
 
-                        if (newHeight > 0)
-                        {
-                            this.Height = newHeight + remainderHeight;
-                        }
+                    if (newHeight > 0)
+                    {
+                        this.Height = newHeight + remainderHeight;
+                    }
 
-                        this.TitleText = title;
-                        this.Status = status;
-                        this.SelectionBox.Visibility = Visibility.Visible;
-                        this.ProgressBar.Visibility = Visibility.Collapsed;
-                        lastPosition = null;
-                        this.AutoPosition();
-                    });
+                    this.TitleText = title;
+                    this.Status = status;
+                    this.SelectionBox.Visibility = Visibility.Visible;
+                    this.ProgressBar.Visibility = Visibility.Collapsed;
+                    lastPosition = null;
+                    this.AutoSize();
+                });
         }
     }
 }

@@ -18,6 +18,7 @@
         {
             base.OnStartup(e);
             this.InitializeErrorHandler();
+            NotificationWindow.Initialize();
             var result = new QueueHandler(e.Args).Process();
             if (result == 0)
             {

@@ -1,4 +1,13 @@
-﻿namespace SubSearch.WPF.View
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="NotificationWindow.xaml.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   Interaction logic for NotificationWindow.xaml
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace SubSearch.WPF.View
 {
     using System;
     using System.ComponentModel;
@@ -10,19 +19,13 @@
     public partial class NotificationWindow : INotifyPropertyChanged
     {
         /// <summary>The window.</summary>
-        private static readonly NotificationWindow Window;
+        private static NotificationWindow Window;
 
         /// <summary>The end event handler.</summary>
         private static DependencyPropertyChangedEventHandler endEventHandler;
 
         /// <summary>The message.</summary>
         private string message;
-
-        /// <summary>Initializes static members of the <see cref="NotificationWindow"/> class.</summary>
-        static NotificationWindow()
-        {
-            Window = new NotificationWindow();
-        }
 
         /// <summary>Initializes a new instance of the <see cref="NotificationWindow" /> class.</summary>
         public NotificationWindow()
@@ -49,6 +52,13 @@
                     this.PropertyChanged(this, new PropertyChangedEventArgs("Message"));
                 }
             }
+        }
+
+        /// <summary>The initialize.</summary>
+        /// <exception cref="NotImplementedException"></exception>
+        public static void Initialize()
+        {
+            Window = new NotificationWindow();
         }
 
         /// <summary>The show.</summary>

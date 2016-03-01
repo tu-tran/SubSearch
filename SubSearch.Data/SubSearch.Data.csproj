@@ -52,6 +52,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InlineComparer{T}.cs" />
+    <Compile Include="ISubtitleDb.cs" />
     <Compile Include="ItemData.cs" />
     <Compile Include="IViewHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
