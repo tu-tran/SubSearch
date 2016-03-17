@@ -407,7 +407,6 @@ namespace SubSearch.Data
             }
             else if (selections.Count > 1)
             {
-                selections = selections.OrderByDescending(i => i.Icon).ThenBy(i => i.Text).ToList();
                 selectedItem = this.view.GetSelection(
                     selections, 
                     this.FilePath, 

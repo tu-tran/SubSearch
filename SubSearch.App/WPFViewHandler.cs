@@ -10,6 +10,7 @@ namespace SubSearch.WPF
 {
     using System;
     using System.Collections.Generic;
+	using System.Linq;
 
     using SubSearch.Data;
     using SubSearch.WPF.View;
@@ -67,7 +68,8 @@ namespace SubSearch.WPF
         /// <returns>The <see cref="ItemData"/>.</returns>
         public virtual Tuple<QueryResult, ItemData> GetSelection(ICollection<ItemData> data, string title, string status)
         {
-            return MainWindow.GetSelection(data, title, status);
+            var sortData = data.OrderByDescending(i => i.Icon).ThenBy(i => i.Text).ToList();
+            return MainWindow.GetSelection(sortData, title, status);
         }
 
         /// <summary>Notifies a message.</summary>
