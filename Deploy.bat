@@ -1,5 +1,6 @@
 @CD /D "%~dp0"
 @call Params.bat
+@call Admin.bat
 
 :Deploy
 @echo DEPLOYING TO LOCAL INSTALLATION

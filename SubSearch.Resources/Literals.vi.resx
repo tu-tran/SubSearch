@@ -174,4 +174,10 @@
   <data name="Data_Idle" xml:space="preserve">
     <value>Tĩnh</value>
   </data>
+  <data name="Data_Cancel" xml:space="preserve">
+    <value>_Hủy</value>
+  </data>
+  <data name="Data_Skip" xml:space="preserve">
+    <value>Bỏ _qua</value>
+  </data>
 </root>

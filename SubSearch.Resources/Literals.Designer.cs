@@ -61,29 +61,38 @@ namespace SubSearch.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Ca_ncel.
+        /// </summary>
+        public static string Data_Cancel {
+            get {
+                return ResourceManager.GetString("Data_Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to _Download.
         /// </summary>
-        public static string Data__Download {
+        public static string Data_Download {
             get {
-                return ResourceManager.GetString("Data__Download", resourceCulture);
+                return ResourceManager.GetString("Data_Download", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Download &amp; _Close.
         /// </summary>
-        public static string Data_Download__Close {
+        public static string Data_Download_Close {
             get {
-                return ResourceManager.GetString("Data_Download__Close", resourceCulture);
+                return ResourceManager.GetString("Data_Download_Close", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Download &amp; _Play.
         /// </summary>
-        public static string Data_Download__Play {
+        public static string Data_Download_Play {
             get {
-                return ResourceManager.GetString("Data_Download__Play", resourceCulture);
+                return ResourceManager.GetString("Data_Download_Play", resourceCulture);
             }
         }
         
@@ -165,6 +174,15 @@ namespace SubSearch.Resources {
         public static string Data_Select_subtitle {
             get {
                 return ResourceManager.GetString("Data_Select_subtitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Skip.
+        /// </summary>
+        public static string Data_Skip {
+            get {
+                return ResourceManager.GetString("Data_Skip", resourceCulture);
             }
         }
         

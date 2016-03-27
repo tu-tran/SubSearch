@@ -44,6 +44,12 @@ namespace SubSearch.WPF.View
         /// <summary>The title text.</summary>
         private string titleText;
 
+        /// <summary>The cancellation token source for windows hidden event.</summary>
+        private CancellationTokenSource hideCancellationToken = null;
+
+        /// <summary>The last window state.</summary>
+        private WindowState lastWindowState;
+
         /// <summary>Initializes static members of the <see cref="MainWindow" /> class. Static initialization.</summary>
         static MainWindow()
         {
@@ -87,6 +93,24 @@ namespace SubSearch.WPF.View
             get
             {
                 return new ActionCommand<object>(this.DownloadPlay);
+            }
+        }
+
+        /// <summary>Gets the command for Skip.</summary>
+        public ICommand SkipCommand
+        {
+            get
+            {
+                return new ActionCommand<object>(this.Skip);
+            }
+        }
+
+        /// <summary>Gets the command for Cancel.</summary>
+        public ICommand CancelCommand
+        {
+            get
+            {
+                return new ActionCommand<object>(this.Cancel);
             }
         }
 
@@ -191,20 +215,15 @@ namespace SubSearch.WPF.View
         /// <returns>The <see cref="ItemData"/>.</returns>
         public static Tuple<QueryResult, ItemData> GetSelection(ICollection<ItemData> data, string title, string status)
         {
+            var token = new CancellationTokenSource();
+            activeWindow.hideCancellationToken = token;
             activeWindow.Dispatcher.Invoke(
                 () =>
                 {
                     activeWindow.SetSelections(data, title, status);
-                    if (!activeWindow.IsVisible)
-                    {
-                        activeWindow.Show();
-                    }
                 });
 
-            while (activeWindow.Dispatcher.Invoke(() => activeWindow.ShowInTaskbar))
-            {
-                Thread.Sleep(500);
-            }
+            token.Token.WaitHandle.WaitOne();
 
             return activeWindow.Dispatcher.Invoke(() => Tuple.Create(activeWindow.SelectionState, activeWindow.SelectedItem));
         }
@@ -243,8 +262,9 @@ namespace SubSearch.WPF.View
         {
             if (this.IsVisible)
             {
-                this.WindowState = WindowState.Minimized;
+                this.lastWindowState = this.WindowState;
                 this.ShowInTaskbar = false;
+                this.WindowState = WindowState.Minimized;
             }
         }
 
@@ -256,7 +276,7 @@ namespace SubSearch.WPF.View
                 base.Show();
             }
 
-            this.WindowState = WindowState.Normal;
+            this.WindowState = lastWindowState;
             this.ShowInTaskbar = true;
             this.SelectionState = QueryResult.Skipped;
         }
@@ -280,10 +300,10 @@ namespace SubSearch.WPF.View
 
         /// <summary>The list box item mouse double click.</summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="e">The e.</param>
+        /// <param name="e">The eventArgs.</param>
         protected void ListBoxItemMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            this.Accept();
+            this.Accept(QueryResult.Success, false);
         }
 
         /// <summary>The raise property changed.</summary>
@@ -302,15 +322,27 @@ namespace SubSearch.WPF.View
         }
 
         /// <summary>The accept.</summary>
-        private void Accept(QueryResult result = QueryResult.Success)
+        private void Accept(QueryResult result = QueryResult.Success, bool hide = true)
         {
             this.SelectionState = result;
-            this.Hide();
+            if (hide)
+            {
+                this.Hide();
+            }
+            else
+            {
+                this.OnNotifyToken();
+            }
         }
 
         /// <summary>Auto position.</summary>
         private void AutoPosition()
         {
+            if (this.WindowState != WindowState.Normal)
+            {
+                return;
+            }
+
             this.SizeToContent = SizeToContent.WidthAndHeight;
             this.SizeToContent = SizeToContent.Manual;
             if (lastPosition == null)
@@ -361,6 +393,11 @@ namespace SubSearch.WPF.View
         /// <summary>Auto size.</summary>
         private void AutoSize()
         {
+            if (this.WindowState == WindowState.Maximized)
+            {
+                return;
+            }
+
             this.SizeToContent = SizeToContent.WidthAndHeight;
             this.SizeToContent = SizeToContent.Manual;
             var mousePosition = Control.MousePosition;
@@ -395,7 +432,8 @@ namespace SubSearch.WPF.View
         /// <param name="parameter">The parameter.</param>
         private void DownloadExit(object parameter)
         {
-            this.RaiseCustomAction(parameter, CustomActions.DownloadSubtitle, CustomActions.Close);
+            this.RaiseCustomAction(parameter, CustomActions.DownloadSubtitle);
+            this.OnNotifyToken();
         }
 
         /// <summary>The download play.</summary>
@@ -405,9 +443,23 @@ namespace SubSearch.WPF.View
             this.RaiseCustomAction(parameter, CustomActions.DownloadSubtitle, CustomActions.Play);
         }
 
+        /// <summary>The skip.</summary>
+        /// <param name="parameter">The parameter.</param>
+        private void Skip(object parameter)
+        {
+            this.Accept(QueryResult.Skipped, false);
+        }
+
+        /// <summary>The cancel.</summary>
+        /// <param name="parameter">The parameter.</param>
+        private void Cancel(object parameter)
+        {
+            this.Accept(QueryResult.Cancelled);
+        }
+
         /// <summary>The list box item preview key up.</summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="e">The e.</param>
+        /// <param name="e">The eventArgs.</param>
         private void ListBoxItemPreviewKeyUp(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
@@ -431,7 +483,7 @@ namespace SubSearch.WPF.View
 
         /// <summary>The main window_ on content rendered.</summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="e">The e.</param>
+        /// <param name="e">The eventArgs.</param>
         private void MainWindow_OnContentRendered(object sender, EventArgs e)
         {
             this.SizeToContent = SizeToContent.Manual;
@@ -444,13 +496,37 @@ namespace SubSearch.WPF.View
         {
             if (e.NewValue.Equals(false))
             {
-                lastPosition = new Tuple<double, double>(this.Left, this.Top);
+                this.OnNotifyToken();
+            }
+        }
+
+        /// <summary>
+        /// Occurs when the window state has been changed.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="eventArgs">The event argument.s</param>
+        private void MainWindow_OnStateChanged(object sender, EventArgs eventArgs)
+        {
+            this.lastWindowState = this.WindowState;
+            if (!this.IsVisible || (this.WindowState == WindowState.Minimized && !this.ShowInTaskbar))
+            {
+                this.OnNotifyToken();
+            }
+        }
+
+        private void OnNotifyToken()
+        {
+            lastPosition = new Tuple<double, double>(this.Left, this.Top);
+            if (this.hideCancellationToken != null)
+            {
+                this.hideCancellationToken.Cancel();
+                this.hideCancellationToken = null;
             }
         }
 
         /// <summary>The main window_ on loaded.</summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="e">The e.</param>
+        /// <param name="e">The eventArgs.</param>
         private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
             this.AutoPosition();
@@ -458,7 +534,7 @@ namespace SubSearch.WPF.View
 
         /// <summary>The main window_ on preview key up.</summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="e">The e.</param>
+        /// <param name="e">The eventArgs.</param>
         private void MainWindow_OnPreviewKeyUp(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Escape)
@@ -531,26 +607,18 @@ namespace SubSearch.WPF.View
                         this.selections.Add(itemData);
                     }
 
-                    var remainderHeight = this.ActualHeight - this.SelectionBox.ActualHeight;
-                    var maxHeight = Utils.GetActiveScreen().WorkingArea.Height - remainderHeight;
-                    var newHeight = (this.SelectionBox.FontSize + 5) * data.Count;
-
-                    if (newHeight > maxHeight)
-                    {
-                        newHeight = maxHeight;
-                    }
-
-                    if (newHeight > 0)
-                    {
-                        this.Height = newHeight + remainderHeight;
-                    }
-
                     this.TitleText = title;
                     this.Status = status;
                     this.SelectionBox.Visibility = Visibility.Visible;
                     this.ProgressBar.Visibility = Visibility.Collapsed;
+                    this.ProgressBar.IsIndeterminate = false;
                     lastPosition = null;
                     this.AutoSize();
+                    if (!this.IsVisible)
+                    {
+                        this.AutoPosition();
+                        this.Show();
+                    }
                 });
         }
     }

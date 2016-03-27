@@ -162,16 +162,22 @@
   <data name="Vietnamese" xml:space="preserve">
     <value>Vietnamese</value>
   </data>
-  <data name="Data_Download__Close" xml:space="preserve">
+  <data name="Data_Download_Close" xml:space="preserve">
     <value>Download &amp; _Close</value>
   </data>
-  <data name="Data_Download__Play" xml:space="preserve">
+  <data name="Data_Download_Play" xml:space="preserve">
     <value>Download &amp; _Play</value>
   </data>
-  <data name="Data__Download" xml:space="preserve">
+  <data name="Data_Download" xml:space="preserve">
     <value>_Download</value>
   </data>
   <data name="Data_Idle" xml:space="preserve">
     <value>Idle</value>
+  </data>
+  <data name="Data_Cancel" xml:space="preserve">
+    <value>Ca_ncel</value>
+  </data>
+  <data name="Data_Skip" xml:space="preserve">
+    <value>_Skip</value>
   </data>
 </root>

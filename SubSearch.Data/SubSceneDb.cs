@@ -8,6 +8,9 @@
 // --------------------------------------------------------------------------------------------------------------------
 namespace SubSearch.Data
 {
+    using HtmlAgilityPack;
+    using SharpCompress.Archive;
+    using SubSearch.Resources;
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -16,19 +19,13 @@ namespace SubSearch.Data
     using System.Text;
     using System.Web;
 
-    using HtmlAgilityPack;
-
-    using SharpCompress.Archive;
-
-    using SubSearch.Resources;
-
     /// <summary>The sub scene db.</summary>
     public sealed class SubSceneDb : ISubtitleDb
     {
         /// <summary>The language codes.</summary>
         private static readonly Dictionary<Language, string> LanguageCodes = new Dictionary<Language, string>
                                                                                  {
-                                                                                     { Language.English, "13" }, 
+                                                                                     { Language.English, "13" },
                                                                                      { Language.Vietnamese, "45" }
                                                                                  };
 
@@ -95,7 +92,7 @@ namespace SubSearch.Data
         {
             this.view.ShowProgress(this.FilePath, Literals.Data_Searching_video_title);
             var encodedTitle = HttpUtility.UrlEncode(this.Title);
-            var queryUrl = string.Format("http://subscene.com/subtitles/title?q={0}&l=", encodedTitle);
+            var queryUrl = string.Format("http://subscene.com/subtitles/release?q={0}&l=", encodedTitle);
 
             string languageCode;
             if (!LanguageCodes.TryGetValue(this.Language, out languageCode))
@@ -125,7 +122,12 @@ namespace SubSearch.Data
 
             this.view.ShowProgress(this.FilePath, Literals.Data_Searching_video_subtitle);
             var subtitleDownloadUrl = this.ParseSubDownloadDoc(subtitleDownloadDoc.Item1);
-            return this.DownloadSubtitle(subtitleDownloadUrl, subtitleDownloadDoc.Item2);
+            if (subtitleDownloadUrl.Item1 == QueryResult.Cancelled)
+            {
+                return QueryResult.Cancelled;
+            }
+
+            return this.DownloadSubtitle(subtitleDownloadUrl.Item2, subtitleDownloadDoc.Item2);
         }
 
         /// <summary>The get request.</summary>
@@ -223,9 +225,9 @@ namespace SubSearch.Data
         /// <param name="isMobile">The is mobile.</param>
         /// <returns>The <see cref="Tuple"/>.</returns>
         private Tuple<HtmlDocument, CookieContainer> GetDocument(
-            string url, 
-            string referrer = "", 
-            CookieContainer cookies = null, 
+            string url,
+            string referrer = "",
+            CookieContainer cookies = null,
             bool isMobile = true)
         {
             var htmlDoc = new HtmlDocument();
@@ -259,7 +261,7 @@ namespace SubSearch.Data
             if (!selections.Any())
             {
                 this.view.Notify(Literals.Data_No_matching_title_for + this.FilePath);
-                return null;
+                return Tuple.Create<QueryResult, ItemData>(QueryResult.Failure, null);
             }
 
             var matchingUrl = this.view.GetSelection(selections, this.FilePath, Literals.Data_Select_matching_video_title);
@@ -346,84 +348,83 @@ namespace SubSearch.Data
         /// <summary>The parse sub download doc.</summary>
         /// <param name="htmlDoc">The html doc.</param>
         /// <returns>The <see cref="string"/>.</returns>
-        private string ParseSubDownloadDoc(HtmlDocument htmlDoc)
+        private Tuple<QueryResult, string> ParseSubDownloadDoc(HtmlDocument htmlDoc)
         {
             var subtitleNodes = htmlDoc.DocumentNode.SelectNodes("//td[@class='a1']");
-            if (subtitleNodes == null)
-            {
-                return null;
-            }
 
-            var selections = new List<ItemData>();
-            foreach (var subtitleNode in subtitleNodes)
-            {
-                var linkNode = subtitleNode.SelectSingleNode(".//a");
-                if (linkNode == null)
-                {
-                    continue;
-                }
+            ItemData selectedItem = null;
+            var result = QueryResult.Failure;
 
-                var link = linkNode.GetAttributeValue("href", string.Empty);
-                var icon = Icon.Dot;
-                var linkSpanNodes = linkNode.SelectNodes(".//span");
-                var rateNode = linkSpanNodes.FirstOrDefault();
-                if (rateNode != null)
+            if (subtitleNodes != null)
+            {
+                var selections = new List<ItemData>();
+                foreach (var subtitleNode in subtitleNodes)
                 {
-                    var rateClass = rateNode.GetAttributeValue("class", string.Empty).Split(' ').LastOrDefault();
-                    if (!string.IsNullOrEmpty(rateClass) && rateClass.Contains("-icon"))
+                    var linkNode = subtitleNode.SelectSingleNode(".//a");
+                    if (linkNode == null)
                     {
-                        var rate = rateClass.Substring(0, rateClass.Length - 5);
-                        Enum.TryParse(rate, true, out icon);
+                        continue;
                     }
-                }
 
-                var titleNode = linkSpanNodes.LastOrDefault();
-                if (titleNode == null)
-                {
-                    continue;
-                }
-
-                var title = titleNode.InnerText.Trim();
-                var commentNode = subtitleNode.ParentNode.SelectSingleNode(".//td[@class='a6']/div");
-                string description = null;
-                if (commentNode != null)
-                {
-                    description = commentNode.InnerText.Trim();
-                }
-
-                selections.Add(
-                    new ItemData(HttpUtility.HtmlDecode(title), link)
+                    var link = linkNode.GetAttributeValue("href", string.Empty);
+                    var icon = Icon.Dot;
+                    var linkSpanNodes = linkNode.SelectNodes(".//span");
+                    var rateNode = linkSpanNodes.FirstOrDefault();
+                    if (rateNode != null)
+                    {
+                        var rateClass = rateNode.GetAttributeValue("class", string.Empty).Split(' ').LastOrDefault();
+                        if (!string.IsNullOrEmpty(rateClass) && rateClass.Contains("-icon"))
                         {
-                            Icon = icon, 
+                            var rate = rateClass.Substring(0, rateClass.Length - 5);
+                            Enum.TryParse(rate, true, out icon);
+                        }
+                    }
+
+                    var titleNode = linkSpanNodes.LastOrDefault();
+                    if (titleNode == null)
+                    {
+                        continue;
+                    }
+
+                    var title = titleNode.InnerText.Trim();
+                    var commentNode = subtitleNode.ParentNode.SelectSingleNode(".//td[@class='a6']/div");
+                    string description = null;
+                    if (commentNode != null)
+                    {
+                        description = commentNode.InnerText.Trim();
+                    }
+
+                    selections.Add(
+                        new ItemData(HttpUtility.HtmlDecode(title), link)
+                        {
+                            Icon = icon,
                             Description =
                                 HttpUtility.HtmlDecode(description.Replace(Environment.NewLine, " "))
                         });
-            }
+                }
 
-            ItemData selectedItem;
-            if (selections.Count == 1)
-            {
-                selectedItem = selections.First();
-            }
-            else if (selections.Count > 1)
-            {
-                selectedItem = this.view.GetSelection(
-                    selections, 
-                    this.FilePath, 
-                    string.Format(Literals.Data_Select_subtitle, this.Language.Localize())).Item2;
-
-                if (selectedItem == null)
+                if (selections.Count == 1)
                 {
-                    return string.Empty;
+                    selectedItem = selections.First();
+                    result = QueryResult.Success;
+                }
+                else if (selections.Count > 1)
+                {
+                    var selection = this.view.GetSelection(
+                        selections,
+                        this.FilePath,
+                        string.Format(Literals.Data_Select_subtitle, this.Language.Localize()));
+                    result = selection.Item1;
+                    selectedItem = selection.Item2;
+                }
+                else
+                {
+                    this.view.Notify(Literals.Data_No_subtitle_for + this.FilePath);
                 }
             }
-            else
-            {
-                this.view.Notify(Literals.Data_No_subtitle_for + this.FilePath);
-                return null;
-            }
 
-            return selectedItem == null ? string.Empty : selectedItem.Tag as string;
+            var downloadUrl = selectedItem == null ? string.Empty : selectedItem.Tag as string;
+            return Tuple.Create(result, downloadUrl);
         }
     }
 }

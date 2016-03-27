@@ -16,6 +16,7 @@
         Icon="/SubSearch.App;component/SubSearchBig.ico"
         IsVisibleChanged="MainWindow_OnIsVisibleChanged"
         Loaded="MainWindow_OnLoaded"
+        StateChanged="MainWindow_OnStateChanged"
         PreviewKeyUp="MainWindow_OnPreviewKeyUp"
         SizeToContent="WidthAndHeight"
         Style="{StaticResource DefaultWindowStyle}">
@@ -49,8 +50,7 @@
         <ProgressBar Name="ProgressBar"
                      Height="24"
                      DockPanel.Dock="Bottom"
-                     Foreground="{DynamicResource DefaultWindowBorderBrush}"
-                     IsIndeterminate="True" />
+                     Foreground="{DynamicResource DefaultWindowBorderBrush}" />
 
         <ListBox Name="SelectionBox"
                  HorizontalContentAlignment="Stretch"
@@ -64,17 +64,28 @@
                                                 Mode=OneWay,
                                                 Path=Data.DownloadPlayCommand}"
                               CommandParameter="{Binding}"
-                              Header="{x:Static resources:Literals.Data_Download__Play}" />
+                              Header="{x:Static resources:Literals.Data_Download_Play}" />
                     <MenuItem Command="{Binding Source={StaticResource DataContextProxy},
                                                 Mode=OneWay,
                                                 Path=Data.DownloadExitCommand}"
                               CommandParameter="{Binding}"
-                              Header="{x:Static resources:Literals.Data_Download__Close}" />
+                              Header="{x:Static resources:Literals.Data_Download_Close}" />
                     <MenuItem Command="{Binding Source={StaticResource DataContextProxy},
                                                 Mode=OneWay,
                                                 Path=Data.DownloadCommand}"
                               CommandParameter="{Binding}"
-                              Header="{x:Static resources:Literals.Data__Download}" />
+                              Header="{x:Static resources:Literals.Data_Download}" />
+                    <Separator />
+                    <MenuItem Command="{Binding Source={StaticResource DataContextProxy},
+                                                Mode=OneWay,
+                                                Path=Data.SkipCommand}"
+                              CommandParameter="{Binding}"
+                              Header="{x:Static resources:Literals.Data_Skip}" />
+                    <MenuItem Command="{Binding Source={StaticResource DataContextProxy},
+                                                Mode=OneWay,
+                                                Path=Data.CancelCommand}"
+                              CommandParameter="{Binding}"
+                              Header="{x:Static resources:Literals.Data_Cancel}" />
                 </ContextMenu>
                 <Style BasedOn="{StaticResource MetroListBoxItemStyle}" TargetType="{x:Type ListBoxItem}">
                     <EventSetter Event="MouseDoubleClick" Handler="ListBoxItemMouseDoubleClick" />
