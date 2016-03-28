@@ -53,10 +53,10 @@ namespace SubSearch.WPF.View
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindow" /> class.
         /// </summary>
-        /// <param name="viewHandler">The view handler.</param>
-        internal MainWindow(WpfViewHandler viewHandler = null)
+        /// <param name="view">The view.</param>
+        internal MainWindow(WpfView view = null)
         {
-            this.ViewHandler = viewHandler;
+            this.View = view;
             this.InitializeComponent();
         }
 
@@ -190,8 +190,8 @@ namespace SubSearch.WPF.View
             }
         }
 
-        /// <summary>Gets or sets the view handler.</summary>
-        internal WpfViewHandler ViewHandler { get; set; }
+        /// <summary>Gets or sets the view.</summary>
+        internal WpfView View { get; set; }
 
         /// <summary>Disposes the window.</summary>
         public void Dispose()
@@ -536,9 +536,9 @@ namespace SubSearch.WPF.View
         /// <param name="actionNames">The action names.</param>
         private void RaiseCustomAction(object parameter, params string[] actionNames)
         {
-            if (this.ViewHandler != null)
+            if (this.View != null)
             {
-                this.ViewHandler.OnCustomAction(parameter, actionNames);
+                this.View.OnCustomAction(parameter, actionNames);
             }
         }
     }

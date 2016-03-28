@@ -27,17 +27,11 @@ namespace SubSearch.WPF
         /// <summary>Keeps the queue file after processing.</summary>
         private readonly bool keepQueueFile;
 
-        /// <summary>The cancellation token source.</summary>
-        private readonly CancellationTokenSource token = new CancellationTokenSource();
-
         /// <summary>The active index.</summary>
         private int activeIndex;
 
         /// <summary>The active query.</summary>
         private ISubtitleDb activeQuery;
-
-        /// <summary>The active file.</summary>
-        private string activeFile;
 
         /// <summary>Initializes a new instance of the <see cref="QueueHandler" /> class.</summary>
         /// <param name="arguments">The arguments.</param>
@@ -78,7 +72,7 @@ namespace SubSearch.WPF
                 Enum.TryParse(languageStr, out language);
                 LocalizationManager.Initialize(language);
 
-                using (var viewHandler = fileReader.ReadLine() == Constants.SilentModeIdentifier ? new SilentViewHandler() : new WpfViewHandler())
+                using (var viewHandler = fileReader.ReadLine() == Constants.SilentModeIdentifier ? new SilentView() : new WpfView())
                 {
                     viewHandler.CustomActionRequested += this.OnViewHandlerCustomActionRequested;
                     string line;
@@ -136,19 +130,18 @@ namespace SubSearch.WPF
         /// Processes the request.
         /// </summary>
         /// <param name="targets">The targets.</param>
-        /// <param name="viewHandler">The view handler.</param>
+        /// <param name="view">The view.</param>
         /// <param name="language">The language.</param>
         /// <param name="success">The success.</param>
         /// <param name="fail">The fail.</param>
-        private void ProcessRequest(string[] targets, IViewHandler viewHandler, Language language, ref int success, ref int fail)
+        private void ProcessRequest(string[] targets, IView view, Language language, ref int success, ref int fail)
         {
             for (this.activeIndex = 0; this.activeIndex < targets.Length; this.activeIndex++)
             {
                 try
                 {
-                    this.activeFile = targets[this.activeIndex];
-                    this.activeQuery = new SubSceneDb(this.activeFile, viewHandler, language);
-                    viewHandler.ShowProgress(this.activeIndex, targets.Length);
+                    this.activeQuery = new SubSceneDb(targets[this.activeIndex], view, language);
+                    view.ShowProgress(this.activeIndex, targets.Length);
                     var entryResult = this.activeQuery.Query();
                     if (entryResult == QueryResult.Success || entryResult == QueryResult.Skipped)
                     {
@@ -175,53 +168,55 @@ namespace SubSearch.WPF
         /// <param name="sender">The sender.</param>
         /// <param name="parameter">The parameter.</param>
         /// <param name="actionName">The action name.</param>
-        private void HandleAction(IViewHandler sender, object parameter, string actionName)
+        private void HandleAction(IView sender, object parameter, string actionName)
         {
-            var language = activeQuery != null ? activeQuery.Language : Language.English;
-            if (actionName == CustomActions.CustomQuery && parameter != null)
+            if (this.activeQuery != null)
             {
-                var query = activeQuery ?? new SubSceneDb(this.activeFile, sender, language);
-                query.Title = parameter.ToString();
-                activeIndex--;
-                sender.Continue();
-                return;
-            }
-
-            var itemData = parameter as ItemData;
-            if (itemData == null)
-            {
-                return;
-            }
-
-            if (actionName == CustomActions.DownloadSubtitle)
-            {
-                new SubSceneDb(this.activeFile, sender, language).DownloadSubtitle(itemData.Tag as string);
-            }
-            else if (actionName == CustomActions.Play)
-            {
-                try
+                if (actionName == CustomActions.CustomQuery && parameter != null)
                 {
-                    if (File.Exists(this.activeFile))
+                    this.activeQuery.Title = parameter.ToString();
+                    this.activeIndex--;
+                    sender.Continue();
+                    return;
+                }
+
+                var itemData = parameter as ItemData;
+                if (itemData == null)
+                {
+                    return;
+                }
+
+                if (actionName == CustomActions.DownloadSubtitle)
+                {
+                    this.activeQuery.DownloadSubtitle(itemData.Tag as string);
+                }
+                else if (actionName == CustomActions.Play)
+                {
+                    try
                     {
-                        System.Diagnostics.Process.Start(this.activeFile);
+                        if (File.Exists(this.activeQuery.FilePath))
+                        {
+                            System.Diagnostics.Process.Start(this.activeQuery.FilePath);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        sender.Notify(string.Format("Failed to play {0}: {1}", this.activeQuery.FilePath, ex.Message));
                     }
                 }
-                catch (Exception ex)
-                {
-                    sender.Notify(string.Format("Failed to play {0}: {1}", this.activeFile, ex.Message));
-                }
             }
-            else if (actionName == CustomActions.Close)
+
+            if (actionName == CustomActions.Close)
             {
                 sender.Continue();
             }
         }
 
-        /// <summary>The on view handler custom action requested.</summary>
+        /// <summary>The on view custom action requested.</summary>
         /// <param name="sender">The sender.</param>
         /// <param name="parameter">The parameter.</param>
         /// <param name="actionNames">The action names.</param>
-        private void OnViewHandlerCustomActionRequested(IViewHandler sender, object parameter,
+        private void OnViewHandlerCustomActionRequested(IView sender, object parameter,
             params string[] actionNames)
         {
             foreach (var actionName in actionNames)

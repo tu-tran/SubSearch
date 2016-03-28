@@ -55,7 +55,7 @@
     <Compile Include="InlineComparer{T}.cs" />
     <Compile Include="ISubtitleDb.cs" />
     <Compile Include="ItemData.cs" />
-    <Compile Include="IViewHandler.cs" />
+    <Compile Include="IView.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SubSceneDb.cs" />
   </ItemGroup>

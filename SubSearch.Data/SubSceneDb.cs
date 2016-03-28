@@ -30,26 +30,26 @@ namespace SubSearch.Data
                                                                                  };
 
         /// <summary>The view.</summary>
-        private readonly IViewHandler view;
+        private readonly IView view;
 
         /// <summary>Initializes a new instance of the <see cref="SubSceneDb"/> class.</summary>
         /// <param name="filePath">The file path.</param>
-        /// <param name="viewHandler">The view handler.</param>
+        /// <param name="view">The view.</param>
         /// <param name="language">The language.</param>
-        public SubSceneDb(string filePath, IViewHandler viewHandler, Language language)
-            : this(filePath, viewHandler)
+        public SubSceneDb(string filePath, IView view, Language language)
+            : this(filePath, view)
         {
             this.Language = language;
         }
 
         /// <summary>Initializes a new instance of the <see cref="SubSceneDb"/> class.</summary>
         /// <param name="filePath">The file path.</param>
-        /// <param name="viewHandler">The view handler.</param>
-        public SubSceneDb(string filePath, IViewHandler viewHandler)
+        /// <param name="view">The view.</param>
+        public SubSceneDb(string filePath, IView view)
         {
             this.FilePath = filePath;
             this.Title = Path.GetFileNameWithoutExtension(filePath);
-            this.view = viewHandler;
+            this.view = view;
         }
 
         /// <summary>The file path.</summary>
@@ -72,8 +72,8 @@ namespace SubSearch.Data
                 return QueryResult.Failure;
             }
 
-            var title = Path.GetFileNameWithoutExtension(this.FilePath);
-            var path = Path.GetDirectoryName(this.FilePath);
+            var title = Path.GetFileNameWithoutExtension(this.FilePath) ?? string.Empty;
+            var path = Path.GetDirectoryName(this.FilePath) ?? string.Empty;
             var targetFile = Path.Combine(path, title);
             this.view.ShowProgress(this.FilePath, string.Format(Literals.Data_Downloading_video_subtitle, this.Language.Localize()));
             var result = this.DoDownloadSubtitle(subtitleDownloadUrl, subtitleDownloadUrl, cookies, targetFile);
@@ -87,7 +87,8 @@ namespace SubSearch.Data
         {
             this.view.ShowProgress(this.FilePath, Literals.Data_Searching_video_title);
             var encodedTitle = HttpUtility.UrlEncode(this.Title);
-            var queryUrl = string.Format("http://subscene.com/subtitles/release?q={0}&l=", encodedTitle);
+            var queryUrl = string.Format("http://subscene.com/subtitles/release?q={0}&r=true", encodedTitle);
+            var referrer = string.Format("http://subscene.com/subtitles/title?q={0}&l=", encodedTitle);
 
             string languageCode;
             if (!LanguageCodes.TryGetValue(this.Language, out languageCode))
@@ -97,16 +98,17 @@ namespace SubSearch.Data
 
             var cookies = new CookieContainer();
             cookies.Add(new Cookie("LanguageFilter", languageCode, "/", ".subscene.com"));
+            cookies.Add(new Cookie("HearingImpaired", "", "/", ".subscene.com"));
 
-            var subtitleDownloadDoc = this.GetDocument(queryUrl, "http://subscene.com", cookies, false);
             this.view.ShowProgress(this.FilePath, Literals.Data_Searching_video_subtitle);
-            var subtitleDownloadUrl = this.ParseSubDownloadDoc(subtitleDownloadDoc.Item1);
+            var searchByReleaseDoc = this.GetDocument(queryUrl, referrer, cookies, false);
+            var subtitleDownloadUrl = this.ParseSubtitleReleaseDoc(searchByReleaseDoc.Item1);
             if (subtitleDownloadUrl.Item1 != QueryResult.Success)
             {
                 return subtitleDownloadUrl.Item1;
             }
 
-            return this.DownloadSubtitle(subtitleDownloadUrl.Item2, subtitleDownloadDoc.Item2);
+            return this.DownloadSubtitle(subtitleDownloadUrl.Item2, searchByReleaseDoc.Item2);
         }
 
         /// <summary>The get request.</summary>
@@ -327,7 +329,7 @@ namespace SubSearch.Data
         /// <summary>The parse sub download doc.</summary>
         /// <param name="htmlDoc">The html doc.</param>
         /// <returns>The <see cref="string"/>.</returns>
-        private Tuple<QueryResult, string> ParseSubDownloadDoc(HtmlDocument htmlDoc)
+        private Tuple<QueryResult, string> ParseSubtitleReleaseDoc(HtmlDocument htmlDoc)
         {
             var subtitleNodes = htmlDoc.DocumentNode.SelectNodes("//td[@class='a1']");
 

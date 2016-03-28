@@ -72,7 +72,7 @@
     <Compile Include="CommandBase.cs" />
     <Compile Include="CustomActions.cs" />
     <Compile Include="QueueHandler.cs" />
-    <Compile Include="SilentViewHandler.cs" />
+    <Compile Include="SilentView.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="View\BindingProxy.cs" />
@@ -92,7 +92,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="WPFViewHandler.cs" />
+    <Compile Include="WpfView.cs" />
     <Page Include="View\MessageDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
