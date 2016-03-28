@@ -16,7 +16,6 @@
         Icon="/SubSearch.App;component/SubSearchBig.ico"
         IsVisibleChanged="MainWindow_OnIsVisibleChanged"
         Loaded="MainWindow_OnLoaded"
-        StateChanged="MainWindow_OnStateChanged"
         PreviewKeyUp="MainWindow_OnPreviewKeyUp"
         SizeToContent="WidthAndHeight"
         Style="{StaticResource DefaultWindowStyle}">
@@ -38,6 +37,7 @@
                  Padding="5 2 5 2"
                  Text="{Binding TitleText,
                                 Mode=OneWay}"
+                 GotKeyboardFocus="QueryBoxGotKeyboardFocus"
                  wpf:Extensions.FocusNextOnEnter="True">
             <TextBox.InputBindings>
                 <KeyBinding Key="Enter"
@@ -55,7 +55,8 @@
         <ListBox Name="SelectionBox"
                  HorizontalContentAlignment="Stretch"
                  DockPanel.Dock="Top"
-                 ItemsSource="{Binding Selections}">
+                 ItemsSource="{Binding Selections}"
+                 SelectedItem="{Binding SelectedItem}">
 
             <ListBox.Resources>
                 <view:BindingProxy x:Key="DataContextProxy" Data="{Binding}" />
@@ -128,4 +129,11 @@
             </ListBox.ItemTemplate>
         </ListBox>
     </DockPanel>
+    <Window.InputBindings>
+        <KeyBinding Key="S" Modifiers="Control" Command="{Binding SkipCommand}" />
+        <KeyBinding Key="X" Modifiers="Control" Command="{Binding CancelCommand}" />
+        <KeyBinding Key="D" Modifiers="Control" Command="{Binding DownloadCommand}" CommandParameter="{Binding SelectedItem}" />
+        <KeyBinding Key="P" Modifiers="Control" Command="{Binding DownloadPlayCommand}" CommandParameter="{Binding SelectedItem}" />
+        <KeyBinding Key="W" Modifiers="Control" Command="{Binding DownloadExitCommand}" CommandParameter="{Binding SelectedItem}" />
+    </Window.InputBindings>
 </Window>

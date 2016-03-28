@@ -67,14 +67,9 @@ namespace SubSearch.Data
         /// <returns>The query result.</returns>
         public QueryResult DownloadSubtitle(string subtitleDownloadUrl, CookieContainer cookies = null)
         {
-            if (subtitleDownloadUrl == null)
+            if (string.IsNullOrEmpty(subtitleDownloadUrl))
             {
                 return QueryResult.Failure;
-            }
-
-            if (subtitleDownloadUrl == string.Empty)
-            {
-                return QueryResult.Skipped;
             }
 
             var title = Path.GetFileNameWithoutExtension(this.FilePath);
@@ -103,28 +98,12 @@ namespace SubSearch.Data
             var cookies = new CookieContainer();
             cookies.Add(new Cookie("LanguageFilter", languageCode, "/", ".subscene.com"));
 
-            var queryResultDoc = this.GetDocument(queryUrl, "http://subscene.com", cookies, false);
-            var searchResultUrl = this.ParseQueryDoc(queryResultDoc.Item1);
-            if (searchResultUrl.Item1 == QueryResult.Cancelled)
-            {
-                return QueryResult.Cancelled;
-            }
-
-            Tuple<HtmlDocument, CookieContainer> subtitleDownloadDoc;
-            if (string.IsNullOrEmpty(searchResultUrl.Item2))
-            {
-                subtitleDownloadDoc = queryResultDoc;
-            }
-            else
-            {
-                subtitleDownloadDoc = this.GetDocument(searchResultUrl.Item2, queryUrl, queryResultDoc.Item2, false);
-            }
-
+            var subtitleDownloadDoc = this.GetDocument(queryUrl, "http://subscene.com", cookies, false);
             this.view.ShowProgress(this.FilePath, Literals.Data_Searching_video_subtitle);
             var subtitleDownloadUrl = this.ParseSubDownloadDoc(subtitleDownloadDoc.Item1);
-            if (subtitleDownloadUrl.Item1 == QueryResult.Cancelled)
+            if (subtitleDownloadUrl.Item1 != QueryResult.Success)
             {
-                return QueryResult.Cancelled;
+                return subtitleDownloadUrl.Item1;
             }
 
             return this.DownloadSubtitle(subtitleDownloadUrl.Item2, subtitleDownloadDoc.Item2);
@@ -271,7 +250,7 @@ namespace SubSearch.Data
         /// <summary>The parse query doc.</summary>
         /// <param name="htmlDoc">The html doc.</param>
         /// <returns>The <see cref="string"/>.</returns>
-        private Tuple<QueryResult, string> ParseQueryDoc(HtmlDocument htmlDoc)
+        private Tuple<QueryResult, string> ParseTitleDoc(HtmlDocument htmlDoc)
         {
             var resultNodes = htmlDoc.DocumentNode.SelectNodes("//div[@class='search-result']");
             if (resultNodes == null)

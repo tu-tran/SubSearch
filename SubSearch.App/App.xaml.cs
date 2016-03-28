@@ -9,14 +9,14 @@
 
 namespace SubSearch.WPF
 {
+    using SubSearch.Data;
+    using SubSearch.Resources;
+    using SubSearch.WPF.View;
     using System;
     using System.Text;
     using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Threading;
-
-    using SubSearch.Resources;
-    using SubSearch.WPF.View;
 
     /// <summary>Interaction logic for App.xaml</summary>
     public partial class App
@@ -29,23 +29,27 @@ namespace SubSearch.WPF
             this.InitializeErrorHandler();
             NotificationWindow.Initialize();
             var result = new QueueHandler(e.Args).Process();
-            if (result == 0)
+
+            string message = null;
+            if (result == QueryResult.Success)
             {
-                this.Dispatcher.InvokeShutdown();
-                return;
+                message = Literals.ShellExtension_Subtitles_downloaded_successfully;
+            }
+            else if (result == QueryResult.Fatal)
+            {
+                message = Literals.ShellExtension_Failed_process_request;
             }
 
-            var message = result == 1 ? Literals.ShellExtension_Subtitles_downloaded_successfully : Literals.ShellExtension_Failed_process_request;
-
-            NotificationWindow.Show(
-                message, 
-                (sender, args) =>
-                    {
-                        if (args.NewValue.Equals(false))
-                        {
-                            this.Dispatcher.InvokeShutdown();
-                        }
-                    });
+            if (string.IsNullOrEmpty(message))
+            {
+                NotificationWindow.AttachEndHandler((sender, args) => this.Dispatcher.InvokeShutdown());
+            }
+            else
+            {
+                NotificationWindow.Show(
+                    message,
+                    (sender, args) => this.Dispatcher.InvokeShutdown());
+            }
         }
 
         /// <summary>Raises when there is unhandled exception.</summary>

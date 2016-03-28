@@ -18,7 +18,7 @@ namespace SubSearch.WPF.View
     public partial class NotificationWindow : INotifyPropertyChanged
     {
         /// <summary>The end event handler.</summary>
-        private static DependencyPropertyChangedEventHandler endEventHandler;
+        internal static DependencyPropertyChangedEventHandler endEventHandler;
 
         /// <summary>The window.</summary>
         private static NotificationWindow Window;
@@ -75,14 +75,31 @@ namespace SubSearch.WPF.View
                     });
         }
 
+        /// <summary>
+        /// Attaches the end handler.
+        /// </summary>
+        /// <param name="endHandler">The end handler.</param>
+        public static void AttachEndHandler(DependencyPropertyChangedEventHandler endHandler)
+        {
+            endEventHandler += endHandler;
+            if (Window != null && !Window.IsVisible)
+            {
+                endEventHandler(null, new DependencyPropertyChangedEventArgs());
+                endEventHandler = null;
+            }
+        }
+
         /// <summary>The grid_ on is visible changed.</summary>
         /// <param name="sender">The sender.</param>
         /// <param name="e">The eventArgs.</param>
         private void Grid_OnIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (endEventHandler != null)
+            if (object.Equals(e.NewValue, false))
             {
-                endEventHandler(sender, e);
+                if (endEventHandler != null)
+                {
+                    endEventHandler(sender, e);
+                }
             }
         }
 
@@ -92,7 +109,7 @@ namespace SubSearch.WPF.View
         private void NotificationWindow_OnLoaded(object sender, RoutedEventArgs eventArgs)
         {
             this.Dispatcher.Invoke(
-                DispatcherPriority.ApplicationIdle, 
+                DispatcherPriority.ApplicationIdle,
                 new Action(
                     () =>
                         {

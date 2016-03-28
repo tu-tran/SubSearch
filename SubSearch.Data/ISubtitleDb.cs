@@ -8,24 +8,29 @@
 // --------------------------------------------------------------------------------------------------------------------
 namespace SubSearch.Data
 {
+    using System;
     using System.Net;
 
     using SubSearch.Resources;
 
     /// <summary>The query result.</summary>
+    [Flags]
     public enum QueryResult
     {
-        /// <summary>The cancelled.</summary>
-        Cancelled = -2, 
+        /// <summary>The fatal.</summary>
+        Fatal = 0,
 
-        /// <summary>The failure.</summary>
-        Failure = -1, 
+        /// <summary>The cancelled.</summary>
+        Cancelled = 1 << 1,
 
         /// <summary>The skipped.</summary>
-        Skipped = 0, 
+        Skipped = 1 << 2, 
 
         /// <summary>The success.</summary>
-        Success = 1
+        Success = 1 << 3,
+
+        /// <summary>The failure.</summary>
+        Failure = 1 << 4
     }
 
     /// <summary>The SubtitleDb interface.</summary>

@@ -23,12 +23,6 @@ namespace SubSearch.Data
         /// <summary>Occurs when the view handler custom action is requested.</summary>
         event CustomActionDelegate CustomActionRequested;
 
-        /// <summary>Occurs when the view handler is disposed.</summary>
-        event Action Disposed;
-
-        /// <summary>Gets or sets the target file.</summary>
-        string TargetFile { get; set; }
-
         /// <summary>Continues the pending operation and cancel any selection.</summary>
         void Continue();
 
@@ -52,8 +46,5 @@ namespace SubSearch.Data
         /// <param name="done">Done.</param>
         /// <param name="total">Total</param>
         void ShowProgress(int done, int total);
-
-        /// <summary>Starts the view handler.</summary>
-        void Start();
     }
 }

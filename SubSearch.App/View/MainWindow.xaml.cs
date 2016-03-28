@@ -7,8 +7,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 namespace SubSearch.WPF.View
-{
-    using SubSearch.Data;
+{    
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -18,19 +17,20 @@ namespace SubSearch.WPF.View
     using System.Windows;
     using System.Windows.Forms;
     using System.Windows.Input;
+
+    using SubSearch.Data;
+
     using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+    using TextBox = System.Windows.Controls.TextBox;
 
     /// <summary>Interaction logic for SelectionWindow.xaml</summary>
     public partial class MainWindow : INotifyPropertyChanged
     {
-        /// <summary>The active window.</summary>
-        private static readonly MainWindow activeWindow;
-
-        /// <summary>The last position.</summary>
-        private static Tuple<double, double> lastPosition;
-
         /// <summary>The selections.</summary>
         private readonly ObservableCollection<ItemData> selections = new ObservableCollection<ItemData>();
+
+        /// <summary>The last position.</summary>
+        private Tuple<double, double> lastPosition;
 
         /// <summary>Is disposing.</summary>
         private bool disposing;
@@ -47,27 +47,21 @@ namespace SubSearch.WPF.View
         /// <summary>The cancellation token source for windows hidden event.</summary>
         private CancellationTokenSource hideCancellationToken = null;
 
-        /// <summary>The last window state.</summary>
-        private WindowState lastWindowState;
+        /// <summary>The selected item.</summary>
+        private ItemData selectedItem;
 
-        /// <summary>Initializes static members of the <see cref="MainWindow" /> class. Static initialization.</summary>
-        static MainWindow()
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MainWindow" /> class.
+        /// </summary>
+        /// <param name="viewHandler">The view handler.</param>
+        internal MainWindow(WpfViewHandler viewHandler = null)
         {
-            activeWindow = new MainWindow();
-        }
-
-        /// <summary>Prevents a default instance of the <see cref="MainWindow" /> class from being created. Initializes a new instance of the
-        /// <see cref="MainWindow" /> class.</summary>
-        private MainWindow()
-        {
+            this.ViewHandler = viewHandler;
             this.InitializeComponent();
         }
 
         /// <summary>The property changed.</summary>
         public event PropertyChangedEventHandler PropertyChanged;
-
-        /// <summary>Gets or sets the target file.</summary>
-        public static string TargetFile { get; set; }
 
         /// <summary>Gets the command for Download.</summary>
         public ICommand DownloadCommand
@@ -143,7 +137,13 @@ namespace SubSearch.WPF.View
         {
             get
             {
-                return this.SelectionBox.SelectedItem as ItemData;
+                return this.selectedItem;
+            }
+
+            set
+            {
+                this.selectedItem = value;
+                this.RaisePropertyChanged();
             }
         }
 
@@ -193,79 +193,11 @@ namespace SubSearch.WPF.View
         /// <summary>Gets or sets the view handler.</summary>
         internal WpfViewHandler ViewHandler { get; set; }
 
-        /// <summary>The close all.</summary>
-        public static void CloseAll()
-        {
-            if (activeWindow != null)
-            {
-                activeWindow.Dispatcher.Invoke(() => activeWindow.Dispose());
-            }
-        }
-
-        /// <summary>Continues the pending operation and cancel any selection.</summary>
-        public static void Continue()
-        {
-            activeWindow.Accept(QueryResult.Skipped);
-        }
-
-        /// <summary>The get selection.</summary>
-        /// <param name="data">The data.</param>
-        /// <param name="title">The title.</param>
-        /// <param name="status">The status.</param>
-        /// <returns>The <see cref="ItemData"/>.</returns>
-        public static Tuple<QueryResult, ItemData> GetSelection(ICollection<ItemData> data, string title, string status)
-        {
-            var token = new CancellationTokenSource();
-            activeWindow.hideCancellationToken = token;
-            activeWindow.Dispatcher.Invoke(
-                () =>
-                {
-                    activeWindow.SetSelections(data, title, status);
-                });
-
-            token.Token.WaitHandle.WaitOne();
-
-            return activeWindow.Dispatcher.Invoke(() => Tuple.Create(activeWindow.SelectionState, activeWindow.SelectedItem));
-        }
-
-        /// <summary>The show progress.</summary>
-        /// <param name="title">The title.</param>
-        /// <param name="status">The status.</param>
-        public static void ShowProgress(string title, string status)
-        {
-            activeWindow.SetProgress(title, status);
-        }
-
-        /// <summary>Sets the progress.</summary>
-        /// <param name="done">Done.</param>
-        /// <param name="total">Total</param>
-        public static void ShowProgress(int done, int total)
-        {
-            activeWindow.SetProgress(done, total);
-        }
-
-        /// <summary>Starts the view and wait for interaction.</summary>
-        public static void Start()
-        {
-            activeWindow.Dispatcher.Invoke(() => { activeWindow.ShowDialog(); });
-        }
-
         /// <summary>Disposes the window.</summary>
         public void Dispose()
         {
             this.disposing = true;
             this.Close();
-        }
-
-        /// <summary>Hides the window.</summary>
-        public new void Hide()
-        {
-            if (this.IsVisible)
-            {
-                this.lastWindowState = this.WindowState;
-                this.ShowInTaskbar = false;
-                this.WindowState = WindowState.Minimized;
-            }
         }
 
         /// <summary>The show.</summary>
@@ -275,26 +207,75 @@ namespace SubSearch.WPF.View
             {
                 base.Show();
             }
-
-            this.WindowState = lastWindowState;
-            this.ShowInTaskbar = true;
-            this.SelectionState = QueryResult.Skipped;
         }
 
-        /// <summary>The attach.</summary>
-        /// <param name="viewHandler">The view handler.</param>
-        internal static void Attach(WpfViewHandler viewHandler)
+        /// <summary>The set progress.</summary>
+        /// <param name="title">The title.</param>
+        /// <param name="newStatus">The status.</param>
+        internal void SetProgress(string title, string newStatus)
         {
-            activeWindow.ViewHandler = viewHandler;
-        }
-
-        /// <summary>The detach.</summary>
-        /// <param name="viewHandler">The view handler.</param>
-        internal static void Detach(WpfViewHandler viewHandler)
-        {
-            if (activeWindow.ViewHandler == viewHandler)
+            if (!this.Dispatcher.CheckAccess())
             {
-                activeWindow.ViewHandler = null;
+                this.Dispatcher.Invoke(() => this.SetProgress(title, newStatus));
+                return;
+            }
+
+            this.ProgressBar.Visibility = Visibility.Visible;
+            this.TitleText = title;
+            this.Status = newStatus;
+            this.Show();
+        }
+
+        /// <summary>Sets the progress.</summary>
+        /// <param name="done">Done.</param>
+        /// <param name="total">Total</param>
+        internal void SetProgress(int done, int total)
+        {
+            if (!this.Dispatcher.CheckAccess())
+            {
+                this.Dispatcher.Invoke(() => this.SetProgress(done, total));
+                return;
+            }
+
+            this.ProgressBar.Visibility = Visibility.Visible;
+            this.SelectionBox.Visibility = Visibility.Collapsed;
+            this.AutoSize();
+            this.ProgressBar.Value = done;
+            this.ProgressBar.Maximum = total;
+            this.ProgressBar.IsIndeterminate = done < 1;
+            this.Show();
+        }
+
+        /// <summary>The set selections.</summary>
+        /// <param name="data">The data.</param>
+        /// <param name="title">The title.</param>
+        /// <param name="status">The status.</param>
+        internal void SetSelections(ICollection<ItemData> data, string title, string status, CancellationTokenSource token)
+        {
+            if (!this.Dispatcher.CheckAccess())
+            {
+                this.Dispatcher.Invoke(() => this.SetSelections(data, title, status, token));
+                return;
+            }
+
+            this.hideCancellationToken = token;
+            this.selections.Clear();
+            foreach (var itemData in data)
+            {
+                this.selections.Add(itemData);
+            }
+
+            this.TitleText = title;
+            this.Status = status;
+            this.SelectionBox.Visibility = Visibility.Visible;
+            this.ProgressBar.Visibility = Visibility.Collapsed;
+            this.ProgressBar.IsIndeterminate = false;
+            this.lastPosition = null;
+            this.AutoSize();
+            if (!this.IsVisible)
+            {
+                this.AutoPosition();
+                this.Show();
             }
         }
 
@@ -322,8 +303,14 @@ namespace SubSearch.WPF.View
         }
 
         /// <summary>The accept.</summary>
-        private void Accept(QueryResult result = QueryResult.Success, bool hide = true)
+        internal void Accept(QueryResult result = QueryResult.Success, bool hide = true)
         {
+            if (!this.Dispatcher.CheckAccess())
+            {
+                this.Dispatcher.Invoke(() => this.Accept(result, hide));
+                return;
+            }
+
             this.SelectionState = result;
             if (hide)
             {
@@ -362,22 +349,22 @@ namespace SubSearch.WPF.View
                 var left = mousePosition.X - this.ActualWidth / 2;
                 var top = mousePosition.Y - this.ActualHeight / 2;
 
-                if (left < 0)
+                if (left < SystemParameters.VirtualScreenLeft)
                 {
-                    left = 0;
+                    left = SystemParameters.VirtualScreenLeft;
                 }
-                else if (left + this.ActualWidth > activeScreenArea.Right)
+                else if (left + this.ActualWidth > SystemParameters.VirtualScreenWidth)
                 {
-                    left = activeScreenArea.Right - this.ActualWidth;
+                    left = SystemParameters.VirtualScreenWidth - this.ActualWidth;
                 }
 
-                if (top < 0)
+                if (top < SystemParameters.VirtualScreenTop)
                 {
-                    top = 0;
+                    top = SystemParameters.VirtualScreenTop;
                 }
-                else if (top + this.ActualHeight > activeScreenArea.Bottom)
+                else if (top + this.ActualHeight > SystemParameters.VirtualScreenHeight)
                 {
-                    top = activeScreenArea.Bottom - this.ActualHeight;
+                    top = SystemParameters.VirtualScreenHeight - this.ActualHeight;
                 }
 
                 this.Left = left;
@@ -476,8 +463,6 @@ namespace SubSearch.WPF.View
             if (!this.disposing)
             {
                 this.SelectionState = QueryResult.Cancelled;
-                e.Cancel = true;
-                this.Hide();
             }
         }
 
@@ -496,27 +481,13 @@ namespace SubSearch.WPF.View
         {
             if (e.NewValue.Equals(false))
             {
-                this.OnNotifyToken();
-            }
-        }
-
-        /// <summary>
-        /// Occurs when the window state has been changed.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="eventArgs">The event argument.s</param>
-        private void MainWindow_OnStateChanged(object sender, EventArgs eventArgs)
-        {
-            this.lastWindowState = this.WindowState;
-            if (!this.IsVisible || (this.WindowState == WindowState.Minimized && !this.ShowInTaskbar))
-            {
+                this.lastPosition = new Tuple<double, double>(this.Left, this.Top);
                 this.OnNotifyToken();
             }
         }
 
         private void OnNotifyToken()
         {
-            lastPosition = new Tuple<double, double>(this.Left, this.Top);
             if (this.hideCancellationToken != null)
             {
                 this.hideCancellationToken.Cancel();
@@ -550,6 +521,16 @@ namespace SubSearch.WPF.View
             this.RaiseCustomAction(parameter, CustomActions.CustomQuery);
         }
 
+        /// <summary>
+        /// Queries the box got keyboard focus.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="KeyboardFocusChangedEventArgs"/> instance containing the event data.</param>
+        private void QueryBoxGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            ((TextBox)sender).SelectAll();
+        }
+
         /// <summary>The raise custom action.</summary>
         /// <param name="parameter">The parameter.</param>
         /// <param name="actionNames">The action names.</param>
@@ -559,67 +540,6 @@ namespace SubSearch.WPF.View
             {
                 this.ViewHandler.OnCustomAction(parameter, actionNames);
             }
-        }
-
-        /// <summary>The set progress.</summary>
-        /// <param name="title">The title.</param>
-        /// <param name="newStatus">The status.</param>
-        private void SetProgress(string title, string newStatus)
-        {
-            this.Dispatcher.Invoke(
-                () =>
-                {
-                    this.ProgressBar.Visibility = Visibility.Visible;
-                    this.TitleText = title;
-                    this.Status = newStatus;
-                    this.Show();
-                });
-        }
-
-        /// <summary>Sets the progress.</summary>
-        /// <param name="done">Done.</param>
-        /// <param name="total">Total</param>
-        private void SetProgress(int done, int total)
-        {
-            this.Dispatcher.Invoke(
-                () =>
-                {
-                    this.ProgressBar.Visibility = Visibility.Visible;
-                    this.ProgressBar.Value = done;
-                    this.ProgressBar.Maximum = total;
-                    this.ProgressBar.IsIndeterminate = done < 1;
-                    this.Show();
-                });
-        }
-
-        /// <summary>The set selections.</summary>
-        /// <param name="data">The data.</param>
-        /// <param name="title">The title.</param>
-        /// <param name="status">The status.</param>
-        private void SetSelections(ICollection<ItemData> data, string title, string status)
-        {
-            this.Dispatcher.Invoke(
-                () =>
-                {
-                    this.selections.Clear();
-                    foreach (var itemData in data)
-                    {
-                        this.selections.Add(itemData);
-                    }
-
-                    this.TitleText = title;
-                    this.Status = status;
-                    this.SelectionBox.Visibility = Visibility.Visible;
-                    this.ProgressBar.Visibility = Visibility.Collapsed;
-                    this.ProgressBar.IsIndeterminate = false;
-                    lastPosition = null;
-                    this.AutoSize();
-                    if (!this.IsVisible)
-                    {
-                        this.AutoPosition();
-                        this.Show();
-                    }
-                });
         }
     }
 }
