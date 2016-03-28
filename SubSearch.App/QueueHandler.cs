@@ -140,7 +140,13 @@ namespace SubSearch.WPF
             {
                 try
                 {
-                    this.activeQuery = new SubSceneDb(targets[this.activeIndex], view, language);
+                    var currentFile = targets[this.activeIndex];
+                    if (new[] { "RARBG.COM" }.Any(s => currentFile.StartsWith(s, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        continue;
+                    }
+
+                    this.activeQuery = new SubSceneDb(currentFile, view, language);
                     view.ShowProgress(this.activeIndex, targets.Length);
                     var entryResult = this.activeQuery.Query();
                     if (entryResult == QueryResult.Success || entryResult == QueryResult.Skipped)
@@ -174,7 +180,7 @@ namespace SubSearch.WPF
             {
                 if (actionName == CustomActions.CustomQuery && parameter != null)
                 {
-                    this.activeQuery.Title = parameter.ToString();
+                    this.activeQuery.Title = Path.GetFileNameWithoutExtension(parameter.ToString());
                     this.activeIndex--;
                     sender.Continue();
                     return;

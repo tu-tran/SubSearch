@@ -7,7 +7,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 namespace SubSearch.WPF.View
-{    
+{
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -62,6 +62,28 @@ namespace SubSearch.WPF.View
 
         /// <summary>The property changed.</summary>
         public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>Gets the command for CopyItem.</summary>
+        public ICommand CopyItem
+        {
+            get
+            {
+                return
+                    new ActionCommand<object>(
+                        o =>
+                        System.Windows.Clipboard.SetText(
+                            (this.SelectedItem == null || string.IsNullOrEmpty(this.SelectedItem.Text)) ? this.Title : this.SelectedItem.Text));
+            }
+        }
+
+        /// <summary>Gets the command for AcceptItem.</summary>
+        public ICommand AcceptItem
+        {
+            get
+            {
+                return new ActionCommand<object>(o => this.Accept());
+            }
+        }
 
         /// <summary>Gets the command for Download.</summary>
         public ICommand DownloadCommand
@@ -528,7 +550,27 @@ namespace SubSearch.WPF.View
         /// <param name="e">The <see cref="KeyboardFocusChangedEventArgs"/> instance containing the event data.</param>
         private void QueryBoxGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
-            ((TextBox)sender).SelectAll();
+            TextBox tb = (sender as TextBox);
+            if (tb != null && tb.IsKeyboardFocusWithin)
+            {
+                ((TextBox)sender).SelectAll();
+            }
+        }
+
+        /// <summary>
+        /// Selectivelies the ignore mouse button.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="MouseButtonEventArgs"/> instance containing the event data.</param>
+        /// <exception cref="NotImplementedException"></exception>
+        private void SelectivelyIgnoreMouseButton(object sender, MouseButtonEventArgs e)
+        {
+            TextBox tb = (sender as TextBox);
+            if (tb != null && !tb.IsKeyboardFocusWithin)
+            {
+                e.Handled = true;
+                tb.Focus();
+            }
         }
 
         /// <summary>The raise custom action.</summary>

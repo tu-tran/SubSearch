@@ -38,6 +38,7 @@
                  Text="{Binding TitleText,
                                 Mode=OneWay}"
                  GotKeyboardFocus="QueryBoxGotKeyboardFocus"
+                 PreviewMouseLeftButtonDown="SelectivelyIgnoreMouseButton"
                  wpf:Extensions.FocusNextOnEnter="True">
             <TextBox.InputBindings>
                 <KeyBinding Key="Enter"
@@ -90,10 +91,13 @@
                 </ContextMenu>
                 <Style BasedOn="{StaticResource MetroListBoxItemStyle}" TargetType="{x:Type ListBoxItem}">
                     <EventSetter Event="MouseDoubleClick" Handler="ListBoxItemMouseDoubleClick" />
-                    <EventSetter Event="PreviewKeyUp" Handler="ListBoxItemPreviewKeyUp" />
                     <Setter Property="ContextMenu" Value="{StaticResource MenuItemContextMenu}" />
                 </Style>
             </ListBox.Resources>
+            <ListBox.InputBindings>
+                <KeyBinding Key="C" Modifiers="Control" Command="{Binding CopyItem}" CommandParameter="{Binding SelectedItem}" />
+                <KeyBinding Key="Enter" Command="{Binding AcceptItem}" CommandParameter="{Binding SelectedItem}" />
+            </ListBox.InputBindings>
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid>

@@ -229,7 +229,7 @@ namespace SubSearch.Data
         /// <param name="popularList">The popular list.</param>
         /// <param name="closeList">The close list.</param>
         /// <returns>The <see cref="ItemData"/>.</returns>
-        private Tuple<QueryResult, ItemData> GetMatchingUrl(List<ItemData> exactList, List<ItemData> popularList, List<ItemData> closeList)
+        private Tuple<QueryResult, ItemData> GetSubtitlePageUrl(List<ItemData> exactList, List<ItemData> popularList, List<ItemData> closeList)
         {
             // Process the actual subtitle link
             foreach (var matchingTitle in exactList)
@@ -320,7 +320,7 @@ namespace SubSearch.Data
                 }
             }
 
-            var matchingUrl = this.GetMatchingUrl(exactList, popularList, closeList);
+            var matchingUrl = this.GetSubtitlePageUrl(exactList, popularList, closeList);
             var itemData = matchingUrl.Item2;
             var url = itemData == null || string.IsNullOrEmpty(itemData.Tag as string) ? string.Empty : "http://subscene.com" + itemData.Tag;
             return Tuple.Create(matchingUrl.Item1, url);
@@ -392,7 +392,7 @@ namespace SubSearch.Data
                 else if (selections.Count > 1)
                 {
                     var selection = this.view.GetSelection(
-                        selections,
+                        selections.OrderByDescending(i => i, new ItemDataComparer(this.Title)).ToList(),
                         this.FilePath,
                         string.Format(Literals.Data_Select_subtitle, this.Language.Localize()));
                     result = selection.Item1;

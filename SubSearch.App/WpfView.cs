@@ -67,9 +67,8 @@ namespace SubSearch.WPF
         /// <returns>The <see cref="ItemData"/>.</returns>
         public virtual Tuple<QueryResult, ItemData> GetSelection(ICollection<ItemData> data, string title, string status)
         {
-            var sortData = data.OrderByDescending(i => i.Icon).ThenBy(i => i.Text).ToList();
             var token = new CancellationTokenSource();
-            this.window.SetSelections(sortData, title, status, token);
+            this.window.SetSelections(data, title, status, token);
             token.Token.WaitHandle.WaitOne();
             return Tuple.Create(this.window.SelectionState, this.window.SelectedItem);
         }
