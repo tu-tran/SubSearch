@@ -7,12 +7,11 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-using SubSearch.Data;
-using SubSearch.Resources;
 using System;
 using System.IO;
 using System.Linq;
-using System.Threading;
+using SubSearch.Data;
+using SubSearch.Resources;
 
 namespace SubSearch.WPF
 {
@@ -141,7 +140,7 @@ namespace SubSearch.WPF
                 try
                 {
                     var currentFile = targets[this.activeIndex];
-                    if (new[] { "RARBG.COM" }.Any(s => currentFile.StartsWith(s, StringComparison.OrdinalIgnoreCase)))
+                    if (new[] { "RARBG.COM" }.Any(s => Path.GetFileName(currentFile).StartsWith(s, StringComparison.OrdinalIgnoreCase)))
                     {
                         continue;
                     }
