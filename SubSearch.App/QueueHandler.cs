@@ -8,6 +8,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using SubSearch.Data;
@@ -133,20 +134,20 @@ namespace SubSearch.WPF
         /// <param name="language">The language.</param>
         /// <param name="success">The success.</param>
         /// <param name="fail">The fail.</param>
-        private void ProcessRequest(string[] targets, IView view, Language language, ref int success, ref int fail)
+        private void ProcessRequest(IReadOnlyList<string> targets, IView view, Language language, ref int success, ref int fail)
         {
-            for (this.activeIndex = 0; this.activeIndex < targets.Length; this.activeIndex++)
+            for (this.activeIndex = 0; this.activeIndex < targets.Count; this.activeIndex++)
             {
                 try
                 {
                     var currentFile = targets[this.activeIndex];
-                    if (new[] { "RARBG.COM" }.Any(s => Path.GetFileName(currentFile).StartsWith(s, StringComparison.OrdinalIgnoreCase)))
+                    if (new[] { "RARBG.COM" }.Any(s => (Path.GetFileName(currentFile) ?? string.Empty).StartsWith(s, StringComparison.OrdinalIgnoreCase)))
                     {
                         continue;
                     }
 
                     this.activeQuery = new SubSceneDb(currentFile, view, language);
-                    view.ShowProgress(this.activeIndex, targets.Length);
+                    view.ShowProgress(this.activeIndex, targets.Count);
                     var entryResult = this.activeQuery.Query();
                     if (entryResult == QueryResult.Success || entryResult == QueryResult.Skipped)
                     {
