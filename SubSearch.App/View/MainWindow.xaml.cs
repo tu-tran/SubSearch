@@ -551,7 +551,7 @@ namespace SubSearch.WPF.View
         private void QueryBoxGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
             TextBox tb = (sender as TextBox);
-            if (tb != null && tb.IsKeyboardFocusWithin)
+            if (tb != null && tb.IsKeyboardFocusWithin && e.OriginalSource == sender)
             {
                 ((TextBox)sender).SelectAll();
             }
