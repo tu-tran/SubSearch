@@ -466,17 +466,6 @@ namespace SubSearch.WPF.View
             this.Accept(QueryResult.Cancelled);
         }
 
-        /// <summary>The list box item preview key up.</summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The eventArgs.</param>
-        private void ListBoxItemPreviewKeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                this.Accept();
-            }
-        }
-
         /// <summary>When the window is closing.</summary>
         /// <param name="sender">The sender.</param>
         /// <param name="e">The event arguments.</param>
