@@ -141,7 +141,9 @@ namespace SubSearch.WPF
                 try
                 {
                     var currentFile = targets[this.activeIndex];
-                    if (new[] { "RARBG.COM" }.Any(s => (Path.GetFileName(currentFile) ?? string.Empty).StartsWith(s, StringComparison.OrdinalIgnoreCase)))
+                    var fileSizeLimit = 10 * 1024 * 1024;
+                    var fileInfo = new FileInfo(currentFile);
+                    if (!fileInfo.Exists || fileInfo.Length < fileSizeLimit)
                     {
                         continue;
                     }
