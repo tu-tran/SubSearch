@@ -18,6 +18,7 @@ namespace SubSearch.WPF
     using SubSearch.Data;
     using SubSearch.Resources;
     using SubSearch.WPF.Controllers;
+    using SubSearch.WPF.Views;
 
     /// <summary>
     /// The <see cref="QueueHandler"/> class.

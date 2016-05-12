@@ -7,7 +7,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace SubSearch.WPF
+namespace SubSearch.WPF.Views
 {
     using System.Collections.Generic;
     using System.Linq;

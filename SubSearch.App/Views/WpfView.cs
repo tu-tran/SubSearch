@@ -7,7 +7,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace SubSearch.WPF
+namespace SubSearch.WPF.Views
 {
     using System;
     using System.Collections.Generic;
@@ -15,7 +15,6 @@ namespace SubSearch.WPF
     using System.Windows.Threading;
 
     using SubSearch.Data;
-    using SubSearch.WPF.View;
 
     /// <summary>
     /// The <see cref="WpfView"/> class.

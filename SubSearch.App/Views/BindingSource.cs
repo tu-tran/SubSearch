@@ -7,7 +7,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace SubSearch.WPF.View
+namespace SubSearch.WPF.Views
 {
     using System;
     using System.ComponentModel;
@@ -42,15 +42,14 @@ namespace SubSearch.WPF.View
         /// <returns>True if the property value was modified, otherwise false.</returns>
         protected bool SetValue<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
-            if (propertyName == null)
-            {
-                throw new ArgumentNullException("propertyName");
-            }
-
             if (!Equals(field, value))
             {
                 field = value;
-                this.RaisePropertyChanged(propertyName);
+                if (!string.IsNullOrEmpty(propertyName))
+                {
+                    this.RaisePropertyChanged(propertyName);
+                }
+
                 return true;
             }
 

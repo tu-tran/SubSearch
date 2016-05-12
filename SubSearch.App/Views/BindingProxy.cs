@@ -7,22 +7,28 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace SubSearch.WPF.View
+namespace SubSearch.WPF.Views
 {
     using System.Windows;
 
-    /// <summary>The binding proxy.</summary>
+    /// <summary>
+    /// The <see cref="BindingProxy"/> class.
+    /// </summary>
+    /// <seealso cref="System.Windows.Freezable" />
     public class BindingProxy : Freezable
     {
-        // Using a DependencyProperty as the backing store for Data.  This enables animation, styling, binding, etc...
-        /// <summary>The data property.</summary>
+        /// <summary>
+        /// The data property.
+        /// </summary>
         public static readonly DependencyProperty DataProperty = DependencyProperty.Register(
             "Data",
             typeof(object),
             typeof(BindingProxy),
             new UIPropertyMetadata(null));
 
-        /// <summary>Gets or sets the data.</summary>
+        /// <summary>
+        /// Gets or sets the data.
+        /// </summary>
         public object Data
         {
             get
@@ -36,8 +42,10 @@ namespace SubSearch.WPF.View
             }
         }
 
-        /// <summary>The create instance core.</summary>
-        /// <returns>The <see cref="Freezable" />.</returns>
+        /// <summary>
+        /// When implemented in a derived class, creates a new instance of the <see cref="T:System.Windows.Freezable" /> derived class.
+        /// </summary>
+        /// <returns>The new instance.</returns>
         protected override Freezable CreateInstanceCore()
         {
             return new BindingProxy();

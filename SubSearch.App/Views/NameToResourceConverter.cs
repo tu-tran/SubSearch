@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="NameToResourceConverter.cs" company="">
-//   
-// </copyright>
-// <summary>
-//   Resource name to actual resource object converter.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace SubSearch.WPF.View
+﻿namespace SubSearch.WPF.Views
 {
     using System;
     using System.Globalization;

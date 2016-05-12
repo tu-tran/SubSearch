@@ -17,7 +17,7 @@ namespace SubSearch.WPF
 
     using SubSearch.Data;
     using SubSearch.Resources;
-    using SubSearch.WPF.View;
+    using SubSearch.WPF.Views;
 
     /// <summary>Interaction logic for App.xaml</summary>
     public partial class App

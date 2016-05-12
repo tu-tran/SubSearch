@@ -7,7 +7,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace SubSearch.WPF.View
+namespace SubSearch.WPF.Views
 {
     using System.ComponentModel;
 

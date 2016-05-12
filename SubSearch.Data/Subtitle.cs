@@ -18,18 +18,12 @@
             : base(name, description, rating)
         {
             this.DownloadUrl = downloadUrl;
-            this.Meta = new Dictionary<string, object>();
         }
 
         /// <summary>
         /// Gets the download URL.
         /// </summary>
         public string DownloadUrl { get; private set; }
-
-        /// <summary>
-        /// Gets the meta.
-        /// </summary>
-        public Dictionary<string, object> Meta { get; private set; }
     }
 
     /// <summary>
