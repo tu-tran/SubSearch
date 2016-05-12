@@ -59,25 +59,30 @@
         /// </returns>
         public int Compare(ItemData x, ItemData y)
         {
-            if (x.Text == y.Text)
+            if (x.Name == y.Name)
             {
-                return x.Icon.CompareTo(y.Icon);
+                return x.Rating.CompareTo(y.Rating);
             }
 
-            if (x.Text == this.Target)
+            if (x.Name == this.Target)
             {
                 return 1;
             }
 
-            if (y.Text == this.Target)
+            if (y.Name == this.Target)
             {
                 return -1;
             }
 
-            var strCompare = this.CompareString(x.Text, y.Text);
-            return strCompare == 0 ? x.Icon.CompareTo(y.Icon) : strCompare;
+            var strCompare = this.CompareString(x.Name, y.Name);
+            return strCompare == 0 ? x.Rating.CompareTo(y.Rating) : strCompare;
         }
 
+        /// <summary>
+        /// Gets matches count.
+        /// </summary>
+        /// <param name="x">The x.</param>
+        /// <returns>The number of matches count.</returns>
         private int GetMatchesCount(string x)
         {
             var groups = GetGroups(x);

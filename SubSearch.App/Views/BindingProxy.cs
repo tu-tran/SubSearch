@@ -17,9 +17,9 @@ namespace SubSearch.WPF.View
         // Using a DependencyProperty as the backing store for Data.  This enables animation, styling, binding, etc...
         /// <summary>The data property.</summary>
         public static readonly DependencyProperty DataProperty = DependencyProperty.Register(
-            "Data", 
-            typeof(object), 
-            typeof(BindingProxy), 
+            "Data",
+            typeof(object),
+            typeof(BindingProxy),
             new UIPropertyMetadata(null));
 
         /// <summary>Gets or sets the data.</summary>

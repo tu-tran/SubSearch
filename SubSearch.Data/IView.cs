@@ -11,40 +11,55 @@ namespace SubSearch.Data
     using System;
     using System.Collections.Generic;
 
-    /// <summary>The delegate for view custom action.</summary>
+    /// <summary>
+    /// The <see cref="CustomActionDelegate"/> delegate provides the signature for.
+    /// </summary>
     /// <param name="sender">The sender.</param>
-    /// <param name="parameter">The action parameter.</param>
+    /// <param name="parameter">The parameter.</param>
     /// <param name="actionNames">The action names.</param>
     public delegate void CustomActionDelegate(IView sender, object parameter, params string[] actionNames);
 
-    /// <summary>The ViewHandler interface.</summary>
+    /// <summary>
+    /// The <see cref="IView"/> interfaces.
+    /// </summary>
+    /// <seealso cref="System.IDisposable" />
     public interface IView : IDisposable
     {
-        /// <summary>Occurs when the view custom action is requested.</summary>
+        /// <summary>
+        /// Occurs when custom action requested.
+        /// </summary>
         event CustomActionDelegate CustomActionRequested;
 
-        /// <summary>Continues the pending operation and cancel any selection.</summary>
+        /// <summary>
+        /// Continues this instance.
+        /// </summary>
         void Continue();
 
-        /// <summary>The get selection.</summary>
+        /// <summary>
+        /// Gets the selection.
+        /// </summary>
         /// <param name="data">The data.</param>
         /// <param name="title">The title.</param>
         /// <param name="status">The status.</param>
-        /// <returns>The <see cref="ItemData"/>.</returns>
-        Tuple<QueryResult, ItemData> GetSelection(ICollection<ItemData> data, string title, string status);
+        /// <returns>The query result.</returns>
+        QueryResult<ItemData> GetSelection(ICollection<ItemData> data, string title, string status);
 
         /// <summary>Notifies a message.</summary>
         /// <param name="message">The message.</param>
         void Notify(string message);
 
-        /// <summary>The show progress.</summary>
+        /// <summary>
+        /// Shows progress.
+        /// </summary>
         /// <param name="title">The title.</param>
         /// <param name="status">The status.</param>
         void ShowProgress(string title, string status);
 
-        /// <summary>Sets the progress.</summary>
-        /// <param name="done">Done.</param>
-        /// <param name="total">Total</param>
+        /// <summary>
+        /// Shows progress.
+        /// </summary>
+        /// <param name="done">The done.</param>
+        /// <param name="total">The total.</param>
         void ShowProgress(int done, int total);
     }
 }

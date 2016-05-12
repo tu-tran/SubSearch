@@ -6,6 +6,7 @@
 //   The  class represents an input command which invokes a delegate.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace SubSearch.WPF
 {
     using System;
@@ -19,14 +20,14 @@ namespace SubSearch.WPF
         /// <summary>The predicate determining whether the command can be executed.</summary>
         private readonly Func<bool> canExecute;
 
-        /// <summary>Initializes a new instance of the <see cref="ActionCommand"/> class.</summary>
+        /// <summary>Initializes a new instance of the <see cref="ActionCommand" /> class.</summary>
         /// <param name="action">The action.</param>
         public ActionCommand(Action action)
             : this(action, null)
         {
         }
 
-        /// <summary>Initializes a new instance of the <see cref="ActionCommand"/> class.</summary>
+        /// <summary>Initializes a new instance of the <see cref="ActionCommand" /> class.</summary>
         /// <param name="action">The action.</param>
         /// <param name="canExecute">The predicate determining whether the command can be executed.</param>
         public ActionCommand(Action action, Func<bool> canExecute)

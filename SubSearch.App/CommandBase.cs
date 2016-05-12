@@ -6,6 +6,7 @@
 //   The  class represents an input command.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace SubSearch.WPF
 {
     using System;

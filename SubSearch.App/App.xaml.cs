@@ -9,14 +9,15 @@
 
 namespace SubSearch.WPF
 {
-    using SubSearch.Data;
-    using SubSearch.Resources;
-    using SubSearch.WPF.View;
     using System;
     using System.Text;
     using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Threading;
+
+    using SubSearch.Data;
+    using SubSearch.Resources;
+    using SubSearch.WPF.View;
 
     /// <summary>Interaction logic for App.xaml</summary>
     public partial class App
@@ -27,7 +28,7 @@ namespace SubSearch.WPF
         {
             base.OnStartup(e);
             this.InitializeErrorHandler();
-            NotificationWindow.Initialize();
+            NotificationView.Initialize();
             var result = new QueueHandler(e.Args).Process();
 
             string message = null;
@@ -42,13 +43,11 @@ namespace SubSearch.WPF
 
             if (string.IsNullOrEmpty(message))
             {
-                NotificationWindow.AttachEndHandler((sender, args) => this.Dispatcher.InvokeShutdown());
+                NotificationView.AttachEndHandler((sender, args) => this.Dispatcher.InvokeShutdown());
             }
             else
             {
-                NotificationWindow.Show(
-                    message,
-                    (sender, args) => this.Dispatcher.InvokeShutdown());
+                NotificationView.Show(message, (sender, args) => this.Dispatcher.InvokeShutdown());
             }
         }
 

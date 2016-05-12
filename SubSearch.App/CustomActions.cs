@@ -6,6 +6,7 @@
 //   The custom actions.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace SubSearch.WPF
 {
     /// <summary>The custom actions.</summary>

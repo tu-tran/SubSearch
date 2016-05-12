@@ -7,18 +7,21 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using SubSearch.Data;
-using SubSearch.Resources;
-
 namespace SubSearch.WPF
 {
+    using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
+    using System.IO;
+    using System.Linq;
 
-    /// <summary>The queue handler.</summary>
+    using SubSearch.Data;
+    using SubSearch.Resources;
+    using SubSearch.WPF.Controllers;
+
+    /// <summary>
+    /// The <see cref="QueueHandler"/> class.
+    /// </summary>
     internal sealed class QueueHandler
     {
         /// <summary>The id.</summary>
@@ -30,8 +33,10 @@ namespace SubSearch.WPF
         /// <summary>The active index.</summary>
         private int activeIndex;
 
-        /// <summary>The active query.</summary>
-        private ISubtitleDb activeQuery;
+        /// <summary>
+        /// The active controller.
+        /// </summary>
+        private MainViewController activeController;
 
         /// <summary>Initializes a new instance of the <see cref="QueueHandler" /> class.</summary>
         /// <param name="arguments">The arguments.</param>
@@ -42,7 +47,7 @@ namespace SubSearch.WPF
                 throw new ArgumentException("argument");
             }
 
-            id = arguments[0];
+            this.id = arguments[0];
             for (var i = 1; i < arguments.Length; i++)
             {
                 var arg = arguments[i];
@@ -53,9 +58,7 @@ namespace SubSearch.WPF
             }
         }
 
-        /// <summary>
-        /// Processes this instance.
-        /// </summary>
+        /// <summary>Processes this instance.</summary>
         /// <returns>The result.</returns>
         internal QueryResult Process()
         {
@@ -65,12 +68,12 @@ namespace SubSearch.WPF
             }
 
             int success = 0, fail = 0;
-            using (var fileReader = new StreamReader(id))
+            using (var fileReader = new StreamReader(this.id))
             {
                 var languageStr = fileReader.ReadLine();
                 Language language;
-                Enum.TryParse(languageStr, out language);
-                LocalizationManager.Initialize(language);
+                Enum.TryParse(languageStr, out language);                
+                AppContext.Global.Language = language;
 
                 using (var viewHandler = fileReader.ReadLine() == Constants.SilentModeIdentifier ? new SilentView() : new WpfView())
                 {
@@ -95,18 +98,18 @@ namespace SubSearch.WPF
                         {
                             continue;
                         }
-
-                        this.ProcessRequest(targets, viewHandler, language, ref success, ref fail);
+                        
+                        this.ProcessRequest(targets, viewHandler, ref success, ref fail);
                     }
                 }
             }
 
             if (!this.keepQueueFile)
             {
-                File.Delete(id);
+                File.Delete(this.id);
             }
 
-            QueryResult result = QueryResult.Cancelled;
+            var result = QueryResult.Cancelled;
             if (success > 0)
             {
                 result = QueryResult.Success;
@@ -126,15 +129,12 @@ namespace SubSearch.WPF
             return result;
         }
 
-        /// <summary>
-        /// Processes the request.
-        /// </summary>
+        /// <summary>Processes the request.</summary>
         /// <param name="targets">The targets.</param>
         /// <param name="view">The view.</param>
-        /// <param name="language">The language.</param>
         /// <param name="success">The success.</param>
         /// <param name="fail">The fail.</param>
-        private void ProcessRequest(IReadOnlyList<string> targets, IView view, Language language, ref int success, ref int fail)
+        private void ProcessRequest(IReadOnlyList<string> targets, IView view, ref int success, ref int fail)
         {
             for (this.activeIndex = 0; this.activeIndex < targets.Count; this.activeIndex++)
             {
@@ -148,9 +148,9 @@ namespace SubSearch.WPF
                         continue;
                     }
 
-                    this.activeQuery = new SubSceneDb(currentFile, view, language);
+                    this.activeController = new MainViewController(currentFile, view, new SubSceneDb());
                     view.ShowProgress(this.activeIndex, targets.Count);
-                    var entryResult = this.activeQuery.Query();
+                    var entryResult = this.activeController.Query();
                     if (entryResult == QueryResult.Success || entryResult == QueryResult.Skipped)
                     {
                         success++;
@@ -178,17 +178,17 @@ namespace SubSearch.WPF
         /// <param name="actionName">The action name.</param>
         private void HandleAction(IView sender, object parameter, string actionName)
         {
-            if (this.activeQuery != null)
+            if (this.activeController != null)
             {
                 if (actionName == CustomActions.CustomQuery && parameter != null)
                 {
-                    this.activeQuery.Title = Path.GetFileNameWithoutExtension(parameter.ToString());
+                    this.activeController.Title = Path.GetFileNameWithoutExtension(parameter.ToString());
                     this.activeIndex--;
                     sender.Continue();
                     return;
                 }
 
-                var itemData = parameter as ItemData;
+                var itemData = parameter as Subtitle;
                 if (itemData == null)
                 {
                     return;
@@ -196,20 +196,20 @@ namespace SubSearch.WPF
 
                 if (actionName == CustomActions.DownloadSubtitle)
                 {
-                    this.activeQuery.DownloadSubtitle(itemData.Tag as string);
+                    this.activeController.Download(itemData);
                 }
                 else if (actionName == CustomActions.Play)
                 {
                     try
                     {
-                        if (File.Exists(this.activeQuery.FilePath))
+                        if (File.Exists(this.activeController.FilePath))
                         {
-                            System.Diagnostics.Process.Start(this.activeQuery.FilePath);
+                            System.Diagnostics.Process.Start(this.activeController.FilePath);
                         }
                     }
                     catch (Exception ex)
                     {
-                        sender.Notify(string.Format("Failed to play {0}: {1}", this.activeQuery.FilePath, ex.Message));
+                        sender.Notify(string.Format("Failed to play {0}: {1}", this.activeController.FilePath, ex.Message));
                     }
                 }
             }
@@ -224,8 +224,7 @@ namespace SubSearch.WPF
         /// <param name="sender">The sender.</param>
         /// <param name="parameter">The parameter.</param>
         /// <param name="actionNames">The action names.</param>
-        private void OnViewHandlerCustomActionRequested(IView sender, object parameter,
-            params string[] actionNames)
+        private void OnViewHandlerCustomActionRequested(IView sender, object parameter, params string[] actionNames)
         {
             foreach (var actionName in actionNames)
             {

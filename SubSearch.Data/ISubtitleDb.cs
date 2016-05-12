@@ -8,51 +8,27 @@
 // --------------------------------------------------------------------------------------------------------------------
 namespace SubSearch.Data
 {
-    using System;
-    using System.Net;
-
     using SubSearch.Resources;
 
-    /// <summary>The query result.</summary>
-    [Flags]
-    public enum QueryResult
-    {
-        /// <summary>The fatal.</summary>
-        Fatal = 0,
-
-        /// <summary>The cancelled.</summary>
-        Cancelled = 1 << 1,
-
-        /// <summary>The skipped.</summary>
-        Skipped = 1 << 2, 
-
-        /// <summary>The success.</summary>
-        Success = 1 << 3,
-
-        /// <summary>The failure.</summary>
-        Failure = 1 << 4
-    }
-
-    /// <summary>The SubtitleDb interface.</summary>
+    /// <summary>
+    /// The <see cref="ISubtitleDb"/> interfaces.
+    /// </summary>
     public interface ISubtitleDb
     {
-        /// <summary>The file path.</summary>
-        string FilePath { get; }
-
-        /// <summary>The language.</summary>
-        Language Language { get; }
-
-        /// <summary>Gets or sets the title.</summary>
-        string Title { get; set; }
-
-        /// <summary>The download subtitle.</summary>
-        /// <param name="subtitleDownloadUrl">The subtitle download url.</param>
-        /// <param name="cookies">The cookies.</param>
+        /// <summary>
+        /// Downloads the specified movie file.
+        /// </summary>
+        /// <param name="releaseFile">The movie file.</param>
+        /// <param name="subtitle">The subtitle.</param>
         /// <returns>The query result.</returns>
-        QueryResult DownloadSubtitle(string subtitleDownloadUrl, CookieContainer cookies = null);
+        QueryResult Download(string releaseFile, Subtitle subtitle);
 
-        /// <summary>Queries the subtitle database.</summary>
+        /// <summary>
+        /// Gets subtitles meta.
+        /// </summary>
+        /// <param name="releaseName">Name of the release.</param>
+        /// <param name="language"></param>
         /// <returns>The query result.</returns>
-        QueryResult Query();
+        QueryResult<Subtitles> GetSubtitlesMeta(string releaseName, Language language);
     }
 }

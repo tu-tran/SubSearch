@@ -19,7 +19,7 @@ namespace SubSearch.WPF.View
         /// <summary>Occurs when a property value changes.</summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
-        /// <summary>Raises the <see cref="PropertyChanged"/> event.</summary>
+        /// <summary>Raises the <see cref="PropertyChanged" /> event.</summary>
         /// <param name="propertyName">The property name. If not specified, defaults to the caller member name.</param>
         public virtual void RaisePropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -34,7 +34,7 @@ namespace SubSearch.WPF.View
             }
         }
 
-        /// <summary>Sets the property value. Raises the <see cref="PropertyChanged"/> event, if needed.</summary>
+        /// <summary>Sets the property value. Raises the <see cref="PropertyChanged" /> event, if needed.</summary>
         /// <typeparam name="T">The type of the property value.</typeparam>
         /// <param name="field">The property backing field.</param>
         /// <param name="value">The new property value.</param>

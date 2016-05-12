@@ -6,33 +6,30 @@
 //   The wpf view.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace SubSearch.WPF
 {
-    using SubSearch.Data;
-    using SubSearch.WPF.View;
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
     using System.Windows.Threading;
 
-    /// <summary>The wpf view.</summary>
+    using SubSearch.Data;
+    using SubSearch.WPF.View;
+
+    /// <summary>
+    /// The <see cref="WpfView"/> class.
+    /// </summary>
     internal class WpfView : IView
     {
-        /// <summary>
-        /// The UI thread.
-        /// </summary>
+        /// <summary>The disposing.</summary>
+        private bool disposing;
+
+        /// <summary>The UI thread.</summary>
         private Thread uiThread;
 
-        /// <summary>
-        /// The window.
-        /// </summary>
+        /// <summary>The window.</summary>
         private MainWindow window;
-
-        /// <summary>
-        /// The disposing.
-        /// </summary>
-        private bool disposing;
 
         /// <summary>Initializes a new instance of the <see cref="WpfView" /> class.</summary>
         public WpfView()
@@ -51,7 +48,7 @@ namespace SubSearch.WPF
 
         /// <summary>The dispose.</summary>
         public void Dispose()
-        {            
+        {
             if (this.window != null && this.window.Dispatcher != null && !this.window.Dispatcher.HasShutdownStarted)
             {
                 this.window.Dispatcher.BeginInvokeShutdown(DispatcherPriority.Background);
@@ -60,35 +57,26 @@ namespace SubSearch.WPF
             this.disposing = true;
         }
 
-        /// <summary>The get selection.</summary>
+        /// <summary>
+        /// Gets the selection.
+        /// </summary>
         /// <param name="data">The data.</param>
         /// <param name="title">The title.</param>
         /// <param name="status">The status.</param>
-        /// <returns>The <see cref="ItemData"/>.</returns>
-        public virtual Tuple<QueryResult, ItemData> GetSelection(ICollection<ItemData> data, string title, string status)
+        /// <returns>The query result.</returns>
+        public virtual QueryResult<ItemData> GetSelection(ICollection<ItemData> data, string title, string status)
         {
             var token = new CancellationTokenSource();
             this.window.SetSelections(data, title, status, token);
             token.Token.WaitHandle.WaitOne();
-            return Tuple.Create(this.window.SelectionState, this.window.SelectedItem);
+            return new QueryResult<ItemData>(this.window.SelectionState, this.window.SelectedItem);
         }
 
         /// <summary>Notifies a message.</summary>
         /// <param name="message">The message.</param>
         public void Notify(string message)
         {
-            NotificationWindow.Show(message);
-        }
-
-        /// <summary>The on custom action.</summary>
-        /// <param name="parameter">The parameter.</param>
-        /// <param name="actionNames">The action names.</param>
-        public void OnCustomAction(object parameter, params string[] actionNames)
-        {
-            if (this.CustomActionRequested != null)
-            {
-                this.CustomActionRequested(this, parameter, actionNames);
-            }
+            NotificationView.Show(message);
         }
 
         /// <summary>The show progress.</summary>
@@ -107,6 +95,20 @@ namespace SubSearch.WPF
             this.window.SetProgress(done, total);
         }
 
+        /// <summary>The on custom action.</summary>
+        /// <param name="parameter">The parameter.</param>
+        /// <param name="actionNames">The action names.</param>
+        public void OnCustomAction(object parameter, params string[] actionNames)
+        {
+            if (this.CustomActionRequested != null)
+            {
+                ThreadPool.QueueUserWorkItem(o => this.CustomActionRequested(this, parameter, actionNames));
+            }
+        }
+
+        /// <summary>
+        /// Creates the window on its own UI thread.
+        /// </summary>
         private void CreateWindow()
         {
             var token = new CancellationTokenSource();
@@ -115,7 +117,7 @@ namespace SubSearch.WPF
                     {
                         Thread.CurrentThread.Name = "WpfView." + DateTime.Now.ToString("HH.mm.ss");
                         while (!this.disposing)
-                        {                            
+                        {
                             SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(Dispatcher.CurrentDispatcher));
                             this.window = new MainWindow(this);
                             this.window.Closed += (sender, args) => Dispatcher.ExitAllFrames();

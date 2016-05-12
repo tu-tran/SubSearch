@@ -69,43 +69,45 @@
     </ApplicationDefinition>
     <Compile Include="ActionCommand.cs" />
     <Compile Include="ActionCommand{T}.cs" />
+    <Compile Include="AppContext.cs" />
     <Compile Include="CommandBase.cs" />
+    <Compile Include="Controllers\MainViewController.cs" />
     <Compile Include="CustomActions.cs" />
     <Compile Include="QueueHandler.cs" />
     <Compile Include="SilentView.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="View\BindingProxy.cs" />
-    <Compile Include="View\BindingSource.cs" />
-    <Compile Include="View\MessageDialog.xaml.cs">
+    <Compile Include="Views\BindingProxy.cs" />
+    <Compile Include="Views\BindingSource.cs" />
+    <Compile Include="Views\MessageDialog.xaml.cs">
       <DependentUpon>MessageDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
+    <Compile Include="Views\MainView.xaml.cs">
+      <DependentUpon>MainView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\NameToResourceConverter.cs" />
-    <Compile Include="View\NotificationWindow.xaml.cs">
-      <DependentUpon>NotificationWindow.xaml</DependentUpon>
+    <Compile Include="Views\NameToResourceConverter.cs" />
+    <Compile Include="Views\NotificationView.xaml.cs">
+      <DependentUpon>NotificationView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\Styles\Default\DefaultWindowStyle.cs" />
+    <Compile Include="Views\Styles\Default\DefaultWindowStyle.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="WpfView.cs" />
-    <Page Include="View\MessageDialog.xaml">
+    <Page Include="Views\MessageDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\MainWindow.xaml">
+    <Page Include="Views\MainView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\NotificationWindow.xaml">
+    <Page Include="Views\NotificationView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Styles\Default\DefaultWindowStyle.xaml">
+    <Page Include="Views\Styles\Default\DefaultWindowStyle.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -159,6 +161,7 @@
       <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
