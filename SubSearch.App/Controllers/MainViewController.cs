@@ -1,11 +1,12 @@
 ﻿namespace SubSearch.WPF.Controllers
 {
     using System;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
-    using System.Threading;
 
     using SubSearch.Data;
+    using SubSearch.Data.Handlers;
     using SubSearch.Resources;
 
     /// <summary>
@@ -87,7 +88,18 @@
         {
             this.view.ShowProgress(this.FilePath, Literals.Data_Searching_video_title);
             this.view.ShowProgress(this.FilePath, Literals.Data_Searching_video_subtitle);
-            var subtitlesMetaResult = this.db.GetSubtitlesMeta(this.Title, AppContext.Global.Language);
+            QueryResult<Subtitles> subtitlesMetaResult = new QueryResult<Subtitles>();
+
+            try
+            {
+                subtitlesMetaResult = this.db.GetSubtitlesMeta(this.Title, AppContext.Global.Language);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("Failed to get subtitles for [{0}]: {1}", this.FilePath, ex);
+                subtitlesMetaResult = new QueryResult<Subtitles>(QueryResult.Fatal, null);
+            }
+
             if (subtitlesMetaResult.Status != QueryResult.Success)
             {
                 return subtitlesMetaResult.Status;

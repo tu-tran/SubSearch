@@ -16,6 +16,7 @@ namespace SubSearch.WPF
     using System.Linq;
 
     using SubSearch.Data;
+    using SubSearch.Data.Handlers;
     using SubSearch.Resources;
     using SubSearch.WPF.Controllers;
     using SubSearch.WPF.Views;
@@ -73,7 +74,7 @@ namespace SubSearch.WPF
             {
                 var languageStr = fileReader.ReadLine();
                 Language language;
-                Enum.TryParse(languageStr, out language);                
+                Enum.TryParse(languageStr, out language);
                 AppContext.Global.Language = language;
 
                 using (var viewHandler = fileReader.ReadLine() == Constants.SilentModeIdentifier ? new SilentView() : new WpfView())
@@ -99,7 +100,7 @@ namespace SubSearch.WPF
                         {
                             continue;
                         }
-                        
+
                         this.ProcessRequest(targets, viewHandler, ref success, ref fail);
                     }
                 }
@@ -149,7 +150,7 @@ namespace SubSearch.WPF
                         continue;
                     }
 
-                    this.activeController = new MainViewController(currentFile, view, new SubSceneDb());
+                    this.activeController = new MainViewController(currentFile, view, new AggregateDb());
                     view.ShowProgress(this.activeIndex, targets.Count);
                     var entryResult = this.activeController.Query();
                     if (entryResult == QueryResult.Success || entryResult == QueryResult.Skipped)

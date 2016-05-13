@@ -6,7 +6,7 @@
 //   The SubtitleDb interface.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-namespace SubSearch.Data
+namespace SubSearch.Data.Handlers
 {
     using SubSearch.Resources;
 

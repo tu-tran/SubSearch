@@ -20,7 +20,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("SubSearch")]
 [assembly: AssemblyProduct("SubSearch.App")]
-[assembly: AssemblyCopyright("Copyright © SubSearch 2015")]
+[assembly: AssemblyCopyright("Copyright © SubSearch 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

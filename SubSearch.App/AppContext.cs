@@ -34,7 +34,7 @@
             set
             {
                 this.language = value;
-                LocalizationManager.Initialize(value);
+                Localizer.Initialize(value);
             }
         }
 
