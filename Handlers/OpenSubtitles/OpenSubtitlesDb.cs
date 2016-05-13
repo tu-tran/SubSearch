@@ -84,7 +84,7 @@
                 }
             }
 
-            return new Subtitle(subtitle.MovieName, subtitle.MovieName, subtitle.SubTitleDownloadLink.AbsoluteUri, rating, this);
+            return new Subtitle(subtitle.MovieName, subtitle.SubtitleFileName, subtitle.SubTitleDownloadLink.AbsoluteUri, rating, this);
         }
     }
 }

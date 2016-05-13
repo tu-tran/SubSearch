@@ -92,12 +92,14 @@ namespace SubSearch.Data.Handlers.Subscene
             return result ? QueryResult.Success : QueryResult.Failure;
         }
 
-        /// <summary>The download subtitle.</summary>
-        /// <param name="subtitleDownloadUrl">The subtitle download url.</param>
+        /// <summary>
+        /// Does download subtitle.
+        /// </summary>
+        /// <param name="subtitleDownloadUrl">The subtitle download URL.</param>
         /// <param name="referrer">The referrer.</param>
         /// <param name="cookies">The cookies.</param>
         /// <param name="targetFileWithoutExtension">The target file without extension.</param>
-        /// <returns>The <see cref="bool"/>.</returns>
+        /// <returns>True on success; otherwise, false.</returns>
         private bool DoDownloadSubtitle(string subtitleDownloadUrl, string referrer, CookieContainer cookies, string targetFileWithoutExtension)
         {
             var htmlDoc = this.GetDocument(subtitleDownloadUrl, referrer, cookies);
