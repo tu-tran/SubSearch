@@ -13,7 +13,7 @@
     /// <summary>
     /// The <see cref="AggregateDb"/> class.
     /// </summary>
-    public class AggregateDb : ISubtitleDb
+    public class AggregateDb : SubtitleDbBase
     {
         /// <summary>
         /// The handlers.
@@ -68,15 +68,14 @@
         /// <param name="releaseFile">The movie file.</param>
         /// <param name="subtitle">The subtitle.</param>
         /// <returns>The query result.</returns>
-        public QueryResult Download(string releaseFile, Subtitle subtitle)
+        public override QueryResult Download(string releaseFile, Subtitle subtitle)
         {
-            if (subtitle.DataSource != null)
+            if (subtitle.DataSource != null && subtitle.DataSource != this)
             {
                 return subtitle.DataSource.Download(releaseFile, subtitle);
             }
 
-            releaseFile.DownloadSubtitle(subtitle.DownloadUrl);
-            return QueryResult.Success;
+            return base.Download(releaseFile, subtitle);
         }
 
         /// <summary>
@@ -85,7 +84,7 @@
         /// <param name="releaseName">Name of the release.</param>
         /// <param name="language"></param>
         /// <returns>The query result.</returns>
-        public QueryResult<Subtitles> GetSubtitlesMeta(string releaseName, Language language)
+        public override QueryResult<Subtitles> GetSubtitlesMeta(string releaseName, Language language)
         {
             var subtitles = new Subtitles();
             var statuses = new List<QueryResult>(Handlers.Count);

@@ -18,6 +18,7 @@
         public static void DownloadSubtitle(this string movieFilePath, string url)
         {
             var targetFileWithoutExtension = Path.GetFileNameWithoutExtension(movieFilePath);
+            var targetPath = Path.GetDirectoryName(movieFilePath) ?? string.Empty;
             var response = GetRequest(url).GetResponse();
 
             using (var respStream = response.GetResponseStream())
@@ -43,7 +44,8 @@
                             }
 
                             var entryPath = targetFileWithoutExtension + Path.GetExtension(entry.Key);
-                            entry.WriteToFile(entryPath);
+                            var outputFile = Path.Combine(targetPath, entryPath);
+                            entry.WriteToFile(outputFile);
                         }
                     }
                 }

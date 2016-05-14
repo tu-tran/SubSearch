@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Handlers\AggregateDb.cs" />
+    <Compile Include="Handlers\SubtitleDbBase.cs" />
     <Compile Include="Handlers\SubtitleDownloader.cs" />
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="InlineComparer{T}.cs" />

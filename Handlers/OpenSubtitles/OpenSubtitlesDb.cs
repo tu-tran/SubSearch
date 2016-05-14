@@ -12,7 +12,7 @@
     using Language = SubSearch.Resources.Language;
     using Subtitle = SubSearch.Data.Subtitle;
 
-    public class OpenSubtitlesDb : ISubtitleDb
+    public class OpenSubtitlesDb : SubtitleDbBase
     {
         /// <summary>
         /// The agent.
@@ -33,24 +33,12 @@
         }
 
         /// <summary>
-        /// Downloads the specified movie file.
-        /// </summary>
-        /// <param name="releaseFile">The movie file.</param>
-        /// <param name="subtitle">The subtitle.</param>
-        /// <returns>The query result.</returns>
-        public QueryResult Download(string releaseFile, Subtitle subtitle)
-        {
-            releaseFile.DownloadSubtitle(subtitle.DownloadUrl);
-            return QueryResult.Success;
-        }
-
-        /// <summary>
         /// Gets subtitles meta.
         /// </summary>
         /// <param name="releaseName">Name of the release.</param>
         /// <param name="language"></param>
         /// <returns>The query result.</returns>
-        public QueryResult<Subtitles> GetSubtitlesMeta(string releaseName, Language language)
+        public override QueryResult<Subtitles> GetSubtitlesMeta(string releaseName, Language language)
         {
             var cultureInfo = language.GetCultureInfo();
             var langString = cultureInfo == null ? "eng" : cultureInfo.ThreeLetterISOLanguageName;

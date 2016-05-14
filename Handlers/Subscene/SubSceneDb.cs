@@ -85,10 +85,7 @@ namespace SubSearch.Data.Handlers.Subscene
                 return QueryResult.Failure;
             }
 
-            var title = Path.GetFileNameWithoutExtension(releaseFile) ?? string.Empty;
-            var path = Path.GetDirectoryName(releaseFile) ?? string.Empty;
-            var targetFile = Path.Combine(path, title);
-            var result = this.DoDownloadSubtitle(subtitle.DownloadUrl, subtitle.DownloadUrl, cookies, targetFile);
+            var result = this.DoDownloadSubtitle(subtitle.DownloadUrl, subtitle.DownloadUrl, cookies, releaseFile);
             return result ? QueryResult.Success : QueryResult.Failure;
         }
 
@@ -98,9 +95,9 @@ namespace SubSearch.Data.Handlers.Subscene
         /// <param name="subtitleDownloadUrl">The subtitle download URL.</param>
         /// <param name="referrer">The referrer.</param>
         /// <param name="cookies">The cookies.</param>
-        /// <param name="targetFileWithoutExtension">The target file without extension.</param>
+        /// <param name="targetFile">The target release file.</param>
         /// <returns>True on success; otherwise, false.</returns>
-        private bool DoDownloadSubtitle(string subtitleDownloadUrl, string referrer, CookieContainer cookies, string targetFileWithoutExtension)
+        private bool DoDownloadSubtitle(string subtitleDownloadUrl, string referrer, CookieContainer cookies, string targetFile)
         {
             var htmlDoc = this.GetDocument(subtitleDownloadUrl, referrer, cookies);
             var downloadNodes = htmlDoc.Item1.DocumentNode.SelectNodes("//a[@id='downloadButton']");
@@ -113,7 +110,7 @@ namespace SubSearch.Data.Handlers.Subscene
             {
                 var link = downloadNode.GetAttributeValue("href", string.Empty);
                 var url = "http://subscene.com" + link;
-                targetFileWithoutExtension.DownloadSubtitle(url);
+                targetFile.DownloadSubtitle(url);
             }
 
             return true;
