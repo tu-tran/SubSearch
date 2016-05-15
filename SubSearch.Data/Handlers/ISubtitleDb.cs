@@ -20,8 +20,7 @@ namespace SubSearch.Data.Handlers
         /// </summary>
         /// <param name="releaseFile">The movie file.</param>
         /// <param name="subtitle">The subtitle.</param>
-        /// <returns>The query result.</returns>
-        QueryResult Download(string releaseFile, Subtitle subtitle);
+        void Download(string releaseFile, Subtitle subtitle);
 
         /// <summary>
         /// Gets subtitles meta.

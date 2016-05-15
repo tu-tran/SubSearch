@@ -8,18 +8,15 @@
 // --------------------------------------------------------------------------------------------------------------------
 namespace SubSearch.Data.Handlers.Subscene
 {
+    using HtmlAgilityPack;
+    using SubSearch.Data.Handlers;
+    using SubSearch.Resources;
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Net;
     using System.Text;
     using System.Web;
-
-    using HtmlAgilityPack;
-
-    using SubSearch.Data.Handlers;
-    using SubSearch.Resources;
 
     public sealed class SubSceneDb : ISubtitleDb
     {
@@ -32,6 +29,9 @@ namespace SubSearch.Data.Handlers.Subscene
                                                                                      { Language.Vietnamese, "45" }
                                                                                  };
 
+        /// <summary>
+        /// The base URL.
+        /// </summary>
         private static readonly string BaseUrl = "http://subscene.com";
 
         /// <summary>
@@ -40,9 +40,9 @@ namespace SubSearch.Data.Handlers.Subscene
         /// <param name="releaseFile">The movie file.</param>
         /// <param name="subtitle">The subtitle.</param>
         /// <returns>The query result.</returns>
-        public QueryResult Download(string releaseFile, Subtitle subtitle)
+        public void Download(string releaseFile, Subtitle subtitle)
         {
-            return this.HandleDownloadRequest(releaseFile, subtitle);
+            this.HandleDownloadRequest(releaseFile, subtitle);
         }
 
         /// <summary>
@@ -78,42 +78,27 @@ namespace SubSearch.Data.Handlers.Subscene
         /// <param name="subtitle">The subtitle.</param>
         /// <param name="cookies">The cookies.</param>
         /// <returns>The query result.</returns>
-        private QueryResult HandleDownloadRequest(string releaseFile, Subtitle subtitle, CookieContainer cookies = null)
+        private void HandleDownloadRequest(string releaseFile, Subtitle subtitle, CookieContainer cookies = null)
         {
             if (string.IsNullOrEmpty(subtitle.DownloadUrl))
             {
-                return QueryResult.Failure;
+                return;
             }
 
-            var result = this.DoDownloadSubtitle(subtitle.DownloadUrl, subtitle.DownloadUrl, cookies, releaseFile);
-            return result ? QueryResult.Success : QueryResult.Failure;
-        }
 
-        /// <summary>
-        /// Does download subtitle.
-        /// </summary>
-        /// <param name="subtitleDownloadUrl">The subtitle download URL.</param>
-        /// <param name="referrer">The referrer.</param>
-        /// <param name="cookies">The cookies.</param>
-        /// <param name="targetFile">The target release file.</param>
-        /// <returns>True on success; otherwise, false.</returns>
-        private bool DoDownloadSubtitle(string subtitleDownloadUrl, string referrer, CookieContainer cookies, string targetFile)
-        {
-            var htmlDoc = this.GetDocument(subtitleDownloadUrl, referrer, cookies);
+            var htmlDoc = this.GetDocument(subtitle.DownloadUrl, subtitle.DownloadUrl, cookies);
             var downloadNodes = htmlDoc.Item1.DocumentNode.SelectNodes("//a[@id='downloadButton']");
             if (downloadNodes == null)
             {
-                return false;
+                return;
             }
 
             foreach (var downloadNode in downloadNodes)
             {
                 var link = downloadNode.GetAttributeValue("href", string.Empty);
                 var url = "http://subscene.com" + link;
-                targetFile.DownloadSubtitle(url);
+                releaseFile.DownloadSubtitle(url);
             }
-
-            return true;
         }
 
         /// <summary>The get document.</summary>
@@ -145,12 +130,12 @@ namespace SubSearch.Data.Handlers.Subscene
         /// <summary>The parse query doc.</summary>
         /// <param name="htmlDoc">The html doc.</param>
         /// <returns>The <see cref="string"/>.</returns>
-        private Tuple<QueryResult, string> ParseTitleDoc(HtmlDocument htmlDoc)
+        private Tuple<result, string> ParseTitleDoc(HtmlDocument htmlDoc)
         {
             var resultNodes = htmlDoc.DocumentNode.SelectNodes("//div[@class='search-result']");
             if (resultNodes == null)
             {
-                return Tuple.Create(QueryResult.Failure, string.Empty);
+                return Tuple.Create(result.Failure, string.Empty);
             }
 
             var exactList = new List<ItemData>();
@@ -224,12 +209,12 @@ namespace SubSearch.Data.Handlers.Subscene
         /// <param name="popularList">The popular list.</param>
         /// <param name="closeList">The close list.</param>
         /// <returns>The <see cref="ItemData"/>.</returns>
-        private Tuple<QueryResult, ItemData> GetSubtitlePageUrl(List<ItemData> exactList, List<ItemData> popularList, List<ItemData> closeList)
+        private Tuple<result, ItemData> GetSubtitlePageUrl(List<ItemData> exactList, List<ItemData> popularList, List<ItemData> closeList)
         {
             // Process the actual subtitle link
             foreach (var matchingTitle in exactList)
             {
-                return Tuple.Create(QueryResult.Success, matchingTitle);
+                return Tuple.Create(result.Success, matchingTitle);
             }
 
             var comparer = new InlineComparer<ItemData>((a, b) => string.Equals(a.Name, b.Name), i => i == null ? 0 : i.GetHashCode());
@@ -237,7 +222,7 @@ namespace SubSearch.Data.Handlers.Subscene
             if (!selections.Any())
             {
                 this.view.Notify(Literals.Data_No_matching_title_for + this.FilePath);
-                return Tuple.Create<QueryResult, ItemData>(QueryResult.Failure, null);
+                return Tuple.Create<result, ItemData>(result.Failure, null);
             }
 
             var matchingUrl = this.view.GetSelection(selections, this.FilePath, Literals.Data_Select_matching_video_title);
@@ -255,7 +240,7 @@ namespace SubSearch.Data.Handlers.Subscene
             var subtitleNodes = htmlDoc.DocumentNode.SelectNodes("//td[@class='a1']");
 
             Subtitles subtitles = new Subtitles();
-            var result = QueryResult.Failure;
+            var result = Status.Failure;
 
             if (subtitleNodes != null)
             {
@@ -301,7 +286,7 @@ namespace SubSearch.Data.Handlers.Subscene
                     subtitles.Add(new Subtitle(title, description, url, rating, this));
                 }
 
-                result = QueryResult.Success;
+                result = Status.Success;
             }
 
             return new QueryResult<Subtitles>(result, subtitles);

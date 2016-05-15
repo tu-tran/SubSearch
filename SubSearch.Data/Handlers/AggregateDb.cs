@@ -1,14 +1,14 @@
 ﻿namespace SubSearch.Data.Handlers
 {
+    using SubSearch.Resources;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Text;
     using System.Threading.Tasks;
-
-    using SubSearch.Resources;
 
     /// <summary>
     /// The <see cref="AggregateDb"/> class.
@@ -67,15 +67,16 @@
         /// </summary>
         /// <param name="releaseFile">The movie file.</param>
         /// <param name="subtitle">The subtitle.</param>
-        /// <returns>The query result.</returns>
-        public override QueryResult Download(string releaseFile, Subtitle subtitle)
+        public override void Download(string releaseFile, Subtitle subtitle)
         {
             if (subtitle.DataSource != null && subtitle.DataSource != this)
             {
-                return subtitle.DataSource.Download(releaseFile, subtitle);
+                subtitle.DataSource.Download(releaseFile, subtitle);
             }
-
-            return base.Download(releaseFile, subtitle);
+            else
+            {
+                base.Download(releaseFile, subtitle);
+            }
         }
 
         /// <summary>
@@ -87,9 +88,10 @@
         public override QueryResult<Subtitles> GetSubtitlesMeta(string releaseName, Language language)
         {
             var subtitles = new Subtitles();
-            var statuses = new List<QueryResult>(Handlers.Count);
-            QueryResult status = QueryResult.Success;
+            var statuses = new List<Status>(Handlers.Count);
+            Status status = Status.Success;
             var tasks = new List<Task>(Handlers.Count);
+            var sb = new StringBuilder();
 
             if (Handlers.Count > 0)
             {
@@ -99,20 +101,21 @@
                     var dbTask = Task.Run(
                         () =>
                         {
-                            QueryResult dbStatus;
+                            Status dbStatus;
                             try
                             {
                                 var meta = db.GetSubtitlesMeta(releaseName, language);
                                 dbStatus = meta.Status;
-                                if (dbStatus == QueryResult.Success && meta.Data != null && meta.Data.Count > 0)
+                                if (dbStatus == Status.Success && meta.Data != null && meta.Data.Count > 0)
                                 {
                                     subtitles.AddRange(meta.Data);
                                 }
                             }
                             catch (Exception ex)
                             {
-                                Trace.TraceError("Failed to search for [{0}] from {1}: {2}", releaseName, db, ex);
-                                dbStatus = QueryResult.Fatal;
+                                Trace.TraceError(Literals.Data_Failed_to_get_subtitles_meta, releaseName, db, ex);
+                                dbStatus = Status.Fatal;
+                                sb.AppendLine(string.Format(Literals.Data_Failed_to_get_subtitles_meta, releaseName, db, ex.Message));
                             }
 
                             statuses.Add(dbStatus);
@@ -126,21 +129,21 @@
                 {
                     status = statuses.First();
                 }
-                else if (statuses.Any(s => s == QueryResult.Success))
+                else if (statuses.Any(s => s == Status.Success))
                 {
-                    status = QueryResult.Success;
+                    status = Status.Success;
                 }
-                else if (statuses.Any(s => s == QueryResult.Fatal))
+                else if (statuses.Any(s => s == Status.Fatal))
                 {
-                    status = QueryResult.Fatal;
+                    status = Status.Fatal;
                 }
-                else if (statuses.Any(s => s == QueryResult.Failure))
+                else if (statuses.Any(s => s == Status.Failure))
                 {
-                    status = QueryResult.Failure;
+                    status = Status.Failure;
                 }
             }
 
-            return new QueryResult<Subtitles>(status, subtitles);
+            return new QueryResult<Subtitles>(status, subtitles, sb.ToString());
         }
     }
 }

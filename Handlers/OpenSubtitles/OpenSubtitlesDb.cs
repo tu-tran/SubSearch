@@ -1,14 +1,10 @@
 ﻿namespace SubSearch.Data.Handlers.OpenSubtitles
 {
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.Linq;
-
     using OSDBnet;
-
     using SubSearch.Data.Handlers;
     using SubSearch.Resources;
-
+    using System.Globalization;
+    using System.Linq;
     using Language = SubSearch.Resources.Language;
     using Subtitle = SubSearch.Data.Subtitle;
 
@@ -44,7 +40,7 @@
             var langString = cultureInfo == null ? "eng" : cultureInfo.ThreeLetterISOLanguageName;
             var subtitles = new Subtitles();
             subtitles.AddRange(this.client.SearchSubtitlesFromQuery(langString, releaseName).Select(this.Convert));
-            return new QueryResult<Subtitles>(QueryResult.Success, subtitles);
+            return new QueryResult<Subtitles>(Status.Success, subtitles);
         }
 
         /// <summary>

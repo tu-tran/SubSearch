@@ -6,54 +6,24 @@
 //   The wpf view.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-
 namespace SubSearch.WPF.Views
 {
-    using System;
+    using SubSearch.Data;
     using System.Collections.Generic;
     using System.Threading;
-    using System.Windows.Threading;
-
-    using SubSearch.Data;
 
     /// <summary>
     /// The <see cref="WpfView"/> class.
     /// </summary>
-    internal class WpfView : IView
+    internal class WpfView : ThreadedWindowView<MainWindow>, IView
     {
-        /// <summary>The disposing.</summary>
-        private bool disposing;
-
-        /// <summary>The UI thread.</summary>
-        private Thread uiThread;
-
-        /// <summary>The window.</summary>
-        private MainWindow window;
-
-        /// <summary>Initializes a new instance of the <see cref="WpfView" /> class.</summary>
-        public WpfView()
-        {
-            this.CreateWindow();
-        }
-
         /// <summary>Occurs when the view custom action is requested.</summary>
         public event CustomActionDelegate CustomActionRequested;
 
         /// <summary>Continues the pending operation and cancel any selection.</summary>
         public void Continue()
         {
-            this.window.Accept(QueryResult.Skipped);
-        }
-
-        /// <summary>The dispose.</summary>
-        public void Dispose()
-        {
-            if (this.window != null && this.window.Dispatcher != null && !this.window.Dispatcher.HasShutdownStarted)
-            {
-                this.window.Dispatcher.BeginInvokeShutdown(DispatcherPriority.Background);
-            }
-
-            this.disposing = true;
+            this.Window.Accept(Status.Skipped);
         }
 
         /// <summary>
@@ -66,9 +36,9 @@ namespace SubSearch.WPF.Views
         public virtual QueryResult<ItemData> GetSelection(ICollection<ItemData> data, string title, string status)
         {
             var token = new CancellationTokenSource();
-            this.window.SetSelections(data, title, status, token);
+            this.Window.SetSelections(data, title, status, token);
             token.Token.WaitHandle.WaitOne();
-            return new QueryResult<ItemData>(this.window.SelectionState, this.window.SelectedItem);
+            return new QueryResult<ItemData>(this.Window.SelectionState, this.Window.SelectedItem);
         }
 
         /// <summary>Notifies a message.</summary>
@@ -83,7 +53,7 @@ namespace SubSearch.WPF.Views
         /// <param name="status">The status.</param>
         public void ShowProgress(string title, string status)
         {
-            this.window.SetProgress(title, status);
+            this.Window.SetProgress(title, status);
         }
 
         /// <summary>Sets the progress.</summary>
@@ -91,7 +61,7 @@ namespace SubSearch.WPF.Views
         /// <param name="total">Total</param>
         public void ShowProgress(int done, int total)
         {
-            this.window.SetProgress(done, total);
+            this.Window.SetProgress(done, total);
         }
 
         /// <summary>The on custom action.</summary>
@@ -106,28 +76,12 @@ namespace SubSearch.WPF.Views
         }
 
         /// <summary>
-        /// Creates the window on its own UI thread.
+        /// Creates the Window view.
         /// </summary>
-        private void CreateWindow()
+        /// <returns>The Window view.</returns>
+        protected override MainWindow CreateWindowView()
         {
-            var token = new CancellationTokenSource();
-            this.uiThread = new Thread(
-                () =>
-                    {
-                        Thread.CurrentThread.Name = "WpfView." + DateTime.Now.ToString("HH.mm.ss");
-                        while (!this.disposing)
-                        {
-                            SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(Dispatcher.CurrentDispatcher));
-                            this.window = new MainWindow(this);
-                            this.window.Closed += (sender, args) => Dispatcher.ExitAllFrames();
-                            token.Cancel();
-                            Dispatcher.Run();
-                        }
-                    });
-
-            this.uiThread.SetApartmentState(ApartmentState.STA);
-            this.uiThread.Start();
-            token.Token.WaitHandle.WaitOne();
+            return new MainWindow(this);
         }
     }
 }

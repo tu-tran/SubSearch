@@ -1,9 +1,8 @@
 ﻿namespace SubSearch.Data.Handlers
 {
+    using SharpCompress.Archive;
     using System.IO;
     using System.Net;
-
-    using SharpCompress.Archive;
 
     /// <summary>
     /// The <see cref="SubtitleDownloader"/> class.
@@ -34,7 +33,20 @@
                     ms.Seek(0, SeekOrigin.Begin);
 
                     var reader = ArchiveFactory.Open(ms);
-                    if (reader != null)
+                    if (reader == null)
+                    {
+                        var fileName = response.Headers["Content-Disposition"].Replace("attachment; filename=", string.Empty).Replace("\"", string.Empty);
+                        if (!string.IsNullOrEmpty(fileName))
+                        {
+                            var outputFile = Path.Combine(targetPath, fileName);
+                            using (var fs = new FileStream(outputFile, FileMode.Create, FileAccess.Write))
+                            {
+                                ms.Seek(0, SeekOrigin.Begin);
+                                ms.WriteTo(fs);
+                            }
+                        }
+                    }
+                    else
                     {
                         foreach (var entry in reader.Entries)
                         {

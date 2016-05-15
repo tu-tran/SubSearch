@@ -28,10 +28,10 @@ namespace SubSearch.WPF.Views
         {
             if (data == null || !data.Any())
             {
-                return new QueryResult<ItemData>(QueryResult.Failure, null);
+                return new QueryResult<ItemData>(Status.Failure, null);
             }
 
-            return new QueryResult<ItemData>(QueryResult.Success, data.FirstOrDefault());
+            return new QueryResult<ItemData>(Status.Success, data.FirstOrDefault());
         }
     }
 }

@@ -180,4 +180,7 @@
   <data name="Data_Skip" xml:space="preserve">
     <value>Bỏ _qua</value>
   </data>
+  <data name="Data_Failed_to_get_subtitles_meta" xml:space="preserve">
+    <value>Không thể tìm phụ đề cho [{0}] từ {1}: {2}</value>
+  </data>
 </root>

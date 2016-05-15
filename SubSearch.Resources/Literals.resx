@@ -180,4 +180,7 @@
   <data name="Data_Skip" xml:space="preserve">
     <value>_Skip</value>
   </data>
+  <data name="Data_Failed_to_get_subtitles_meta" xml:space="preserve">
+    <value>Failed to search for [{0}] from {1}: {2}</value>
+  </data>
 </root>

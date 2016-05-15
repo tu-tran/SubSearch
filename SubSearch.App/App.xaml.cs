@@ -32,11 +32,11 @@ namespace SubSearch.WPF
             var result = new QueueHandler(e.Args).Process();
 
             string message = null;
-            if (result == QueryResult.Success)
+            if (result == Status.Success)
             {
                 message = Literals.ShellExtension_Subtitles_downloaded_successfully;
             }
-            else if (result == QueryResult.Fatal)
+            else if (result == Status.Fatal)
             {
                 message = Literals.ShellExtension_Failed_process_request;
             }

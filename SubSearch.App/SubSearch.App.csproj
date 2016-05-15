@@ -94,6 +94,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Views\ThreadedWindowView.cs" />
     <Compile Include="Views\WpfView.cs" />
     <Page Include="Views\MessageDialog.xaml">
       <Generator>MSBuild:Compile</Generator>

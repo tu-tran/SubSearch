@@ -115,6 +115,15 @@ namespace SubSearch.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to search for [{0}] from {1}: {2}.
+        /// </summary>
+        public static string Data_Failed_to_get_subtitles_meta {
+            get {
+                return ResourceManager.GetString("Data_Failed_to_get_subtitles_meta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Idle.
         /// </summary>
         public static string Data_Idle {

@@ -176,7 +176,7 @@ namespace SubSearch.WPF.Views
         }
 
         /// <summary>Gets a value indicating whether the selection has been made.</summary>
-        public QueryResult SelectionState { get; private set; }
+        public Status SelectionState { get; private set; }
 
         /// <summary>Gets or sets the status.</summary>
         public string Status
@@ -215,7 +215,7 @@ namespace SubSearch.WPF.Views
         /// <summary>The property changed.</summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
-        /// <summary>Disposes the window.</summary>
+        /// <summary>Disposes the Window.</summary>
         public void Dispose()
         {
             this.disposing = true;
@@ -306,7 +306,7 @@ namespace SubSearch.WPF.Views
         /// <param name="e">The eventArgs.</param>
         protected void ListBoxItemMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            this.Accept(QueryResult.Success, false);
+            this.Accept(Data.Status.Success, false);
         }
 
         /// <summary>The raise property changed.</summary>
@@ -325,7 +325,7 @@ namespace SubSearch.WPF.Views
         }
 
         /// <summary>The accept.</summary>
-        internal void Accept(QueryResult result = QueryResult.Success, bool hide = true)
+        internal void Accept(Status result = Data.Status.Success, bool hide = true)
         {
             if (!this.Dispatcher.CheckAccess())
             {
@@ -456,24 +456,24 @@ namespace SubSearch.WPF.Views
         /// <param name="parameter">The parameter.</param>
         private void Skip(object parameter)
         {
-            this.Accept(QueryResult.Skipped, false);
+            this.Accept(Data.Status.Skipped, false);
         }
 
         /// <summary>The cancel.</summary>
         /// <param name="parameter">The parameter.</param>
         private void Cancel(object parameter)
         {
-            this.Accept(QueryResult.Cancelled);
+            this.Accept(Data.Status.Cancelled);
         }
 
-        /// <summary>When the window is closing.</summary>
+        /// <summary>When the Window is closing.</summary>
         /// <param name="sender">The sender.</param>
         /// <param name="e">The event arguments.</param>
         private void MainWindow_OnClosing(object sender, CancelEventArgs e)
         {
             if (!this.disposing)
             {
-                this.SelectionState = QueryResult.Cancelled;
+                this.SelectionState = Data.Status.Cancelled;
             }
         }
 

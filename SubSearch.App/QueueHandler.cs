@@ -62,11 +62,11 @@ namespace SubSearch.WPF
 
         /// <summary>Processes this instance.</summary>
         /// <returns>The result.</returns>
-        internal QueryResult Process()
+        internal Status Process()
         {
             if (string.IsNullOrEmpty(this.id) || !File.Exists(this.id))
             {
-                return QueryResult.Fatal;
+                return Status.Fatal;
             }
 
             int success = 0, fail = 0;
@@ -111,21 +111,21 @@ namespace SubSearch.WPF
                 File.Delete(this.id);
             }
 
-            var result = QueryResult.Cancelled;
+            var result = Status.Cancelled;
             if (success > 0)
             {
-                result = QueryResult.Success;
+                result = Status.Success;
             }
 
             if (fail > 0)
             {
-                if (result == QueryResult.Success)
+                if (result == Status.Success)
                 {
-                    result |= QueryResult.Failure;
+                    result |= Status.Failure;
                 }
                 else
                 {
-                    result = QueryResult.Failure;
+                    result = Status.Failure;
                 }
             }
             return result;
@@ -153,15 +153,15 @@ namespace SubSearch.WPF
                     this.activeController = new MainViewController(currentFile, view, new AggregateDb());
                     view.ShowProgress(this.activeIndex, targets.Count);
                     var entryResult = this.activeController.Query();
-                    if (entryResult == QueryResult.Success || entryResult == QueryResult.Skipped)
+                    if (entryResult == Status.Success || entryResult == Status.Skipped)
                     {
                         success++;
                     }
-                    else if (entryResult == QueryResult.Failure)
+                    else if (entryResult == Status.Failure)
                     {
                         fail++;
                     }
-                    else if (entryResult == QueryResult.Cancelled)
+                    else if (entryResult == Status.Cancelled)
                     {
                         break; // Users cancel
                     }

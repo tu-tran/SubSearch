@@ -12,11 +12,9 @@ namespace SubSearch.Data.Handlers
         /// </summary>
         /// <param name="releaseFile">The movie file.</param>
         /// <param name="subtitle">The subtitle.</param>
-        /// <returns>The query result.</returns>
-        public virtual QueryResult Download(string releaseFile, Subtitle subtitle)
+        public virtual void Download(string releaseFile, Subtitle subtitle)
         {
             releaseFile.DownloadSubtitle(subtitle.DownloadUrl);
-            return QueryResult.Success;
         }
 
         /// <summary>

@@ -1,13 +1,12 @@
 ﻿namespace SubSearch.WPF.Controllers
 {
+    using SubSearch.Data;
+    using SubSearch.Data.Handlers;
+    using SubSearch.Resources;
     using System;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
-
-    using SubSearch.Data;
-    using SubSearch.Data.Handlers;
-    using SubSearch.Resources;
 
     /// <summary>
     /// The <see cref="MainViewController"/> class.
@@ -62,29 +61,28 @@
         /// </summary>
         /// <param name="subtitle">The subtitle.</param>
         /// <returns>The query result.</returns>
-        public QueryResult Download(Subtitle subtitle)
+        public Status Download(Subtitle subtitle)
         {
             this.view.ShowProgress(this.FilePath, string.Format(Literals.Data_Downloading_video_subtitle, AppContext.Global.LocalizedLanguage));
-            QueryResult result;
             try
             {
-                result = this.db.Download(this.FilePath, subtitle);
+                this.db.Download(this.FilePath, subtitle);
             }
             catch (Exception ex)
             {
                 this.view.Notify(Literals.Data_Failed_download_subtitles + ex.Message);
-                return QueryResult.Fatal;
+                return Status.Fatal;
             }
 
             this.view.ShowProgress(this.FilePath, Literals.Data_Idle);
-            return result;
+            return Status.Success;
         }
 
         /// <summary>
         /// Queries this instance.
         /// </summary>
         /// <returns>The query result.</returns>
-        public QueryResult Query()
+        public Status Query()
         {
             this.view.ShowProgress(this.FilePath, Literals.Data_Searching_video_title);
             this.view.ShowProgress(this.FilePath, Literals.Data_Searching_video_subtitle);
@@ -95,20 +93,27 @@
                 subtitlesMetaResult = this.db.GetSubtitlesMeta(this.Title, AppContext.Global.Language);
             }
             catch (Exception ex)
-            {
-                Trace.TraceError("Failed to get subtitles for [{0}]: {1}", this.FilePath, ex);
-                subtitlesMetaResult = new QueryResult<Subtitles>(QueryResult.Fatal, null);
+            {                
+                Trace.TraceError(string.Format(Literals.Data_Failed_to_get_subtitles_meta, this.Title, this.db.GetType().Name, ex));
+                subtitlesMetaResult = new QueryResult<Subtitles>(
+                    Status.Fatal,
+                    null,
+                    string.Format(Literals.Data_Failed_to_get_subtitles_meta, this.Title, this.db.GetType().Name, ex.Message));
             }
 
-            if (subtitlesMetaResult.Status != QueryResult.Success)
+            if (subtitlesMetaResult.Status != Status.Success)
             {
-                return subtitlesMetaResult.Status;
+                if (!string.IsNullOrEmpty(subtitlesMetaResult.Message))
+                {
+                    this.view.Notify(subtitlesMetaResult.Message);
+                    return subtitlesMetaResult.Status;
+                }
             }
 
             if (!subtitlesMetaResult.Data.HasAny())
             {
                 this.view.Notify(Literals.Data_No_subtitle_for + this.FilePath);
-                return QueryResult.Failure;
+                return Status.Failure;
             }
 
             if (subtitlesMetaResult.Data.Count == 1)
@@ -122,7 +127,7 @@
                         this.FilePath,
                         string.Format(Literals.Data_Select_subtitle, AppContext.Global.LocalizedLanguage));
 
-            if (selectionResult.Status != QueryResult.Success || selectionResult.Data == null)
+            if (selectionResult.Status != Status.Success || selectionResult.Data == null)
             {
                 return selectionResult.Status;
             }
