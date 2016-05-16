@@ -283,7 +283,7 @@ namespace SubSearch.Data.Handlers.Subscene
                     description = HttpUtility.HtmlDecode(description.Replace(Environment.NewLine, " "));
                     title = HttpUtility.HtmlDecode(title);
                     var url = BaseUrl + "/" + link;
-                    subtitles.Add(new Subtitle(title, description, url, rating, this));
+                    subtitles.Add(new Subtitle(title, description + " [Subscene.com]", url, rating, this));
                 }
 
                 result = Status.Success;

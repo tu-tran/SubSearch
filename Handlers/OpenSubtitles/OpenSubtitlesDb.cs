@@ -68,7 +68,7 @@
                 }
             }
 
-            return new Subtitle(subtitle.MovieName, subtitle.SubtitleFileName, subtitle.SubTitleDownloadLink.AbsoluteUri, rating, this);
+            return new Subtitle(subtitle.MovieName, subtitle.SubtitleFileName + " [OpenSubtitles.org]", subtitle.SubTitleDownloadLink.AbsoluteUri, rating, this);
         }
     }
 }
