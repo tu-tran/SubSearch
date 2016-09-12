@@ -84,9 +84,8 @@
         /// <returns>The query result.</returns>
         public Status Query()
         {
-            this.view.ShowProgress(this.FilePath, Literals.Data_Searching_video_title);
             this.view.ShowProgress(this.FilePath, Literals.Data_Searching_video_subtitle);
-            QueryResult<Subtitles> subtitlesMetaResult = new QueryResult<Subtitles>();
+            QueryResult<Subtitles> subtitlesMetaResult;
 
             try
             {
@@ -94,7 +93,7 @@
             }
             catch (Exception ex)
             {                
-                Trace.TraceError(string.Format(Literals.Data_Failed_to_get_subtitles_meta, this.Title, this.db.GetType().Name, ex));
+                Trace.TraceError(Literals.Data_Failed_to_get_subtitles_meta, this.Title, this.db.GetType().Name, ex);
                 subtitlesMetaResult = new QueryResult<Subtitles>(
                     Status.Fatal,
                     null,

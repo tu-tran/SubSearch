@@ -8,6 +8,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
 
@@ -58,3 +59,4 @@ using System.Windows;
 
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: InternalsVisibleTo("SubSearch.Tests, PublicKey=00240000048000009400000006020000002400005253413100040000010001006792c6d124770d28ff0bf5631dda07d5196d5a307097e68acb613715d98df29a244616a9b1c97bf09543b56e32c9c7bde55385fd3bb4f137d6bf4ded74f93f1ef5a6d14364697320a0b7878064474047e465cf3955b3714107d8efd8b87d58c351a2246785c154f68bff6cb38a689dfc1a78ab0d021453c1d9aaf1e2adbdd9c0")]

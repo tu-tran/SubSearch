@@ -26,9 +26,14 @@
         static AggregateDb()
         {
             Handlers = new List<ISubtitleDb>();
-            var handlersPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) ?? string.Empty, "Handlers");
-            string[] pluginFiles = Directory.GetFiles(handlersPath, "Handlers.*.dll");
+            var handlersPath = Path.Combine(Path.GetDirectoryName((Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly()).Location) ?? string.Empty, "Handlers");
+            if (!Directory.Exists(handlersPath))
+            {
+                Trace.TraceError("Invalid handlers path: " + handlersPath);
+                return;
+            }
 
+            string[] pluginFiles = Directory.GetFiles(handlersPath, "Handlers.*.dll");
             try
             {
                 foreach (var file in pluginFiles)

@@ -138,8 +138,10 @@ namespace SubSearch.WPF
         /// <param name="fail">The fail.</param>
         private void ProcessRequest(IReadOnlyList<string> targets, IView view, ref int success, ref int fail)
         {
+            var retry = false;
             for (this.activeIndex = 0; this.activeIndex < targets.Count; this.activeIndex++)
             {
+                var currentIndex = this.activeIndex;
                 try
                 {
                     var currentFile = targets[this.activeIndex];
@@ -150,9 +152,19 @@ namespace SubSearch.WPF
                         continue;
                     }
 
-                    this.activeController = new MainViewController(currentFile, view, new AggregateDb());
+                    if (retry)
+                    {
+                        retry = false;
+                    }
+                    else
+                    {
+                        this.activeController = new MainViewController(currentFile, view, new AggregateDb());
+                    }
+
                     view.ShowProgress(this.activeIndex, targets.Count);
                     var entryResult = this.activeController.Query();
+
+                    retry = this.activeIndex != currentIndex;
                     if (entryResult == Status.Success || entryResult == Status.Skipped)
                     {
                         success++;

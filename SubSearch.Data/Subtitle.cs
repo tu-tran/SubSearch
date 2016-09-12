@@ -1,12 +1,14 @@
 ﻿namespace SubSearch.Data
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
 
     using SubSearch.Data.Handlers;
 
     /// <summary>
     /// The <see cref="Subtitle"/> class.
     /// </summary>
+    [DebuggerDisplay("[{DataSource}] {Name}")]
     public class Subtitle : ItemData
     {
         /// <summary>
