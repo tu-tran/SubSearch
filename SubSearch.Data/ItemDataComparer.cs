@@ -3,16 +3,22 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text.RegularExpressions;
 
     /// <summary>
     /// The item data comparer.
     /// </summary>
-    public class ItemDataComparer : IComparer<ItemData>
+    public class ItemDataComparer : IComparer<ItemData>, IComparer<Subtitle>
     {
         /// <summary>
         /// The zero space char.
         /// </summary>
         private const char ZeroWidthChar = '\u200B';
+
+        /// <summary>
+        /// The filter regex.
+        /// </summary>
+        private static readonly Regex FilterRegex = new Regex(@"(.+?)(\d+p)", RegexOptions.Compiled);
 
         /// <summary>
         /// The target groups.
@@ -59,46 +65,20 @@
         /// </returns>
         public int Compare(ItemData x, ItemData y)
         {
-            if (x.Name == y.Name)
-            {
-                return x.Rating.CompareTo(y.Rating);
-            }
-
-            if (x.Name == this.Target)
-            {
-                return 1;
-            }
-
-            if (y.Name == this.Target)
-            {
-                return -1;
-            }
-
-            var strCompare = this.CompareString(x.Name, y.Name);
-            return strCompare == 0 ? x.Rating.CompareTo(y.Rating) : strCompare;
+            return this.CompareItem(x, y);
         }
 
         /// <summary>
-        /// Gets matches count.
+        /// Compares two objects and returns a value indicating whether one is less than, equal to, or greater than the other.
         /// </summary>
-        /// <param name="x">The x.</param>
-        /// <returns>The number of matches count.</returns>
-        private int GetMatchesCount(string x)
+        /// <param name="x">The first object to compare.</param>
+        /// <param name="y">The second object to compare.</param>
+        /// <returns>
+        /// A signed integer that indicates the relative values of <paramref name="x" /> and <paramref name="y" />, as shown in the following table.Value Meaning Less than zero<paramref name="x" /> is less than <paramref name="y" />.Zero<paramref name="x" /> equals <paramref name="y" />.Greater than zero<paramref name="x" /> is greater than <paramref name="y" />.
+        /// </returns>
+        public int Compare(Subtitle x, Subtitle y)
         {
-            var groups = GetGroups(x);
-            return this.targetGroups.Count(t => groups.Any(g => string.Equals(g, t, StringComparison.InvariantCultureIgnoreCase)));
-        }
-
-        /// <summary>
-        /// Compares the string.
-        /// </summary>
-        /// <param name="x">The x.</param>
-        /// <param name="y">The y.</param>
-        /// <returns>The relative comparison between 2 strings.</returns>
-        private int CompareString(string x, string y)
-        {
-            var result = this.GetMatchesCount(x).CompareTo(this.GetMatchesCount(y));
-            return result == 0 ? string.CompareOrdinal(x, y) : result;
+            return this.CompareItem(x, y);
         }
 
         /// <summary>
@@ -128,6 +108,90 @@
         private static string[] GetGroups(string x)
         {
             return Normalize(x).Split(ZeroWidthChar);
+        }
+
+        /// <summary>
+        /// Gets points.
+        /// </summary>
+        /// <param name="keyword">The keyword.</param>
+        /// <returns>The matching points.</returns>
+        private static int GetPoints(string keyword)
+        {
+            if (string.IsNullOrEmpty(keyword))
+            {
+                return 0;
+            }
+
+            var result = 0;
+            foreach (var c in keyword)
+            {
+                var point = char.IsLetter(c) ? 2 : 1;
+                result += point;
+            }
+
+            return result * keyword.Length;
+        }
+
+        /// <summary>
+        /// Gets matches count.
+        /// </summary>
+        /// <param name="x">The x.</param>
+        /// <returns>The number of matches count.</returns>
+        private int GetMatchesPoints(string x)
+        {
+            var filteredMatch = FilterRegex.Match(x);
+            var input = filteredMatch.Success ? filteredMatch.Groups[1].Value : x;
+            var groups = GetGroups(input);
+            return this.targetGroups.Sum(
+                t =>
+                {
+                    var match = groups.FirstOrDefault(g => string.Equals(g, t, StringComparison.InvariantCultureIgnoreCase)) ?? string.Empty;
+                    return GetPoints(match);
+                });
+        }
+
+        /// <summary>
+        /// Compares the string.
+        /// </summary>
+        /// <param name="x">The x.</param>
+        /// <param name="y">The y.</param>
+        /// <returns>The relative comparison between 2 strings.</returns>
+        private int CompareString(string x, string y)
+        {
+            var result = this.GetMatchesPoints(x).CompareTo(this.GetMatchesPoints(y));
+            return result == 0 ? string.CompareOrdinal(x, y) : result;
+        }
+
+        /// <summary>
+        /// Compares two objects and returns a value indicating whether one is less than, equal to, or greater than the other.
+        /// </summary>
+        /// <param name="x">The first object to compare.</param>
+        /// <param name="y">The second object to compare.</param>
+        /// <returns>
+        /// A signed integer that indicates the relative values of <paramref name="x"/> and <paramref name="y"/>.
+        /// Less than zero: <paramref name="x"/> is less than <paramref name="y"/>.
+        /// Zero: <paramref name="x"/> equals <paramref name="y"/>.
+        /// Greater than zero: <paramref name="x"/> is greater than <paramref name="y"/>.
+        /// </returns>
+        private int CompareItem(ItemData x, ItemData y)
+        {
+            if (x.Name == y.Name)
+            {
+                return x.Rating.CompareTo(y.Rating);
+            }
+
+            if (x.Name == this.Target)
+            {
+                return 1;
+            }
+
+            if (y.Name == this.Target)
+            {
+                return -1;
+            }
+
+            var strCompare = this.CompareString(x.Name, y.Name);
+            return strCompare == 0 ? x.Rating.CompareTo(y.Rating) : strCompare;
         }
     }
 }

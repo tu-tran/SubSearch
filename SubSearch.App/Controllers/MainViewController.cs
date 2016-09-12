@@ -120,7 +120,8 @@
                 return this.Download(subtitlesMetaResult.Data[0]);
             }
 
-            var selections = subtitlesMetaResult.Data.OrderByDescending(i => i, new ItemDataComparer(this.Title)).Cast<ItemData>().ToList();
+            var comparer = new ItemDataComparer(this.Title);
+            var selections = subtitlesMetaResult.Data.OrderByDescending(i => i, comparer).Cast<ItemData>().ToList();
             var selectionResult = this.view.GetSelection(
                         selections,
                         this.FilePath,
