@@ -12,7 +12,7 @@
         [Test]
         public void TestMethod()
         {
-            var title = "Big.Hero.YIFY.FGT.mkv";
+            var title = "The.Forbidden.Girl.2013.1080p.BluRay.x264.DTS-FGT.mkv";
             var controller = new MainViewController(title, new DummyView(), new AggregateDb());
             var result = controller.Query();
 

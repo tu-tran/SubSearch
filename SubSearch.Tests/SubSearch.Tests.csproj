@@ -43,8 +43,8 @@
     <AssemblyOriginatorKeyFile>..\SubSearch.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework, Version=3.4.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnit.3.4.1\lib\net45\nunit.framework.dll</HintPath>
+    <Reference Include="nunit.framework, Version=3.5.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.3.5.0\lib\net45\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -63,6 +63,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Handlers\OpenSubtitles\OpenSubtitles.csproj">
+      <Project>{bc09ec9d-a01e-4c55-8e2f-d36715449182}</Project>
+      <Name>OpenSubtitles</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Handlers\Subscene\Subscene.csproj">
+      <Project>{24e85c89-f004-47f6-8d6e-4264dbab985b}</Project>
+      <Name>Subscene</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SubSearch.App\SubSearch.App.csproj">
       <Project>{a78c49ed-9854-4ae9-81ea-c15d900d691a}</Project>
       <Name>SubSearch.App</Name>

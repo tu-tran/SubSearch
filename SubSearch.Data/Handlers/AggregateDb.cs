@@ -24,9 +24,10 @@
         /// Initializes the <see cref="AggregateDb"/> class.
         /// </summary>
         static AggregateDb()
-        {
+        {            
             Handlers = new List<ISubtitleDb>();
             var handlersPath = Path.Combine(Path.GetDirectoryName((Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly()).Location) ?? string.Empty, "Handlers");
+            AppDomain.CurrentDomain.AppendPrivatePath(handlersPath);
             if (!Directory.Exists(handlersPath))
             {
                 Trace.TraceError("Invalid handlers path: " + handlersPath);

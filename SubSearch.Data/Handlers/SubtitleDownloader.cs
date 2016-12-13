@@ -55,7 +55,13 @@
                                 continue;
                             }
 
-                            var entryPath = targetFileWithoutExtension + Path.GetExtension(entry.Key);
+                            var extension = Path.GetExtension(entry.Key);
+                            if (string.IsNullOrEmpty(extension))
+                            {
+                                extension = ".srt";
+                            }
+
+                            var entryPath = targetFileWithoutExtension + extension;
                             var outputFile = Path.Combine(targetPath, entryPath);
                             entry.WriteToFile(outputFile);
                         }
