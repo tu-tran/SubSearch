@@ -1,8 +1,9 @@
 ﻿namespace SubSearch.Data.Handlers
 {
-    using SharpCompress.Archive;
     using System.IO;
     using System.Net;
+
+    using SharpCompress.Readers;
 
     /// <summary>
     /// The <see cref="SubtitleDownloader"/> class.
@@ -32,7 +33,7 @@
                     respStream.CopyTo(ms);
                     ms.Seek(0, SeekOrigin.Begin);
 
-                    var reader = ArchiveFactory.Open(ms);
+                    var reader = ReaderFactory.Open(ms);
                     if (reader == null)
                     {
                         var fileName = response.Headers["Content-Disposition"].Replace("attachment; filename=", string.Empty).Replace("\"", string.Empty);
@@ -48,8 +49,9 @@
                     }
                     else
                     {
-                        foreach (var entry in reader.Entries)
+                        while (reader.MoveToNextEntry())
                         {
+                            var entry = reader.Entry;
                             if (entry.IsDirectory)
                             {
                                 continue;
@@ -63,7 +65,7 @@
 
                             var entryPath = targetFileWithoutExtension + extension;
                             var outputFile = Path.Combine(targetPath, entryPath);
-                            entry.WriteToFile(outputFile);
+                            reader.WriteEntryToFile(outputFile);
                         }
                     }
                 }
