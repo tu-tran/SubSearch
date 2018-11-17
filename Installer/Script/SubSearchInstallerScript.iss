@@ -8,8 +8,7 @@
 #define ShellDll "SubSearch.dll"
 
 #include "products.iss"
-#include "products\dotnetfxversion.iss"
-#include "products\dotnetfx45.iss"
+#include "products\dotnetfx4.iss"
 
 [Languages]
 Name: "en"; MessagesFile: "compiler:Default.isl"  
@@ -17,7 +16,7 @@ Name: "en"; MessagesFile: "compiler:Default.isl"
 [Code]
 function InitializeSetup(): boolean;
 begin
-  dotnetfx45(0);
+  InstallDotNet('v4.5.2');
   result := true;
 end;
 

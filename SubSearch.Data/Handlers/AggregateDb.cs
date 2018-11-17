@@ -1,6 +1,7 @@
-﻿namespace SubSearch.Data.Handlers
+﻿using System.Collections.Concurrent;
+
+namespace SubSearch.Data.Handlers
 {
-    using SubSearch.Resources;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -9,6 +10,8 @@
     using System.Reflection;
     using System.Text;
     using System.Threading.Tasks;
+
+    using SubSearch.Resources;
 
     /// <summary>
     /// The <see cref="AggregateDb"/> class.
@@ -24,7 +27,7 @@
         /// Initializes the <see cref="AggregateDb"/> class.
         /// </summary>
         static AggregateDb()
-        {            
+        {
             Handlers = new List<ISubtitleDb>();
             var handlersPath = Path.Combine(Path.GetDirectoryName((Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly()).Location) ?? string.Empty, "Handlers");
             AppDomain.CurrentDomain.AppendPrivatePath(handlersPath);
@@ -94,8 +97,8 @@
         public override QueryResult<Subtitles> GetSubtitlesMeta(string releaseName, Language language)
         {
             var subtitles = new Subtitles();
-            var statuses = new List<Status>(Handlers.Count);
-            Status status = Status.Success;
+            var statuses = new ConcurrentBag<Status>();
+            Status status = Status.Fatal;
             var tasks = new List<Task>(Handlers.Count);
             var sb = new StringBuilder();
 
@@ -131,22 +134,7 @@
                 }
 
                 Task.WaitAll(tasks.ToArray());
-                if (statuses.Distinct().Count() == statuses.Count)
-                {
-                    status = statuses.First();
-                }
-                else if (statuses.Any(s => s == Status.Success))
-                {
-                    status = Status.Success;
-                }
-                else if (statuses.Any(s => s == Status.Fatal))
-                {
-                    status = Status.Fatal;
-                }
-                else if (statuses.Any(s => s == Status.Failure))
-                {
-                    status = Status.Failure;
-                }
+                status = statuses.Any(s => s == Status.Success) ? Status.Success : Status.Failure;
             }
 
             return new QueryResult<Subtitles>(status, subtitles, sb.ToString());

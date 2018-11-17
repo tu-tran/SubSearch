@@ -24,8 +24,7 @@
 @del /F /S /Q "%OUTPUT_DIR%\*.xml" > nul 2>&1
 
 @echo.
-@echo Creating installers...
-@CALL "%CD%\packages\Tools.InnoSetup.5.5.9\tools\ISCC.exe" "%CD%\Installer\Script\SubSearchInstallerScript.iss" > "Publish.log" 2>&1
+@CALL CreateInstaller.bat
 @IF %ERRORLEVEL% EQU 0 GOTO  End
 
 :Error
