@@ -1,10 +1,15 @@
-﻿namespace SubSearch.Data.Handlers.OpenSubtitles
+﻿using System.IO;
+
+namespace SubSearch.Data.Handlers.OpenSubtitles
 {
-    using OSDBnet;
-    using SubSearch.Data.Handlers;
-    using SubSearch.Resources;
     using System.Globalization;
     using System.Linq;
+
+    using OSDBnet;
+
+    using SubSearch.Data.Handlers;
+    using SubSearch.Resources;
+
     using Language = SubSearch.Resources.Language;
     using Subtitle = SubSearch.Data.Subtitle;
 
@@ -68,7 +73,7 @@
                 }
             }
 
-            return new Subtitle(subtitle.MovieName, subtitle.SubtitleFileName + " [OpenSubtitles.org]", subtitle.SubTitleDownloadLink.AbsoluteUri, rating, this);
+            return new Subtitle(Path.GetFileNameWithoutExtension(subtitle.SubtitleFileName), subtitle.SubtitleFileName + " [OpenSubtitles.org]", subtitle.SubTitleDownloadLink.AbsoluteUri, rating, this);
         }
     }
 }

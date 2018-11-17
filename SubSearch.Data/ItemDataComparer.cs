@@ -16,9 +16,34 @@
         private const char ZeroWidthChar = '\u200B';
 
         /// <summary>
-        /// The filter regex.
+        /// The priority keywords.
         /// </summary>
-        private static readonly Regex FilterRegex = new Regex(@"(.+?)(\d+p)", RegexOptions.Compiled);
+        private static readonly string[] PriorityKeywords =
+        {
+            "DivX",
+            "Xvid",
+            "x264",
+            "x265",
+            "1080",
+            "1080p",
+            "720",
+            "720p",
+            "HEVC",
+            "WEBDL",
+            "WEB",
+            "DL",
+            "BluRay",
+            "BDRip",
+            "BRRip",
+            "HDRip",
+            "DTS",
+            "h264",
+            "8bit",
+            "10bit",
+            "AAC",
+            "5¶1",
+            "AMZN"
+        };
 
         /// <summary>
         /// The target groups.
@@ -82,13 +107,29 @@
         }
 
         /// <summary>
+        /// Gets matches count.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <returns>The number of matches count.</returns>
+        public int GetMatchesPoints(string input)
+        {
+            var groups = GetGroups(input);
+            return this.targetGroups.Sum(
+                t =>
+                {
+                    var match = groups.FirstOrDefault(g => string.Equals(g, t, StringComparison.InvariantCultureIgnoreCase)) ?? string.Empty;
+                    return GetPoints(match);
+                });
+        }
+
+        /// <summary>
         /// Normalizes the specified x.
         /// </summary>
         /// <param name="x">The x.</param>
         private static string Normalize(string x)
         {
             var keys = new[] { '.', ' ', '-' };
-            var arr = x.ToCharArray();
+            var arr = x.Replace("5.1", "5¶1").ToCharArray();
             for (var i = 0; i < arr.Length; i++)
             {
                 if (keys.Contains(arr[i]))
@@ -97,7 +138,7 @@
                 }
             }
 
-            return new string(arr);
+            return new string(arr).Replace("5¶1", "5.1");
         }
 
         /// <summary>
@@ -107,7 +148,7 @@
         /// <returns>The string groups.</returns>
         private static string[] GetGroups(string x)
         {
-            return Normalize(x).Split(ZeroWidthChar);
+            return Normalize(x).Split(new[] { ZeroWidthChar }, StringSplitOptions.RemoveEmptyEntries);
         }
 
         /// <summary>
@@ -122,32 +163,7 @@
                 return 0;
             }
 
-            var result = 0;
-            foreach (var c in keyword)
-            {
-                var point = char.IsLetter(c) ? 2 : 1;
-                result += point;
-            }
-
-            return result * keyword.Length;
-        }
-
-        /// <summary>
-        /// Gets matches count.
-        /// </summary>
-        /// <param name="x">The x.</param>
-        /// <returns>The number of matches count.</returns>
-        private int GetMatchesPoints(string x)
-        {
-            var filteredMatch = FilterRegex.Match(x);
-            var input = filteredMatch.Success ? filteredMatch.Groups[1].Value : x;
-            var groups = GetGroups(input);
-            return this.targetGroups.Sum(
-                t =>
-                {
-                    var match = groups.FirstOrDefault(g => string.Equals(g, t, StringComparison.InvariantCultureIgnoreCase)) ?? string.Empty;
-                    return GetPoints(match);
-                });
+            return PriorityKeywords.Contains(keyword, StringComparer.InvariantCultureIgnoreCase) ? 12 : 10;
         }
 
         /// <summary>

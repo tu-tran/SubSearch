@@ -60,6 +60,7 @@
   <ItemGroup>
     <Compile Include="DataTests.cs" />
     <Compile Include="DummyView.cs" />
+    <Compile Include="ItemDataComparerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

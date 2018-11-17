@@ -92,7 +92,7 @@ namespace SubSearch.WPF
                         {
                             targets =
                                 Directory.EnumerateFiles(line, "*.*", SearchOption.AllDirectories)
-                                    .Where(f => ShellExtension.FileAssociations.Any(ext => f.EndsWith(ext, StringComparison.OrdinalIgnoreCase)))
+                                    .Where(f => ShellExtension.FileAssociations.Any(ext => f.EndsWith(ext, StringComparison.OrdinalIgnoreCase)) && new FileInfo(f).Length > 10 * 1024 * 1024)
                                     .ToArray();
                         }
 
@@ -145,13 +145,6 @@ namespace SubSearch.WPF
                 try
                 {
                     var currentFile = targets[this.activeIndex];
-                    var fileSizeLimit = 10 * 1024 * 1024;
-                    var fileInfo = new FileInfo(currentFile);
-                    if (!fileInfo.Exists || fileInfo.Length < fileSizeLimit)
-                    {
-                        continue;
-                    }
-
                     if (retry)
                     {
                         retry = false;
