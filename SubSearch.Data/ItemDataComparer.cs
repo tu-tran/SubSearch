@@ -46,6 +46,12 @@
         };
 
         /// <summary>
+        /// The regex for season episode
+        /// </summary>
+        private static readonly Regex SeasonRegex = new Regex(@"S\d+?E\d+?",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Singleline);
+
+        /// <summary>
         /// The target groups.
         /// </summary>
         private string[] targetGroups;
@@ -161,6 +167,11 @@
             if (string.IsNullOrEmpty(keyword))
             {
                 return 0;
+            }
+
+            if (SeasonRegex.IsMatch(keyword))
+            {
+                return 30;
             }
 
             return PriorityKeywords.Contains(keyword, StringComparer.InvariantCultureIgnoreCase) ? 12 : 10;
