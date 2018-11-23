@@ -30,7 +30,7 @@ namespace SubSearch
 
     /// <summary>The shell extension.</summary>
     [ComVisible(true)]
-    [COMServerAssociation(AssociationType.FileExtension, ".avi", ".mkv", ".wmv", ".mp4", ".m4p", ".m4v", ".mpg", ".3gp")]
+    [COMServerAssociation(AssociationType.ClassOfExtension, ".avi", ".mkv", ".wmv", ".mp4", ".m4p", ".m4v", ".mpg", ".3gp")]
     [COMServerAssociation(AssociationType.Directory)]
     public class ShellExtension : SharpContextMenu
     {
@@ -45,7 +45,7 @@ namespace SubSearch
         {
             var attribute =
                 typeof(ShellExtension).GetCustomAttributes<COMServerAssociationAttribute>()
-                    .FirstOrDefault(attrib => attrib.AssociationType == AssociationType.FileExtension);
+                    .FirstOrDefault(attrib => attrib.AssociationType == AssociationType.ClassOfExtension);
             if (attribute != null)
             {
                 FileAssociations = attribute.Associations;
