@@ -30,5 +30,28 @@ namespace SubSearch.Tests
             var points = data.Select(n => target.GetMatchesPoints(n)).ToArray();
             Assert.AreEqual(points.Max(), target.GetMatchesPoints(winner));
         }
+
+
+        /// <summary>
+        /// Compares the test.
+        /// </summary>
+        [Test]
+        public void Compare2Test()
+        {
+            var winner = "Supernatural.S12E01.1080p.HDTV.X264-DIMENSION.en_lyrics";
+            var data = new[]
+            {
+                "Supernatural.S12E01.HDTV.x264-LOL",
+                winner,
+                "Supernatural.S12E01.1080p.HDTV.X264-DIMENSION.en_hi",
+                "Supernatural.S12E01.1080p.HDTV.X264-DIMENSION.en",
+                "Harry Potter and the Deathly Hallows Part 2 (1080p x265 10bit Joy) ( 1.85GB , 6Ch , 10Bit )",
+                "Star Wars Episode I The Phantom Menace 1999 (1080p x265 10bit Joy) ( 1.92GB , 8Ch )"
+            };
+
+            var target = new ItemDataComparer("Supernatural S12E01 Keep Calm and Carry On  (1080p x265 10bit Joy).mkv");
+            var points = data.Select(n => target.GetMatchesPoints(n)).ToArray();
+            Assert.AreEqual(points.Max(), target.GetMatchesPoints(winner));
+        }
     }
 }

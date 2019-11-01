@@ -136,7 +136,7 @@
         /// <param name="x">The x.</param>
         private static string Normalize(string x)
         {
-            var keys = new[] { '.', ' ', '-' };
+            var keys = new[] { '.', ' ', '-', '_', '(', ')' };
             var arr = x.Replace("5.1", "5¶1").ToCharArray();
             for (var i = 0; i < arr.Length; i++)
             {
