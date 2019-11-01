@@ -20,29 +20,31 @@
         /// </summary>
         private static readonly string[] PriorityKeywords =
         {
-            "DivX",
-            "Xvid",
-            "x264",
-            "x265",
             "1080",
             "1080p",
+            "10bit",
+            "5¶1",
             "720",
             "720p",
-            "HEVC",
-            "WEBDL",
-            "WEB",
-            "DL",
-            "BluRay",
+            "8bit",
+            "AAC",
+            "AMZN",
             "BDRip",
+            "BluRay",
             "BRRip",
-            "HDRip",
+            "DL",
             "DTS",
             "h264",
-            "8bit",
-            "10bit",
-            "AAC",
-            "5¶1",
-            "AMZN"
+            "HDRip",
+            "HDTV",
+            "HEVC",
+            "WEB",
+            "WEBDL",
+            "x264",
+            "x265",
+            "Xvid",
+            "DivX"
+
         };
 
         /// <summary>
@@ -171,7 +173,7 @@
 
             if (SeasonRegex.IsMatch(keyword))
             {
-                return 30;
+                return 60;
             }
 
             return PriorityKeywords.Contains(keyword, StringComparer.InvariantCultureIgnoreCase) ? 12 : 10;
@@ -217,8 +219,9 @@
                 return -1;
             }
 
-            var strCompare = this.CompareString(x.Name, y.Name);
-            return strCompare == 0 ? x.Rating.CompareTo(y.Rating) : strCompare;
+            var nameCompare = this.CompareString(x.Name, y.Name);
+            var ratingCompare = x.Rating.CompareTo(y.Rating) * 10;
+            return nameCompare + ratingCompare;
         }
     }
 }

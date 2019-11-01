@@ -30,7 +30,7 @@ namespace SubSearch
 
     /// <summary>The shell extension.</summary>
     [ComVisible(true)]
-    [COMServerAssociation(AssociationType.ClassOfExtension, ".avi", ".mkv", ".wmv", ".mp4", ".m4p", ".m4v", ".mpg", ".3gp")]
+    [COMServerAssociation(AssociationType.ClassOfExtension, ".3g2", ".3gp", ".amv", ".asf", ".avi", ".drc", ".f4a", ".f4p", ".f4v", ".flv", ".flv", ".gif", ".gifv", ".m2v", ".m4v", ".m4v", ".mkv", ".mng", ".mov", ".mp2", ".mp4", ".mpeg", ".mpeg", ".mpg", ".mpg, .mp2, .mpeg, .mpe, .mpv", ".mpv", ".MTS", ".mxf", ".nsv", ".ogv", ".qt", ".rm", ".rmvb", ".roq", ".svi", ".vob", ".webm", ".wmv", ".yuv")]
     [COMServerAssociation(AssociationType.Directory)]
     public class ShellExtension : SharpContextMenu
     {
@@ -90,9 +90,9 @@ namespace SubSearch
             if (!File.Exists(executable))
             {
                 MessageBox.Show(
-                    "SubSearch application was not properly installed. Please try restarting the computer and reinstall SubSearch!", 
-                    "Corrupted Installation", 
-                    MessageBoxButton.OK, 
+                    "SubSearch application was not properly installed. Please try restarting the computer and reinstall SubSearch!",
+                    "Corrupted Installation",
+                    MessageBoxButton.OK,
                     MessageBoxImage.Error);
                 return;
             }
@@ -120,25 +120,25 @@ namespace SubSearch
         {
             var option = new DownloadOption { Language = SupportedLanguage.FirstOrDefault(), IsLuckyMode = isLuckyMode };
             var topMenu = new ToolStripMenuItem
-                              {
-                                  Text =
+            {
+                Text =
                                       isLuckyMode
                                           ? Literals.ShellExtension_CreateMenu_Download_subtitle_lucky
-                                          : Literals.ShellExtension_CreateMenu_Download_subtitle, 
-                                  Image = isLuckyMode ? Icons.SubSearchLucky : Icons.SubSearch, 
-                                  Tag = option
-                              };
+                                          : Literals.ShellExtension_CreateMenu_Download_subtitle,
+                Image = isLuckyMode ? Icons.SubSearchLucky : Icons.SubSearch,
+                Tag = option
+            };
             topMenu.Click += (sender, args) => this.DownloadSubtitle(option);
 
             foreach (var language in SupportedLanguage)
             {
                 var subOption = new DownloadOption { Language = language, IsLuckyMode = isLuckyMode };
                 var newLanguageItem = new ToolStripMenuItem
-                                          {
-                                              Text = language.ToString(), 
-                                              Image = GetLanguageIcon(language.ToString()), 
-                                              Tag = subOption
-                                          };
+                {
+                    Text = language.ToString(),
+                    Image = GetLanguageIcon(language.ToString()),
+                    Tag = subOption
+                };
 
                 newLanguageItem.Click += (sender, args) => this.DownloadSubtitle(subOption);
                 topMenu.DropDownItems.Add(newLanguageItem);
