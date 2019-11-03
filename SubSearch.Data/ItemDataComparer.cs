@@ -1,227 +1,175 @@
-﻿namespace SubSearch.Data
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text.RegularExpressions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
+namespace SubSearch.Data
+{
     /// <summary>
-    /// The item data comparer.
+    ///     The item data comparer.
     /// </summary>
     public class ItemDataComparer : IComparer<ItemData>, IComparer<Subtitle>
     {
-        /// <summary>
-        /// The zero space char.
-        /// </summary>
-        private const char ZeroWidthChar = '\u200B';
-
-        /// <summary>
-        /// The priority keywords.
-        /// </summary>
-        private static readonly string[] PriorityKeywords =
+        private static readonly string[][] EquivalentFormats =
         {
-            "1080",
-            "1080p",
-            "10bit",
-            "5¶1",
-            "720",
-            "720p",
-            "8bit",
-            "AAC",
-            "AMZN",
-            "BDRip",
-            "BluRay",
-            "BRRip",
-            "DL",
-            "DTS",
-            "h264",
-            "HDRip",
-            "HDTV",
-            "HEVC",
-            "WEB",
-            "WEBDL",
-            "x264",
-            "x265",
-            "Xvid",
-            "DivX"
-
+            new[] {"x264", "OpenH264", "x265"},
+            new[]
+            {
+                "BDRip", "BluRay", "Blu-Ray", "BRip", "BRRip",
+                "WEBDL", "WEB-DL", "WEB-DLRip", "WEBRip", "WEB-Rip", "720p", "1080p", "2160p", "4K"
+            }
         };
 
-        /// <summary>
-        /// The regex for season episode
-        /// </summary>
-        private static readonly Regex SeasonRegex = new Regex(@"S\d+?E\d+?",
-            RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Singleline);
-
-        /// <summary>
-        /// The target groups.
-        /// </summary>
-        private string[] targetGroups;
-
-        /// <summary>
-        /// The target.
-        /// </summary>
-        private string target;
-
-        public ItemDataComparer(string target)
+        public ItemDataComparer(string releaseName)
         {
-            this.Target = target;
+            Release = new ReleaseInfo(releaseName);
         }
 
-        /// <summary>
-        /// Gets or sets the target.
-        /// </summary>
-        public string Target
-        {
-            get
-            {
-                return this.target;
-            }
-
-            set
-            {
-                this.target = value;
-                this.targetGroups = GetGroups(value);
-            }
-        }
+        public ReleaseInfo Release { get; }
 
         /// <summary>
-        /// Compares two objects and returns a value indicating whether one is less than, equal to, or greater than the other.
+        ///     Compares two objects and returns a value indicating whether one is less than, equal to, or greater than the other.
         /// </summary>
         /// <param name="x">The first object to compare.</param>
         /// <param name="y">The second object to compare.</param>
         /// <returns>
-        /// A signed integer that indicates the relative values of <paramref name="x"/> and <paramref name="y"/>.
-        /// Less than zero: <paramref name="x"/> is less than <paramref name="y"/>.
-        /// Zero: <paramref name="x"/> equals <paramref name="y"/>.
-        /// Greater than zero: <paramref name="x"/> is greater than <paramref name="y"/>.
+        ///     A signed integer that indicates the relative values of <paramref name="x" /> and <paramref name="y" />.
+        ///     Less than zero: <paramref name="x" /> is less than <paramref name="y" />.
+        ///     Zero: <paramref name="x" /> equals <paramref name="y" />.
+        ///     Greater than zero: <paramref name="x" /> is greater than <paramref name="y" />.
         /// </returns>
         public int Compare(ItemData x, ItemData y)
         {
-            return this.CompareItem(x, y);
+            return CompareItem(x, y);
         }
 
         /// <summary>
-        /// Compares two objects and returns a value indicating whether one is less than, equal to, or greater than the other.
+        ///     Compares two objects and returns a value indicating whether one is less than, equal to, or greater than the other.
         /// </summary>
         /// <param name="x">The first object to compare.</param>
         /// <param name="y">The second object to compare.</param>
         /// <returns>
-        /// A signed integer that indicates the relative values of <paramref name="x" /> and <paramref name="y" />, as shown in the following table.Value Meaning Less than zero<paramref name="x" /> is less than <paramref name="y" />.Zero<paramref name="x" /> equals <paramref name="y" />.Greater than zero<paramref name="x" /> is greater than <paramref name="y" />.
+        ///     A signed integer that indicates the relative values of <paramref name="x" /> and <paramref name="y" />, as shown in
+        ///     the following table.Value Meaning Less than zero<paramref name="x" /> is less than <paramref name="y" />.Zero
+        ///     <paramref name="x" /> equals <paramref name="y" />.Greater than zero<paramref name="x" /> is greater than
+        ///     <paramref name="y" />.
         /// </returns>
         public int Compare(Subtitle x, Subtitle y)
         {
-            return this.CompareItem(x, y);
+            return CompareItem(x, y);
         }
 
         /// <summary>
-        /// Gets matches count.
+        ///     Gets matches count.
         /// </summary>
         /// <param name="input">The input.</param>
         /// <returns>The number of matches count.</returns>
-        public int GetMatchesPoints(string input)
+        public int GetMatchesPoints(ReleaseInfo input)
         {
-            var groups = GetGroups(input);
-            return this.targetGroups.Sum(
-                t =>
-                {
-                    var match = groups.FirstOrDefault(g => string.Equals(g, t, StringComparison.InvariantCultureIgnoreCase)) ?? string.Empty;
-                    return GetPoints(match);
-                });
-        }
-
-        /// <summary>
-        /// Normalizes the specified x.
-        /// </summary>
-        /// <param name="x">The x.</param>
-        private static string Normalize(string x)
-        {
-            var keys = new[] { '.', ' ', '-', '_', '(', ')' };
-            var arr = x.Replace("5.1", "5¶1").ToCharArray();
-            for (var i = 0; i < arr.Length; i++)
+            var points = 0;
+            var fullGroup = false;
+            if (!string.IsNullOrWhiteSpace(Release.Title) && !string.IsNullOrWhiteSpace(input.Title))
             {
-                if (keys.Contains(arr[i]))
+                if (Release.Title == input.Title) points += 20;
+                if (!string.IsNullOrWhiteSpace(Release.Episode) && Release.Episode == input.Episode) points += 10;
+            }
+            else
+            {
+                fullGroup = true;
+            }
+
+            var curGroups = GetMatchGroups(Release, fullGroup);
+            var targetGroups = GetMatchGroups(input, fullGroup);
+            points += GetPoints(curGroups, targetGroups);
+
+            foreach (var equivalentFormat in EquivalentFormats)
+            {
+                var match = targetGroups.FirstOrDefault(i => equivalentFormat.Contains(i, StringComparer.OrdinalIgnoreCase));
+                if (!string.IsNullOrWhiteSpace(match) && !curGroups.Contains(match, StringComparer.OrdinalIgnoreCase))
                 {
-                    arr[i] = ZeroWidthChar;
+                    points += GetPoints(curGroups, equivalentFormat, 1);
                 }
             }
 
-            return new string(arr).Replace("5¶1", "5.1");
+            return points;
         }
 
-        /// <summary>
-        /// Gets the groups.
-        /// </summary>
-        /// <param name="x">The x.</param>
-        /// <returns>The string groups.</returns>
-        private static string[] GetGroups(string x)
+        private static bool IsSame(string a, string b)
         {
-            return Normalize(x).Split(new[] { ZeroWidthChar }, StringSplitOptions.RemoveEmptyEntries);
+            return string.Equals(a, b, StringComparison.InvariantCultureIgnoreCase);
         }
 
-        /// <summary>
-        /// Gets points.
-        /// </summary>
-        /// <param name="keyword">The keyword.</param>
-        /// <returns>The matching points.</returns>
-        private static int GetPoints(string keyword)
+        private static int GetPoints(ICollection<string> curGroups, ICollection<string> targetGroups, int matchPoints = 2)
         {
-            if (string.IsNullOrEmpty(keyword))
+            return curGroups.Sum(
+                t =>
+                {
+                    var match = targetGroups.FirstOrDefault(g =>
+                                    IsSame(g,t)) ??
+                                string.Empty;
+                    return string.IsNullOrWhiteSpace(match) ? 0 : matchPoints;
+                });
+        }
+
+        private static ISet<string> GetMatchGroups(ReleaseInfo info, bool full = false)
+        {
+            var result = new HashSet<string>();
+            if (full)
             {
-                return 0;
+                AddGroups(info.NormalizedFullName, result);
+            }
+            else
+            {
+                AddGroups(info.Format, result);
+                AddGroups(info.Extra, result);
+                AddGroups(info.Year, result);
             }
 
-            if (SeasonRegex.IsMatch(keyword))
-            {
-                return 60;
-            }
+            return result;
+        }
 
-            return PriorityKeywords.Contains(keyword, StringComparer.InvariantCultureIgnoreCase) ? 12 : 10;
+        private static void AddGroups(string field, ICollection<string> target)
+        {
+            if (string.IsNullOrWhiteSpace(field)) return;
+            foreach (var e in field.Split(new[] {ReleaseInfo.Separator}, StringSplitOptions.RemoveEmptyEntries))
+            {
+                target.Add(e);
+            }
         }
 
         /// <summary>
-        /// Compares the string.
+        ///     Compares the string.
         /// </summary>
         /// <param name="x">The x.</param>
         /// <param name="y">The y.</param>
         /// <returns>The relative comparison between 2 strings.</returns>
-        private int CompareString(string x, string y)
+        private int CompareRelease(ReleaseInfo x, ReleaseInfo y)
         {
-            var result = this.GetMatchesPoints(x).CompareTo(this.GetMatchesPoints(y));
-            return result == 0 ? string.CompareOrdinal(x, y) : result;
+            var result = GetMatchesPoints(x).CompareTo(GetMatchesPoints(y));
+            return result == 0 ? string.CompareOrdinal(x.NormalizedFullName, y.NormalizedFullName) : result;
         }
 
         /// <summary>
-        /// Compares two objects and returns a value indicating whether one is less than, equal to, or greater than the other.
+        ///     Compares two objects and returns a value indicating whether one is less than, equal to, or greater than the other.
         /// </summary>
         /// <param name="x">The first object to compare.</param>
         /// <param name="y">The second object to compare.</param>
         /// <returns>
-        /// A signed integer that indicates the relative values of <paramref name="x"/> and <paramref name="y"/>.
-        /// Less than zero: <paramref name="x"/> is less than <paramref name="y"/>.
-        /// Zero: <paramref name="x"/> equals <paramref name="y"/>.
-        /// Greater than zero: <paramref name="x"/> is greater than <paramref name="y"/>.
+        ///     A signed integer that indicates the relative values of <paramref name="x" /> and <paramref name="y" />.
+        ///     Less than zero: <paramref name="x" /> is less than <paramref name="y" />.
+        ///     Zero: <paramref name="x" /> equals <paramref name="y" />.
+        ///     Greater than zero: <paramref name="x" /> is greater than <paramref name="y" />.
         /// </returns>
         private int CompareItem(ItemData x, ItemData y)
         {
-            if (x.Name == y.Name)
-            {
-                return x.Rating.CompareTo(y.Rating);
-            }
+            if (x.Name == y.Name) return x.Rating.CompareTo(y.Rating);
 
-            if (x.Name == this.Target)
-            {
-                return 1;
-            }
-
-            if (y.Name == this.Target)
-            {
-                return -1;
-            }
-
-            var nameCompare = this.CompareString(x.Name, y.Name);
-            var ratingCompare = x.Rating.CompareTo(y.Rating) * 10;
-            return nameCompare + ratingCompare;
+            var xInfo = new ReleaseInfo(x.Name);
+            var yInfo = new ReleaseInfo(y.Name);
+            if (xInfo.NormalizedFullName == Release.NormalizedFullName) return 1;
+            if (yInfo.NormalizedFullName == Release.NormalizedFullName) return -1;
+            var releaseCompare = CompareRelease(xInfo, yInfo);
+            var ratingCompare = releaseCompare == 0 ? x.Rating.CompareTo(y.Rating) * 3 : 0;
+            return releaseCompare + ratingCompare;
         }
     }
 }

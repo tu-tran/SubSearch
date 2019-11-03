@@ -64,6 +64,7 @@
     <Compile Include="DummyView.cs" />
     <Compile Include="ItemDataComparerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReleaseInfoTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Handlers\OpenSubtitles\OpenSubtitles.csproj">

@@ -31,7 +31,6 @@ namespace SubSearch.Tests
             Assert.AreEqual(points.Max(), target.GetMatchesPoints(winner));
         }
 
-
         /// <summary>
         /// Compares the test.
         /// </summary>
@@ -50,6 +49,27 @@ namespace SubSearch.Tests
             };
 
             var target = new ItemDataComparer("Supernatural S12E01 Keep Calm and Carry On  (1080p x265 10bit Joy).mkv");
+            var points = data.Select(n => target.GetMatchesPoints(n)).ToArray();
+            Assert.AreEqual(points.Max(), target.GetMatchesPoints(winner));
+        }
+
+        /// <summary>
+        /// Compares the test.
+        /// </summary>
+        [Test]
+        public void Compare3Test()
+        {
+            var winner = "Supernatural.S02E09.720p.BluRay.x264-SiNNERS-HI";
+            var data = new[]
+            {
+                "The Last p S02E09 Uneasy Lies the Head (1080p x265 Joy) ( 5.1 Audio - 329MB )",
+                "The Last p S02E12 Cry Havoc (1080p x265 Joy) ( 5.1 Audio - 329MB )",
+                "Supernatural.S02E09.DVDrip.XviD-SAiNTS-eng",
+                winner,
+                "Supernatural.S02E09.720p.BluRay.x264-SiNNERS"
+            };
+
+            var target = new ItemDataComparer("Supernatural S02E09 Croatoan (1080p x265 Joy).mkv");
             var points = data.Select(n => target.GetMatchesPoints(n)).ToArray();
             Assert.AreEqual(points.Max(), target.GetMatchesPoints(winner));
         }
