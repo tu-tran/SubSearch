@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
@@ -67,9 +68,8 @@ namespace SubSearch.WPF.Views
                     new ActionCommand<object>(
                         o =>
                         {
-                            var content = SelectedItem == null || string.IsNullOrEmpty(SelectedItem.Name)
-                                ? Title
-                                : SelectedItem.Name;
+                            var sel = SelectionBox.SelectedItems.OfType<ItemData>().ToList();
+                            var content = string.Join(Environment.NewLine, sel.Count > 0 ? sel.Select(s => s.Name) : new[] { Title });
                             Clipboard.SetDataObject(content);
                         });
             }
@@ -436,7 +436,7 @@ namespace SubSearch.WPF.Views
         private void QueryBoxGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
             var tb = sender as TextBox;
-            if (tb != null && tb.IsKeyboardFocusWithin && e.OriginalSource == sender) ((TextBox) sender).SelectAll();
+            if (tb != null && tb.IsKeyboardFocusWithin && e.OriginalSource == sender) ((TextBox)sender).SelectAll();
         }
 
         /// <summary>Selectivelies the ignore mouse button.</summary>

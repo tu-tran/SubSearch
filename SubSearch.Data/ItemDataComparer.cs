@@ -15,7 +15,7 @@ namespace SubSearch.Data
             new[]
             {
                 "BDRip", "BluRay", "Blu-Ray", "BRip", "BRRip",
-                "WEBDL", "WEB-DL", "WEB-DLRip", "WEBRip", "WEB-Rip", "720p", "1080p", "2160p", "4K"
+                "WEBDL", "WEB-DL", "WEB-DLRip", "WEBRip", "WEB-Rip", "480p", "720p", "1080p", "2160p", "4K", "AAC"
             }
         };
 
@@ -67,10 +67,25 @@ namespace SubSearch.Data
         {
             var points = 0;
             var fullGroup = false;
-            if (!string.IsNullOrWhiteSpace(Release.Title) && !string.IsNullOrWhiteSpace(input.Title))
+            if (!string.IsNullOrWhiteSpace(Release.Title))
             {
-                if (Release.Title == input.Title) points += 20;
-                if (!string.IsNullOrWhiteSpace(Release.Episode) && Release.Episode == input.Episode) points += 10;
+                if (IsSame(Release.Title, input.Title))
+                {
+                    points += 50;
+                    if (!string.IsNullOrWhiteSpace(Release.Episode) && !string.IsNullOrWhiteSpace(input.Episode))
+                    {
+                        var curEps = Release.Episode
+                            .Split(new[] {ReleaseInfo.Separator}, StringSplitOptions.RemoveEmptyEntries)
+                            .FirstOrDefault();
+                        var inputEps = input.Episode
+                            .Split(new[] { ReleaseInfo.Separator }, StringSplitOptions.RemoveEmptyEntries)
+                            .FirstOrDefault();
+                        if (!string.IsNullOrWhiteSpace(curEps) && IsSame(curEps , inputEps))
+                        {
+                            points += 50;
+                        }
+                    }
+                }
             }
             else
             {
@@ -83,10 +98,12 @@ namespace SubSearch.Data
 
             foreach (var equivalentFormat in EquivalentFormats)
             {
-                var match = targetGroups.FirstOrDefault(i => equivalentFormat.Contains(i, StringComparer.OrdinalIgnoreCase));
-                if (!string.IsNullOrWhiteSpace(match) && !curGroups.Contains(match, StringComparer.OrdinalIgnoreCase))
+                var matches = targetGroups.Where(i => equivalentFormat.Contains(i, StringComparer.OrdinalIgnoreCase));
+                foreach (var match in matches)
                 {
-                    points += GetPoints(curGroups, equivalentFormat, 1);
+                    if (!string.IsNullOrWhiteSpace(match) &&
+                        !curGroups.Contains(match, StringComparer.OrdinalIgnoreCase))
+                        points += GetPoints(curGroups, equivalentFormat, 1);
                 }
             }
 
@@ -98,13 +115,14 @@ namespace SubSearch.Data
             return string.Equals(a, b, StringComparison.InvariantCultureIgnoreCase);
         }
 
-        private static int GetPoints(ICollection<string> curGroups, ICollection<string> targetGroups, int matchPoints = 2)
+        private static int GetPoints(ICollection<string> curGroups, ICollection<string> targetGroups,
+            int matchPoints = 2)
         {
             return curGroups.Sum(
                 t =>
                 {
                     var match = targetGroups.FirstOrDefault(g =>
-                                    IsSame(g,t)) ??
+                                    IsSame(g, t)) ??
                                 string.Empty;
                     return string.IsNullOrWhiteSpace(match) ? 0 : matchPoints;
                 });
@@ -131,9 +149,7 @@ namespace SubSearch.Data
         {
             if (string.IsNullOrWhiteSpace(field)) return;
             foreach (var e in field.Split(new[] {ReleaseInfo.Separator}, StringSplitOptions.RemoveEmptyEntries))
-            {
                 target.Add(e);
-            }
         }
 
         /// <summary>

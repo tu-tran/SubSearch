@@ -73,5 +73,49 @@ namespace SubSearch.Tests
             var points = data.Select(n => target.GetMatchesPoints(n)).ToArray();
             Assert.AreEqual(points.Max(), target.GetMatchesPoints(winner));
         }
+
+        /// <summary>
+        /// Compares the test.
+        /// </summary>
+        [Test]
+        public void Compare4Test()
+        {
+            var winner = "Supernatural.S02E14.720p.BluRay.x264-SiNNERS-HI";
+            var data = new[]
+            {
+                winner,
+                "Supernatural.S13E09.The.Bad.Place.1080p.WEBRip.6CH.x265.HEVC-PSA.HI",
+                "Supernatural.S13E09.The.Bad.Place.1080p.AMZN.WEB-DL.DDP5.1.H.264-NTb.HI",
+                "Supernatural.S02E14.hdtv.xvid-notv"
+            };
+
+            var target = new ItemDataComparer("Supernatural S02E14 Born Under a Bad Sign (1080p x265 Joy).mkv");
+            var points = data.Select(n => target.GetMatchesPoints(n)).ToArray();
+            Assert.AreEqual(points.Max(), target.GetMatchesPoints(winner));
+        }
+
+        /// <summary>
+        /// Compares the test.
+        /// </summary>
+        [Test]
+        public void Compare5Test()
+        {
+            var winner = "Supernatural S05E04 480p BrRip x264 AAC NimitMak SilverRG";
+            var data = new[]
+            {
+                "Supernatural.S05E04.720p.HDTV.x264-SiTV.En",
+                winner,
+                "supernatural.s05e04.dvdrip.xvid-reward.sdh",
+                "Supernatural.S05E04.The.End.HDTV.XviD-FQM (EDITED)",
+                "Supernatural.S05E04.The.End.HDTV.XviD-FQM EDITED",
+                "Supernatural.S05E04.The.End.HDTV.XviD-FQMVO",
+                "Supernatural S05E04 The End HDTV XviD-FQM",
+                "Supernatural.S05E04.The.End.DVDRip.XviD-REWARD"
+            };
+
+            var target = new ItemDataComparer("Supernatural S05E04 The End (1080p x265 Joy).mkv");
+            var points = data.Select(n => target.GetMatchesPoints(n)).ToArray();
+            Assert.AreEqual(points.Max(), target.GetMatchesPoints(winner));
+        }
     }
 }

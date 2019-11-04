@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -61,16 +62,28 @@ namespace SubSearch.Data
             Normalize();
             var title = "Title";
             var episode = "Episode";
+            var season = "Season";
+            var seasonEpisode = "SeasonEpisode";
             var format = "Format";
             var year = "Year";
             var other = "Other";
             var regexp =
-                $"^(?<{title}>.+?)({Separator}(?<{episode}>S?\\d+[Ex]\\d+(.+?)?))?((?<{format}>({Separator}({NormalizedFormatsRegex}))+)|(?<{year}>{Separator}\\d{{4}}))+(?<{other}>.+)?$";
+                $"^(?<{title}>.+?)({Separator}(?<{episode}>S?(?<{season}>\\d+)[Ex](?<{seasonEpisode}>\\d+)(((?!{NormalizedFormatsRegex}).)+?)?))?((?<{format}>({Separator}({NormalizedFormatsRegex}))+)|(?<{year}>{Separator}\\d{{4}}))+(?<{other}>.+)?$";
             var match = Regex.Match(NormalizedFullName, regexp, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
             if (match.Success)
             {
                 Title = Val(match, title);
-                Episode = Val(match, episode);
+                var seasonVal = Val(match, season);
+                var sEpsVal = Val(match, seasonEpisode);
+                if (!string.IsNullOrWhiteSpace(seasonVal) && !string.IsNullOrWhiteSpace(sEpsVal))
+                {
+                    Episode = $"S${int.Parse(seasonVal).ToString("00000", CultureInfo.InvariantCulture)}E${int.Parse(sEpsVal).ToString("00000", CultureInfo.InvariantCulture)}";
+                }
+                else
+                {
+                    Episode = Val(match, episode);
+                }
+
                 Format = Val(match, format);
                 Year = Val(match, year);
                 Extra = Val(match, other);
