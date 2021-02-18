@@ -75,12 +75,12 @@ namespace SubSearch.Data
                     if (!string.IsNullOrWhiteSpace(Release.Episode) && !string.IsNullOrWhiteSpace(input.Episode))
                     {
                         var curEps = Release.Episode
-                            .Split(new[] {ReleaseInfo.Separator}, StringSplitOptions.RemoveEmptyEntries)
+                            .Split(new[] { ReleaseInfo.Separator }, StringSplitOptions.RemoveEmptyEntries)
                             .FirstOrDefault();
                         var inputEps = input.Episode
                             .Split(new[] { ReleaseInfo.Separator }, StringSplitOptions.RemoveEmptyEntries)
                             .FirstOrDefault();
-                        if (!string.IsNullOrWhiteSpace(curEps) && IsSame(curEps , inputEps))
+                        if (!string.IsNullOrWhiteSpace(curEps) && IsSame(curEps, inputEps))
                         {
                             points += 50;
                         }
@@ -148,7 +148,7 @@ namespace SubSearch.Data
         private static void AddGroups(string field, ICollection<string> target)
         {
             if (string.IsNullOrWhiteSpace(field)) return;
-            foreach (var e in field.Split(new[] {ReleaseInfo.Separator}, StringSplitOptions.RemoveEmptyEntries))
+            foreach (var e in field.Split(new[] { ReleaseInfo.Separator }, StringSplitOptions.RemoveEmptyEntries))
                 target.Add(e);
         }
 
@@ -177,6 +177,8 @@ namespace SubSearch.Data
         /// </returns>
         private int CompareItem(ItemData x, ItemData y)
         {
+            if (x.Rating == Rating.Negative && y.Rating != Rating.Negative) return -1;
+            if (y.Rating == Rating.Negative && x.Rating != Rating.Negative) return 1;
             if (x.Name == y.Name) return x.Rating.CompareTo(y.Rating);
 
             var xInfo = new ReleaseInfo(x.Name);

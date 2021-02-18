@@ -1,30 +1,39 @@
 @echo off
-
 @CD /D "%~dp0"
 @SET OUTPUT_DIR=%CD%\Bin\Release
 @SET DEPLOY_DIR=%LOCALAPPDATA%\SubSearch
 @SET SOLUTION_FILE="%CD%\SubSearch.sln"
 @set LOG_FILE=Release.log
 
-@SET NET_FRAMEWORK="%WINDIR%\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe"
+@GOTO %PROCESSOR_ARCHITECTURE%
 
-@reg.exe query "HKLM\SOFTWARE\Microsoft\MSBuild\ToolsVersions\14.0" /v MSBuildToolsPath > nul 2>&1
-if ERRORLEVEL 1 goto MissingMSBuildToolsFromRegistry
+:AMD64
+@SET PROGRAM_FILES=%ProgramFiles(x86)%
+@GOTO SET_MSBUILD
 
-for /f "skip=2 tokens=2,*" %%A in ('reg.exe query "HKLM\SOFTWARE\Microsoft\MSBuild\ToolsVersions\14.0" /v MSBuildToolsPath') do SET "NET_FRAMEWORK=%%B"
+:X86
+@SET PROGRAM_FILES=%ProgramFiles%
+@GOTO SET_MSBUILD
 
-IF NOT EXIST "%NET_FRAMEWORK%" goto MissingMSBuildToolsFromRegistry
-IF NOT EXIST "%NET_FRAMEWORK%msbuild.exe" goto MissingMSBuildToolsFromRegistry
-
-goto:eof
-:MissingMSBuildToolsFromRegistry
-@setlocal
-@if "%PROCESSOR_ARCHITECTURE%"=="x86" set PROGRAMS=%ProgramFiles%
-@if defined ProgramFiles(x86) set PROGRAMS=%ProgramFiles(x86)%
-for %%e in (Community Professional Enterprise) do (
-    if exist "%PROGRAMS%\Microsoft Visual Studio\2017\%%e\MSBuild\15.0\Bin\MSBuild.exe" (
-        set "NET_FRAMEWORK=%PROGRAMS%\Microsoft Visual Studio\2017\%%e\MSBuild\15.0\Bin\MSBuild.exe"
-    )
+:SET_MSBUILD
+for %%x in (
+	"%PROGRAM_FILES%\Microsoft Visual Studio\2019\Professional\MSBuild\Current\Bin\MSBuild.exe"
+	"%PROGRAM_FILES%\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe"
+	"%PROGRAM_FILES%\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\MSBuild.exe"
+	"%PROGRAM_FILES%\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\MSBuild.exe"
+	"%PROGRAM_FILES%\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin\MSBuild.exe"
+	"%WINDIR%\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
+	"%PROGRAM_FILES%\MSBuild\14.0\Bin\MSBuild.exe"
+) do (	
+	@IF EXIST %%x (
+		@SET NET_FRAMEWORK=%%x
+		@ECHO Use MSBuild from %%x
+		@GOTO END
+	)
 )
 
-@echo Using MSBuild from %NET_FRAMEWORK%
+@ECHO Could not locate MSBuild. Process Halted!
+@EXIT /B -1
+
+:END
+@ECHO Detected MSBuild at [%NET_FRAMEWORK%]
