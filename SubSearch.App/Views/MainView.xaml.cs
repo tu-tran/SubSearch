@@ -11,16 +11,18 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
-using System.Windows.Forms;
+using System.Windows.Controls;
 using System.Windows.Input;
+
 using SubSearch.Data;
-using Clipboard = System.Windows.Clipboard;
-using KeyEventArgs = System.Windows.Input.KeyEventArgs;
-using TextBox = System.Windows.Controls.TextBox;
+
+using WinForms = System.Windows.Forms;
 
 namespace SubSearch.WPF.Views
 {
@@ -40,7 +42,7 @@ namespace SubSearch.WPF.Views
         private Tuple<double, double> lastPosition;
 
         /// <summary>The max comment width.</summary>
-        private int maxCommentWidth = Screen.PrimaryScreen.WorkingArea.Width / 5;
+        private int maxCommentWidth = WinForms.Screen.PrimaryScreen.WorkingArea.Width / 5;
 
         /// <summary>The selected item.</summary>
         private ItemData selectedItem;
@@ -50,6 +52,9 @@ namespace SubSearch.WPF.Views
 
         /// <summary>The title text.</summary>
         private string titleText;
+
+        private string activeFile;
+        private object dummyNode = null;
 
         /// <summary>Initializes a new instance of the <see cref="MainWindow" /> class.</summary>
         /// <param name="view">The view.</param>
@@ -141,6 +146,23 @@ namespace SubSearch.WPF.Views
             }
         }
 
+        public string ActiveFile
+        {
+            get => activeFile;
+
+            set
+            {
+                if (activeFile != value)
+                {
+                    activeFile = value;
+                    RaisePropertyChanged();
+                    this.OnActiveFileChanged();
+                }
+            }
+        }
+
+        public string SelectedParentPath { get; set; }
+
         /// <summary>Gets or sets the title text.</summary>
         public string TitleText
         {
@@ -171,6 +193,20 @@ namespace SubSearch.WPF.Views
         public new void Show()
         {
             if (!IsVisible) base.Show();
+        }
+
+        public void SetActiveFile(string filePath)
+        {
+            this.ActiveFile = filePath;
+        }
+
+        public void ResetSelections()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                this.selections.Clear();
+                this.selectedItem = null;
+            });
         }
 
         /// <summary>The set progress.</summary>
@@ -283,8 +319,8 @@ namespace SubSearch.WPF.Views
             SizeToContent = SizeToContent.Manual;
             if (lastPosition == null)
             {
-                var mousePosition = Control.MousePosition;
-                var activeScreenArea = Screen.FromPoint(mousePosition).WorkingArea;
+                var mousePosition = WinForms.Control.MousePosition;
+                var activeScreenArea = WinForms.Screen.FromPoint(mousePosition).WorkingArea;
                 if (ActualWidth > activeScreenArea.Width) Width = activeScreenArea.Width;
 
                 if (ActualHeight > activeScreenArea.Height) Height = activeScreenArea.Height;
@@ -319,17 +355,16 @@ namespace SubSearch.WPF.Views
 
             SizeToContent = SizeToContent.WidthAndHeight;
             SizeToContent = SizeToContent.Manual;
-            var mousePosition = Control.MousePosition;
-            var activeScreenArea = Screen.FromPoint(mousePosition).WorkingArea;
-            if (Left + ActualWidth > activeScreenArea.Right)
+            var activeScreenArea = WinForms.Screen.FromPoint(new System.Drawing.Point((int)(Left + Width / 2), (int)(Top + Height / 2))).WorkingArea;
+            if (Left + ActualWidth > activeScreenArea.Right - 100)
             {
-                var newWidth = activeScreenArea.Right - Left;
+                var newWidth = activeScreenArea.Right - Left - 100;
                 if (newWidth > 0) Width = newWidth;
             }
 
-            if (Top + ActualHeight > activeScreenArea.Bottom)
+            if (Top + ActualHeight > activeScreenArea.Bottom - 100)
             {
-                var newHeight = activeScreenArea.Bottom - Top;
+                var newHeight = activeScreenArea.Bottom - Top - 100;
                 if (newHeight > 0) Height = newHeight;
             }
         }
@@ -415,6 +450,30 @@ namespace SubSearch.WPF.Views
             AutoPosition();
         }
 
+        private void InitDirectoryTree()
+        {
+            ParentPathTreeView.Items.Clear();
+            var root = Directory.GetLogicalDrives().ToList();
+            root.Add(Directory.GetParent(this.activeFile).FullName);
+
+            foreach (string s in root)
+            {
+                TreeViewItem item = new TreeViewItem();
+                item.Header = s;
+                item.Tag = s;
+                item.FontWeight = FontWeights.Normal;
+                item.Items.Add(dummyNode);
+                item.Expanded += new RoutedEventHandler(folder_Expanded);
+                ParentPathTreeView.Items.Add(item);
+            }
+
+            var tvi = ParentPathTreeView.ItemContainerGenerator.ContainerFromItem(ParentPathTreeView.Items[ParentPathTreeView.Items.Count - 1]) as TreeViewItem;
+            if (tvi != null)
+            {
+                tvi.IsSelected = true;
+            }
+        }
+
         /// <summary>The main window_ on preview key up.</summary>
         /// <param name="sender">The sender.</param>
         /// <param name="e">The eventArgs.</param>
@@ -459,6 +518,78 @@ namespace SubSearch.WPF.Views
         private void RaiseCustomAction(object parameter, params string[] actionNames)
         {
             if (View != null) View.OnCustomAction(parameter, actionNames);
+        }
+
+        private void OnActiveFileChanged()
+        {
+            this.Dispatcher.Invoke(this.InitDirectoryTree);
+        }
+
+        private void ParentPathTreeView_OnSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            TreeView tree = (TreeView)sender;
+            TreeViewItem temp = ((TreeViewItem)tree.SelectedItem);
+
+            if (temp == null)
+                return;
+            SelectedParentPath = "";
+            string temp1 = "";
+            string temp2 = "";
+            while (true)
+            {
+                temp1 = temp.Header.ToString();
+                if (temp1.Contains(@"\"))
+                {
+                    temp2 = "";
+                }
+                SelectedParentPath = temp1 + temp2 + SelectedParentPath;
+                if (temp.Parent.GetType().Equals(typeof(TreeView)))
+                {
+                    break;
+                }
+                temp = ((TreeViewItem)temp.Parent);
+                temp2 = @"\";
+            }
+
+            var files = ShellExtension.GetSupportedFiles(this.SelectedParentPath);
+            this.FileListView.Items.Clear();
+            foreach (var file in files)
+            {
+                var name = Path.GetFileName(file);
+                var item = new ListViewItem { Content = name, Tag = file };
+                item.MouseDoubleClick += FileListView_ItemOnMouseDoubleClick;
+                item.IsSelected = file.Equals(this.activeFile, StringComparison.OrdinalIgnoreCase);
+                this.FileListView.Items.Add(item);
+            }
+        }
+
+        private void FileListView_ItemOnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            this.activeFile = ((ListViewItem)sender).Tag?.ToString();
+            this.RaiseCustomAction(this.activeFile, CustomActions.ChangeActiveFile);
+        }
+
+        void folder_Expanded(object sender, RoutedEventArgs e)
+        {
+            TreeViewItem item = (TreeViewItem)sender;
+            if (item.Items.Count == 1 && item.Items[0] == dummyNode)
+            {
+                item.Items.Clear();
+                try
+                {
+                    foreach (string s in Directory.GetDirectories(item.Tag.ToString()))
+                    {
+                        TreeViewItem subitem = new TreeViewItem();
+                        subitem.Header = s.Substring(s.LastIndexOf("\\") + 1);
+                        subitem.Tag = s;
+                        subitem.FontWeight = FontWeights.Normal;
+                        subitem.Items.Add(dummyNode);
+                        subitem.Expanded += new RoutedEventHandler(folder_Expanded);
+                        item.Items.Add(subitem);
+                    }
+                }
+                catch (Exception) { }
+            }
         }
     }
 }

@@ -7,7 +7,7 @@
         MinWidth="300"
         MinHeight="200"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
-        Icon="/SubSearch.App;component/SubSearchBig.ico"
+        Icon="/Resources/Icons/SubSearchBig.ico"
         Style="{StaticResource DefaultWindowStyle}">
     <TextBox HorizontalAlignment="Stretch"
              VerticalAlignment="Stretch"

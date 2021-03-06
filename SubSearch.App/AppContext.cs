@@ -12,7 +12,7 @@
         /// </summary>
         public static readonly AppContext Global = new AppContext();
 
-        private Language language;
+        private Language language = Language.English;
 
         /// <summary>
         /// Prevents a default instance of the <see cref="AppContext"/> class from being created.

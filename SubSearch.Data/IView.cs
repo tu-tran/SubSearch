@@ -61,5 +61,8 @@ namespace SubSearch.Data
         /// <param name="done">The done.</param>
         /// <param name="total">The total.</param>
         void ShowProgress(int done, int total);
+
+        void SetActiveFile(string filePath);
+        void ResetSelections();
     }
 }

@@ -46,8 +46,8 @@ namespace SubSearch.WPF.Controllers
         /// </summary>
         public string FilePath
         {
-            get { return this.filePath; }
-            private set
+            get => this.filePath;
+            set
             {
                 this.filePath = value;
                 this.Title = Path.GetFileNameWithoutExtension(value);
@@ -126,6 +126,8 @@ namespace SubSearch.WPF.Controllers
         /// <returns>The query result.</returns>
         public Status Query()
         {
+            this.view.SetActiveFile(this.FilePath);
+            this.view.ResetSelections();
             this.view.ShowProgress(this.FilePath, Literals.Data_Searching_video_subtitle);
             var subtitlesMetaResult = this.GetSubtitlesMeta();
 

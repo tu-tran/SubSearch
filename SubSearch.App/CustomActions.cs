@@ -23,5 +23,7 @@ namespace SubSearch.WPF
 
         /// <summary>The play.</summary>
         public static string Play = "Action.Play";
+
+        public static string ChangeActiveFile = "Action.ChangeActiveFile";
     }
 }

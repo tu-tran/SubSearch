@@ -65,6 +65,16 @@
             Trace.WriteLine(string.Format("Progress: {0}/{1}", done, total));
         }
 
+        public void SetActiveFile(string filePath)
+        {
+            Trace.WriteLine($"Active file: {filePath}");
+        }
+
+        public void ResetSelections()
+        {
+            Trace.WriteLine("Reset selections");
+        }
+
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>

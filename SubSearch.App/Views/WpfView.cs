@@ -64,6 +64,16 @@ namespace SubSearch.WPF.Views
             this.Window.SetProgress(done, total);
         }
 
+        public void SetActiveFile(string filePath)
+        {
+            this.Window.SetActiveFile(filePath);
+        }
+
+        public void ResetSelections()
+        {
+            this.Window.ResetSelections();
+        }
+
         /// <summary>The on custom action.</summary>
         /// <param name="parameter">The parameter.</param>
         /// <param name="actionNames">The action names.</param>

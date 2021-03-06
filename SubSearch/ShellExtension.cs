@@ -52,6 +52,12 @@ namespace SubSearch
             }
         }
 
+        public static IEnumerable<string> GetSupportedFiles(string path)
+        {
+            return Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories)
+                    .Where(f => ShellExtension.FileAssociations.Any(ext => f.EndsWith(ext, StringComparison.OrdinalIgnoreCase)) && new FileInfo(f).Length > 10 * 1024 * 1024);
+        }
+
         /// <summary>Determines whether this instance can a shell context show menu, given the specified selected file list.</summary>
         /// <returns>
         /// <c>true</c> if this instance should show a shell context menu for the specified file list; otherwise, <c>false</c>.
@@ -110,7 +116,7 @@ namespace SubSearch
                 }
             }
 
-            Process.Start(executable, newQueue);
+            Process.Start(executable, $"-j \"{newQueue}\"");
         }
 
         /// <summary>Get menu item.</summary>

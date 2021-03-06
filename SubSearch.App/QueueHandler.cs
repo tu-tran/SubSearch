@@ -7,6 +7,8 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using CommandLine;
+
 namespace SubSearch.WPF
 {
     using System;
@@ -26,14 +28,16 @@ namespace SubSearch.WPF
     /// </summary>
     internal sealed class QueueHandler
     {
-        /// <summary>The id.</summary>
-        private readonly string id;
+        /// <summary>The jobPath.</summary>
+        private string jobPath;
 
         /// <summary>Keeps the queue file after processing.</summary>
-        private readonly bool keepQueueFile;
+        private bool keepQueueFile;
 
         /// <summary>The active index.</summary>
         private int activeIndex;
+
+        private string[] initTargets;
 
         /// <summary>
         /// The active controller.
@@ -44,71 +48,57 @@ namespace SubSearch.WPF
         /// <param name="arguments">The arguments.</param>
         internal QueueHandler(params string[] arguments)
         {
-            if (arguments == null || arguments.Length < 1)
+            Parser.Default.ParseArguments<CommandLineArgs>(arguments).WithParsed(a =>
             {
-                throw new ArgumentException("argument");
-            }
-
-            this.id = arguments[0];
-            for (var i = 1; i < arguments.Length; i++)
-            {
-                var arg = arguments[i];
-                if (arg == "/K")
-                {
-                    this.keepQueueFile = true;
-                }
-            }
+                this.jobPath = a.JobPath;
+                this.initTargets = a.Targets?.ToArray();
+                this.keepQueueFile = a.KeepJobFile;
+            });
         }
 
         /// <summary>Processes this instance.</summary>
         /// <returns>The result.</returns>
         internal Status Process()
         {
-            if (string.IsNullOrEmpty(this.id) || !File.Exists(this.id))
-            {
-                return Status.Fatal;
-            }
-
             int success = 0, fail = 0;
-            using (var fileReader = new StreamReader(this.id))
+            var viewMode = Constants.NormalModeIdentifier;
+            var targets = new List<string>();
+            if (this.initTargets != null && initTargets.Length > 0)
             {
-                var languageStr = fileReader.ReadLine();
-                Language language;
-                Enum.TryParse(languageStr, out language);
-                AppContext.Global.Language = language;
-
-                using (var viewHandler = fileReader.ReadLine() == Constants.SilentModeIdentifier ? new SilentView() : new WpfView())
+                targets.AddRange(this.GetTarget(this.initTargets));
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(this.jobPath) || !File.Exists(this.jobPath))
                 {
-                    viewHandler.CustomActionRequested += this.OnViewHandlerCustomActionRequested;
+                    return Status.Fatal;
+                }
+
+                using (var fileReader = new StreamReader(this.jobPath))
+                {
+                    viewMode = fileReader.ReadLine();
+                    var languageStr = fileReader.ReadLine();
+                    Enum.TryParse(languageStr, out Language language);
+                    AppContext.Global.Language = language;
                     string line;
                     while ((line = fileReader.ReadLine()) != null)
                     {
-                        string[] targets = null;
-                        if (File.Exists(line))
-                        {
-                            targets = new[] { line };
-                        }
-                        else if (Directory.Exists(line))
-                        {
-                            targets =
-                                Directory.EnumerateFiles(line, "*.*", SearchOption.AllDirectories)
-                                    .Where(f => ShellExtension.FileAssociations.Any(ext => f.EndsWith(ext, StringComparison.OrdinalIgnoreCase)) && new FileInfo(f).Length > 10 * 1024 * 1024)
-                                    .ToArray();
-                        }
-
-                        if (targets == null)
-                        {
-                            continue;
-                        }
-
-                        this.ProcessRequest(targets, viewHandler, ref success, ref fail);
+                        targets.AddRange(this.GetTarget(new[] { line }));
                     }
+                }
+
+                if (!this.keepQueueFile && File.Exists(this.jobPath))
+                {
+                    File.Delete(this.jobPath);
                 }
             }
 
-            if (!this.keepQueueFile)
+            using (var viewHandler = viewMode == Constants.SilentModeIdentifier
+                ? new SilentView()
+                : new WpfView())
             {
-                File.Delete(this.id);
+                viewHandler.CustomActionRequested += this.OnViewHandlerCustomActionRequested;
+                this.ProcessRequest(targets.Distinct(StringComparer.OrdinalIgnoreCase).ToList(), viewHandler, ref success, ref fail);
             }
 
             var result = Status.Cancelled;
@@ -132,7 +122,7 @@ namespace SubSearch.WPF
         }
 
         /// <summary>Processes the request.</summary>
-        /// <param name="targets">The targets.</param>
+        /// <param name="targets">The initTargets.</param>
         /// <param name="view">The view.</param>
         /// <param name="success">The success.</param>
         /// <param name="fail">The fail.</param>
@@ -196,11 +186,6 @@ namespace SubSearch.WPF
                 }
 
                 var itemData = parameter as Subtitle;
-                if (itemData == null)
-                {
-                    return;
-                }
-
                 if (actionName == CustomActions.DownloadSubtitle)
                 {
                     this.activeController.Download(itemData);
@@ -219,6 +204,11 @@ namespace SubSearch.WPF
                         sender.Notify(string.Format("Failed to play {0}: {1}", this.activeController.FilePath, ex.Message));
                     }
                 }
+                else if (actionName == CustomActions.ChangeActiveFile)
+                {
+                    this.activeController.FilePath = parameter?.ToString();
+                    this.activeController.Query();
+                }
             }
 
             if (actionName == CustomActions.Close)
@@ -236,6 +226,28 @@ namespace SubSearch.WPF
             foreach (var actionName in actionNames)
             {
                 this.HandleAction(sender, parameter, actionName);
+            }
+        }
+
+        private IEnumerable<string> GetTarget(IEnumerable<string> paths)
+        {
+            foreach (var path in (paths ?? new string[0]))
+            {
+                if (Directory.Exists(path))
+                {
+                    var files = ShellExtension.GetSupportedFiles(path);
+                    foreach (var f in files)
+                    {
+                        yield return f;
+
+                    }
+                }
+
+                if (File.Exists(path))
+                {
+                    yield return path;
+                }
+
             }
         }
     }
