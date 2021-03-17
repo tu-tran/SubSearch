@@ -79,10 +79,13 @@ namespace SubSearch.WPF
 
                 using (var fileReader = new StreamReader(this.jobPath))
                 {
-                    viewMode = fileReader.ReadLine();
                     var languageStr = fileReader.ReadLine();
-                    Enum.TryParse(languageStr, out Language language);
-                    AppContext.Global.Language = language;
+                    if (Enum.TryParse(languageStr, out Language language))
+                    {
+                        AppContext.Global.Language = language;
+                    }
+
+                    viewMode = fileReader.ReadLine();
                     string line;
                     while ((line = fileReader.ReadLine()) != null)
                     {
