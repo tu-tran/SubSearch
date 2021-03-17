@@ -558,7 +558,11 @@ namespace SubSearch.WPF.Views
                 var name = Path.GetFileName(file);
                 var item = new ListViewItem { Content = name, Tag = file };
                 item.MouseDoubleClick += FileListView_ItemOnMouseDoubleClick;
-                item.IsSelected = file.Equals(this.activeFile, StringComparison.OrdinalIgnoreCase);
+                if (file.Equals(this.activeFile, StringComparison.OrdinalIgnoreCase))
+                {
+                    item.IsSelected = true;
+                }
+
                 this.FileListView.Items.Add(item);
             }
         }

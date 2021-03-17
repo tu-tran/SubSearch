@@ -1,2 +1,4 @@
+@call Params.bat
+
 srm uninstall "%~dp0\SubSearch.dll"
-regasm "%~dp0\SubSearch.dll" /unregister /codebase
+"%NET_FRAMEWORK%\regasm.exe" "%~dp0\SubSearch.dll" /unregister /codebase

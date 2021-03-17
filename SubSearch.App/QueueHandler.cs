@@ -37,6 +37,8 @@ namespace SubSearch.WPF
         /// <summary>The active index.</summary>
         private int activeIndex;
 
+        private bool quiet;
+
         private string[] initTargets;
 
         /// <summary>
@@ -53,6 +55,7 @@ namespace SubSearch.WPF
                 this.jobPath = a.JobPath;
                 this.initTargets = a.Targets?.ToArray();
                 this.keepQueueFile = a.KeepJobFile;
+                this.quiet = a.Quiet;
             });
         }
 
@@ -61,7 +64,7 @@ namespace SubSearch.WPF
         internal Status Process()
         {
             int success = 0, fail = 0;
-            var viewMode = Constants.NormalModeIdentifier;
+            string viewMode = null;
             var targets = new List<string>();
             if (this.initTargets != null && initTargets.Length > 0)
             {
@@ -93,7 +96,8 @@ namespace SubSearch.WPF
                 }
             }
 
-            using (var viewHandler = viewMode == Constants.SilentModeIdentifier
+            var isQuiet = string.IsNullOrWhiteSpace(viewMode) ? this.quiet : viewMode == Constants.SilentModeIdentifier;
+            using (var viewHandler = isQuiet
                 ? new SilentView()
                 : new WpfView())
             {

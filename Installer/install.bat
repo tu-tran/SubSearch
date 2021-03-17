@@ -1,2 +1,4 @@
+@call Params.bat
+
 srm install "%~dp0\SubSearch.dll" -codebase
-regasm "%~dp0\SubSearch.dll" /register /codebase
+"%NET_FRAMEWORK%\regasm.exe" "%~dp0\SubSearch.dll" /register /codebase

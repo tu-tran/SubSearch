@@ -16,7 +16,10 @@ namespace SubSearch.WPF
         [Option('j', "jobFile", Required = false)]
         public string JobPath { get; set; }
 
-        [Option('t', "taret", Required = false, Default = new string[0])]
+        [Option('t', "target", Required = false, Default = new string[0])]
         public IEnumerable<string> Targets { get; set; }
+
+        [Option('q', "quiet", Required = false, Default = false)]
+        public bool Quiet { get; set; }
     }
 }
